@@ -1,7 +1,7 @@
 # Database Folder Structure
 The `database` folder contains all files related to the database setup, schema, and seeding for this project.
 
-database/
+```database/
 ├── docs/
 │ ├── events.sql # SQL queries related to events
 │ ├── schema.sql # SQL statements to create all tables
@@ -11,4 +11,4 @@ database/
 ├── seeders/ # Scripts to seed initial data into tables
 ├── .gitignore # Git ignore file specific to database folder
 ├── README.md # This file
-└── database.sqlite # SQLite database file
+└── database.sqlite # SQLite database file```
