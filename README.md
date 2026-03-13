@@ -22,6 +22,7 @@ Make sure the following are installed:
 ```
 composer install
 ```
+3. Create a .env file to root and add the contents of .env.example there
 3. Update the .env file with your database settings
 ```
 DB_DATABASE=your_database_name
