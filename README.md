@@ -19,16 +19,22 @@ Make sure the following are installed:
 ### Setup
 1. Clone the repository
 2. Install PHP dependencies
-```composer install```
+```
+composer install
+```
 3. Update the .env file with your database settings
 ```
-   DB_DATABASE=your_database_name
-   DB_USERNAME=root
-   DB_PASSWORD=
+DB_DATABASE=your_database_name
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 4. Start Apache and MySQL from XAMPP
 5. If needed, run database migrations
-```php artisan migrate```
+```
+php artisan migrate
+```
 6. Start the Laravel development server
-```php artisan serve```
+```
+php artisan serve
+```
 3. Open http://127.0.0.1:8000
