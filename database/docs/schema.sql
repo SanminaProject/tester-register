@@ -26,6 +26,7 @@ CREATE TABLE testers (
     additional_info TEXT -- any additional information about the tester
 );
 
+-- holds all essential information about spare parts associated with testers
 CREATE TABLE tester_spare_parts (
     part_id INT PRIMARY KEY AUTO_INCREMENT,
     part_name VARCHAR(255) NOT NULL,
@@ -52,33 +53,18 @@ CREATE TABLE fixtures (
     fixture_id INT PRIMARY KEY AUTO_INCREMENT,
     fixture_name VARCHAR(100) NOT NULL, -- name of the fixture
     fixture_description TEXT, -- detailed description of the fixture
+    version VARCHAR(50) NOT NULL, -- version of the fixture
+    last_used_date DATE, -- date when the fixture was last used
     fixture_manufacturer VARCHAR(100), -- manufacturer of the fixture
     fixture_location VARCHAR(100), -- physical location of the fixture
     fixture_status ENUM('active','inactive','maintenance'), -- current status of the fixture
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- index for faster lookups of fixtures by tester
     INDEX idx_fixtures_tester (tester_id),
 
     -- references
     tester_id INT NOT NULL, -- reference to the tester this fixture is associated with
-
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id)
-);
-
-CREATE TABLE fixture_applications (
-    fixture_application_id INT PRIMARY KEY AUTO_INCREMENT,
-    application_name VARCHAR(255) NOT NULL,
-    version VARCHAR(50) NOT NULL,
-    last_used_date DATE,
-    developer VARCHAR(255),
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    -- index for faster lookups of fixture applications by tester
-    INDEX idx_fixture_applications_tester (tester_id),
-
-    -- references
-    tester_id INT NOT NULL,
 
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id)
 );
