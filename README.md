@@ -23,19 +23,20 @@ Make sure the following are installed:
 composer install
 ```
 3. Create a .env file to root and add the contents of .env.example there
-3. Update the .env file with your database settings
+4. Update the .env file with your database settings
 ```
 DB_DATABASE=your_database_name
 DB_USERNAME=root
 DB_PASSWORD=
 ```
-4. Start Apache and MySQL from XAMPP
-5. If needed, run database migrations
+5. Create a database in phpMyAdmin
+6. Start Apache and MySQL from XAMPP
+7. If needed, run database migrations
 ```
 php artisan migrate
 ```
-6. Start the Laravel development server
+8. Start the Laravel development server
 ```
 php artisan serve
 ```
-3. Open http://127.0.0.1:8000
+9. Open http://127.0.0.1:8000
