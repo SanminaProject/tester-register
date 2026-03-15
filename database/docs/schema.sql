@@ -171,26 +171,30 @@ CREATE TABLE tester_calibration_schedules (
     FOREIGN KEY (calibration_id) REFERENCES tester_calibration_procedures(calibration_id)
 );
 
--- holds information about personnel responsible for tester maintenance
-CREATE TABLE tester_maintenance_personnel (
-    maintenance_personnel_id INT PRIMARY KEY AUTO_INCREMENT,
+-- holds information about users responsible for tester maintenance/calibration or HR/administration work
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     role_title VARCHAR(150) NOT NULL, -- role or title of the personnel
     email VARCHAR(255) UNIQUE NOT NULL,
+    email_verified_at TIMESTAMP NULL, 
     phone_number VARCHAR(50) NOT NULL,
-    maintenance_responsibilities TEXT, -- description of the maintenance tasks they are responsible for
+    responsibilities TEXT, -- description of the tasks they are responsible for
     qualifications_certifications TEXT, -- any relevant qualifications or certifications they hold
+    password VARCHAR(255) NOT NULL,
+    remember_token VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- links maintenance personnel to testers they are responsible for
-CREATE TABLE tester_maintenance_personnel_assignments (
-    maintenance_personnel_id INT NOT NULL,
+-- links users to testers they are possibly responsible for
+CREATE TABLE user_tester_assignments (
+    user_id INT NOT NULL,
     tester_id INT NOT NULL,
 
-    PRIMARY KEY (maintenance_personnel_id, tester_id),
+    PRIMARY KEY (user_id, tester_id),
 
-    FOREIGN KEY (maintenance_personnel_id) REFERENCES tester_maintenance_personnel(maintenance_personnel_id),
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (tester_id) REFERENCES testers(tester_id) ON DELETE CASCADE
 );
