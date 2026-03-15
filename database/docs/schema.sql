@@ -176,7 +176,7 @@ CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    role_title VARCHAR(150) NOT NULL, -- role or title of the personnel
+    -- role_title VARCHAR(150) NOT NULL, (won't be needed if separate role table is used)
     email VARCHAR(255) UNIQUE NOT NULL,
     email_verified_at TIMESTAMP NULL, 
     phone_number VARCHAR(50) NOT NULL,
@@ -197,4 +197,24 @@ CREATE TABLE user_tester_assignments (
 
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id) ON DELETE CASCADE
+);
+
+-- BELOW TABLES BASED ON SPATIE LARAVEL PERMISSION LIBRARY
+-- holds info on roles that users can have
+CREATE TABLE roles (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    guard_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY name_guard_unique (name, guard_name)
+);
+
+-- links a user to roles
+CREATE TABLE model_has_roles (
+    role_id BIGINT NOT NULL,
+    model_type VARCHAR(255) NOT NULL,
+    model_id INT NOT NULL,
+    PRIMARY KEY (role_id, model_id, model_type),
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
