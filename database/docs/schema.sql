@@ -4,7 +4,6 @@
 CREATE TABLE testers (
     tester_id INT PRIMARY KEY AUTO_INCREMENT,
     tester_name VARCHAR(100) NOT NULL, -- name of the tester
-    tester_name_en VARCHAR(100), -- tester name in English
     tester_description TEXT, -- detailed description of the tester
     tester_running_number INT, -- running number for the tester
     customer_id VARCHAR(50), -- customer ID associated with the tester
