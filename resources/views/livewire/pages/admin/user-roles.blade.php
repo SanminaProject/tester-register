@@ -19,7 +19,6 @@
                                     <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
                                 @endforeach
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">{{ __('Debug selected id:') }} {{ $selectedUserId }}</p>
                         </div>
 
                         @if($selectedUser)
@@ -28,7 +27,13 @@
                                     <h2 class="text-lg font-semibold text-gray-800">{{ __('User Details') }}</h2>
                                     <p class="mt-2 text-sm text-gray-700"><strong>{{ __('Name:') }}</strong> {{ $selectedUser->name }}</p>
                                     <p class="text-sm text-gray-700"><strong>{{ __('Email:') }}</strong> {{ $selectedUser->email }}</p>
-                                    <p class="text-sm text-gray-700"><strong>{{ __('Current Role(s):') }}</strong> {{ $selectedUser->roles->pluck('name')->join(', ') ?: __('(none)') }}</p>
+                                    <p class="text-sm text-gray-700"><strong>{{ __('Current Role:') }}</strong> {{ $selectedUser->roles->pluck('name')->join(', ') ?: __('(none)') }}</p>
+
+                                    <div class="mt-4">
+                                        <x-primary-button wire:click="removeUserRole">
+                                            {{ __('Remove Role') }}
+                                        </x-primary-button>
+                                    </div>
                                 </div>
 
                                 <div class="rounded-lg border border-gray-200 bg-white p-4 mt-4">

@@ -46,6 +46,23 @@ class UserRoles extends Component
         }
     }
 
+    public function removeUserRole()
+    {
+        if (!$this->selectedUserId || !$this->selectedRoleName) {
+            return;
+        }
+
+        $user = User::find($this->selectedUserId);
+        if (!$user) {
+            return;
+        }
+
+        $user->removeRole($this->selectedRoleName);
+
+        $this->selectedUser = $user->load('roles');
+        $this->users = User::with('roles')->get();
+    }
+
     public function render()
     {
         return view('livewire.pages.admin.user-roles')->layout('layouts.app');
