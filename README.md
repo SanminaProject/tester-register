@@ -22,21 +22,34 @@ Make sure the following are installed:
 ```
 composer install
 ```
-3. Create a .env file to root and add the contents of .env.example there
-4. Update the .env file with your database settings
+3. Install Node.js dependencies
+```
+npm install
+```
+4. Set up your environment file
+- Create a .env file to root and add the contents of .env.example there
+- Update the .env file with your database settings
 ```
 DB_DATABASE=your_database_name
 DB_USERNAME=root
 DB_PASSWORD=
 ```
-5. Create a database in phpMyAdmin
-6. Start Apache and MySQL from XAMPP
-7. If needed, run database migrations
+6. Generate Laravel application key
+```
+php artisan key:generate
+```
+7. Build frontend assets
+```
+npm run build
+```
+8. Create a database in phpMyAdmin
+9. Start Apache and MySQL from XAMPP
+10. If needed, run database migrations
 ```
 php artisan migrate
 ```
-8. Start the Laravel development server
+11. Start the Laravel development server
 ```
 php artisan serve
 ```
-9. Open http://127.0.0.1:8000
+12. Access the application from: http://127.0.0.1:8000
