@@ -10,7 +10,7 @@
                 <div class="p-6 text-gray-900">
                     <h1 class="text-xl font-bold mb-4">{{ __('Manage User Roles') }}</h1>
 
-                    <div class="grid gap-6 md:grid-cols-2">
+                    <div class="space-y-6">
                         <div>
                             <label for="user" class="block text-sm font-medium text-gray-700">{{ __('Select User') }}</label>
                             <select id="user" wire:model="selectedUserId" wire:change="selectUser" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
