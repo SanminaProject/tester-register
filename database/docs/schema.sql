@@ -172,6 +172,7 @@ CREATE TABLE tester_calibration_schedules (
 );
 
 -- holds information about personnel responsible for tester maintenance
+-- TODO: maybe update name to "users"
 CREATE TABLE tester_maintenance_personnel (
     maintenance_personnel_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(100) NOT NULL,
@@ -185,6 +186,7 @@ CREATE TABLE tester_maintenance_personnel (
 );
 
 -- links maintenance personnel to testers they are responsible for
+-- TODO: maybe update name to "user_tester_assignments"
 CREATE TABLE tester_maintenance_personnel_assignments (
     maintenance_personnel_id INT NOT NULL,
     tester_id INT NOT NULL,
