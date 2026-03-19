@@ -3,6 +3,35 @@
 -- Documents (PDF, Excel) can be downloaded from UI with laravel logic that takes info from these tables and convers it to a document
 -- so no need to store documents in the database. If we want to store documents, we can add a table for that and link it to testers or maintenance/calibration schedules.
 
+CREATE TABLE tester_customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(100) NOT NULL
+);
+
+-- holds information about locations that can be used for both testers and fixtures
+CREATE TABLE tester_and_fixture_locations (
+    location_id INT PRIMARY KEY AUTO_INCREMENT,
+    location_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    address VARCHAR(255) -- should we delete this column?
+);
+
+-- holds information about users responsible for tester maintenance/calibration or HR/administration work
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    email_verified_at TIMESTAMP NULL, 
+    phone_number VARCHAR(50) NOT NULL,
+    responsibilities TEXT, -- description of the tasks they are responsible for
+    qualifications_certifications TEXT, -- any relevant qualifications or certifications they hold
+    password VARCHAR(255) NOT NULL,
+    remember_token VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- holds all essential information about testers
 CREATE TABLE testers (
     tester_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -28,9 +57,15 @@ CREATE TABLE testers (
     FOREIGN KEY (owner_id) REFERENCES tester_customers(customer_id)
 );
 
-CREATE TABLE tester_customers (
-    customer_id INT PRIMARY KEY AUTO_INCREMENT,
-    customer_name VARCHAR(100) NOT NULL
+-- holds all essential information about suppliers of spare parts for testers
+CREATE TABLE tester_spare_part_suppliers (
+    supplier_id INT PRIMARY KEY AUTO_INCREMENT,
+    supplier_name VARCHAR(255) NOT NULL,
+    contact_person VARCHAR(255),
+    contact_email VARCHAR(255),
+    contact_phone VARCHAR(50),
+    address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- holds all essential information about spare parts associated with testers
@@ -54,17 +89,6 @@ CREATE TABLE tester_spare_parts (
 
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id), -- testers, users, alarm levels and roles are linked and can be called together with queries 
     FOREIGN KEY (supplier_id) REFERENCES tester_spare_part_suppliers(supplier_id)
-);
-
--- holds all essential information about suppliers of spare parts for testers
-CREATE TABLE tester_spare_part_suppliers (
-    supplier_id INT PRIMARY KEY AUTO_INCREMENT,
-    supplier_name VARCHAR(255) NOT NULL,
-    contact_person VARCHAR(255),
-    contact_email VARCHAR(255),
-    contact_phone VARCHAR(50),
-    address TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- holds all essential information about fixtures associated with testers
@@ -132,14 +156,6 @@ CREATE TABLE tester_issues (
     FOREIGN KEY (solved_by_user_id) REFERENCES users(user_id)
 );
 
--- holds information about locations that can be used for both testers and fixtures
-CREATE TABLE tester_and_fixture_locations (
-    location_id INT PRIMARY KEY AUTO_INCREMENT,
-    location_name VARCHAR(100) NOT NULL,
-    description TEXT,
-    address VARCHAR(255) -- should we delete this column?
-);
-
 -- holds definitions of maintenance procedures for testers
 CREATE TABLE tester_maintenance_procedures (
     maintenance_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -202,22 +218,6 @@ CREATE TABLE tester_calibration_schedules (
     FOREIGN KEY (calibration_id) REFERENCES tester_calibration_procedures(calibration_id),
     FOREIGN KEY (last_calibration_by_user_id) REFERENCES users(user_id),
     FOREIGN KEY (next_calibration_by_user_id) REFERENCES users(user_id)
-);
-
--- holds information about users responsible for tester maintenance/calibration or HR/administration work
-CREATE TABLE users (
-    user_id INT PRIMARY KEY AUTO_INCREMENT,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    email_verified_at TIMESTAMP NULL, 
-    phone_number VARCHAR(50) NOT NULL,
-    responsibilities TEXT, -- description of the tasks they are responsible for
-    qualifications_certifications TEXT, -- any relevant qualifications or certifications they hold
-    password VARCHAR(255) NOT NULL,
-    remember_token VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- links users to testers they are responsible for
