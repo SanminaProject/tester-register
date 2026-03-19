@@ -15,16 +15,22 @@ CREATE TABLE testers (
     product_family VARCHAR(100), -- product family associated with the tester
     manufacturer VARCHAR(100), -- manufacturer of the tester
     implementation_date DATE, -- date when the tester was implemented
-    owner VARCHAR(100), -- owner of the tester, which is usually the customer (NOKIA, HALTIAN etc.)
     asset_no VARCHAR(20), 
     additional_info TEXT, -- any additional information about the tester
 
     -- references
-    user_id INT, -- name of the person responsible for the tester
     location_id INT, -- physicallocation of the tester
+    owner_id INT, -- owner of the tester, which is usually the customer (NOKIA, HALTIAN etc.)
 
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id)
+    -- the information on who is responsible for each tester will be stored in the user_tester_assignments table, which links users to testers
+
+    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id),
+    FOREIGN KEY (owner_id) REFERENCES tester_customers(customer_id)
+);
+
+CREATE TABLE tester_customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(100) NOT NULL
 );
 
 -- holds all essential information about spare parts associated with testers
@@ -139,7 +145,7 @@ CREATE TABLE tester_maintenance_procedures (
     maintenance_id INT PRIMARY KEY AUTO_INCREMENT,
     maintenance_type VARCHAR(100) NOT NULL, -- e.g., Preventive Maintenance, Routine Check
     maintenance_interval_value INT NOT NULL, -- numerical value of the maintenance interval
-    maintenance_interval_unit VARCHAR(50) NOT NULL, -- unit of time (Days, Weeks, Months or Years)
+    maintenance_interval_unit ENUM('Days','Weeks','Months','Years') NOT NULL, -- unit of time (Days, Weeks, Months or Years)
     maintenance_description TEXT -- detailed description of the maintenance activities
 );
 
@@ -148,7 +154,7 @@ CREATE TABLE tester_calibration_procedures (
     calibration_id INT PRIMARY KEY AUTO_INCREMENT,
     calibration_type VARCHAR(100) NOT NULL, -- e.g., Standard Calibration, Full Calibration
     calibration_interval_value INT NOT NULL, -- numerical value of the calibration interval
-    calibration_interval_unit VARCHAR(50) NOT NULL, -- unit of time (Days, Weeks, Months or Years)
+    calibration_interval_unit ENUM('Days','Weeks','Months','Years') NOT NULL, -- unit of time (Days, Weeks, Months or Years)
     calibration_description TEXT -- detailed description of the calibration procedures
 );
 
