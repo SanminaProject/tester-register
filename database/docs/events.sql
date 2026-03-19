@@ -1,4 +1,5 @@
 -- event used to calculate and update the next maintenance and calibration dates for testers
+-- REMEMBER: Calibrations must always be confirmed by a Maintenance Technician
 
 DELIMITER $$
 
