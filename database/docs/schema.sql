@@ -135,30 +135,33 @@ CREATE TABLE data_change_logs (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- holds all information about issues and solutions related to testers
-CREATE TABLE tester_issues (
-    issue_id INT PRIMARY KEY AUTO_INCREMENT,
-    issue_status ENUM('open', 'closed') DEFAULT 'open' NOT NULL, -- status of the issue
+-- holds all information about physical events related to testers
+CREATE TABLE tester_event_logs (
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    event_type ENUM('issue', 'maintenance', 'calibration', 'software_update', 'hardware_change') NOT NULL, 
+    event_date DATETIME NOT NULL, -- when the event occurred
+    event_description TEXT NOT NULL, -- detailed description of the event
 
-    -- regarding the issue
-    reported_date DATETIME NOT NULL, -- when the issue was recorded
-    issue_description TEXT NOT NULL, -- description of the tester issue
+    -- only for issue/fault/problem events
+    issue_status ENUM('open', 'closed') DEFAULT NULL, -- status of the issue (open or closed)
+    resolved_date DATETIME, -- date when the issue was resolved
+    resolution_description TEXT, -- solution to the issue
 
-    -- regarding the solution
-    solved_date DATETIME, -- date when the issue was resolved
-    solution_description TEXT, -- solution to the issue
-
-    -- index for faster lookups of issues by tester
-    INDEX idx_tester_issues_tester (tester_id),
+    -- index for faster lookups of events by tester
+    INDEX idx_tester_event_logs_tester (tester_id),
 
     -- references
-    tester_id INT NOT NULL, -- which tester has the issue
-    detected_by_user_id INT NOT NULL, -- who detected the issue
-    solved_by_user_id INT, -- who solved the issue
+    tester_id INT NOT NULL, -- which tester the event is related to
+    maintenance_schedule_id INT, -- reference to the maintenance schedule used
+    calibration_schedule_id INT, -- reference to the calibration schedule used
+    created_by_user_id INT NOT NULL, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
+    resolved_by_user_id INT, -- who resolved the issue
 
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (detected_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (solved_by_user_id) REFERENCES users(user_id)
+    FOREIGN KEY (created_by_user_id) REFERENCES users(user_id),
+    FOREIGN KEY (resolved_by_user_id) REFERENCES users(user_id),
+    FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(maintenance_schedule_id),
+    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(calibration_schedule_id)
 );
 
 -- holds definitions of maintenance procedures for testers
