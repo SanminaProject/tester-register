@@ -30,6 +30,13 @@ CREATE TABLE users (
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- holds statuses for testers and fixtures
+-- includes active, inactive, and maintenance
+CREATE TABLE asset_statuses (
+    status_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
 -- holds all essential information about testers
 CREATE TABLE testers (
     tester_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -38,7 +45,6 @@ CREATE TABLE testers (
     id_number_by_customer VARCHAR(50), -- the ID number given to the tester by the customer
     operating_system VARCHAR(50), -- operating system used by the tester pc or test system
     tester_type VARCHAR(50), -- type of tester
-    tester_status ENUM('active','inactive','maintenance'), -- current status of the tester
     product_family VARCHAR(100), -- product family associated with the tester
     manufacturer VARCHAR(100), -- manufacturer of the tester
     implementation_date DATE, -- date when the tester was implemented
@@ -47,11 +53,13 @@ CREATE TABLE testers (
     -- references
     location_id INT, -- physicallocation of the tester
     owner_id INT, -- owner of the tester, which is usually the customer (NOKIA, HALTIAN etc.)
+    tester_status INT, -- status of the tester (active, inactive or maintenance) 
 
     -- the information on who is responsible for each tester will be stored in the user_tester_assignments table, which links users to testers
 
     FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id),
-    FOREIGN KEY (owner_id) REFERENCES tester_customers(customer_id)
+    FOREIGN KEY (owner_id) REFERENCES tester_customers(customer_id),
+    FOREIGN KEY (tester_status) REFERENCES asset_statuses(status_id)
 );
 
 CREATE TABLE tester_assets (
@@ -102,7 +110,6 @@ CREATE TABLE fixtures (
     fixture_name VARCHAR(100) NOT NULL, -- name of the fixture
     fixture_description TEXT, -- detailed description of the fixture
     fixture_manufacturer VARCHAR(100), -- manufacturer of the fixture
-    fixture_status ENUM('active','inactive','maintenance'), -- current status of the fixture
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- index for faster lookups of fixtures by tester
@@ -111,9 +118,11 @@ CREATE TABLE fixtures (
     -- references
     tester_id INT NOT NULL, -- reference to the tester this fixture is associated with
     location_id INT, -- physical location of the fixture
+    fixture_status INT, -- current status of the fixture (active, inactive or maintenance)
 
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id)
+    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id),
+    FOREIGN KEY (fixture_status) REFERENCES asset_statuses(status_id)
 );
 
 -- holds all information on data changes made to testers, fixtures, and spare parts
@@ -135,15 +144,27 @@ CREATE TABLE data_change_logs (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
+-- holds definitions of different types of events that can be logged into tester_event_logs
+-- includes ENUM('issue', 'maintenance', 'calibration', 'software_update', 'hardware_change')
+CREATE TABLE event_types (
+    event_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- holds definitions of different statuses for issues logged into tester_event_logs
+-- includes ENUM('open', 'closed')
+CREATE TABLE issue_statuses (
+    issue_status_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
 -- holds all information about physical events related to testers
 CREATE TABLE tester_event_logs (
     event_id INT PRIMARY KEY AUTO_INCREMENT,
-    event_type ENUM('issue', 'maintenance', 'calibration', 'software_update', 'hardware_change') NOT NULL, 
     event_date DATETIME NOT NULL, -- when the event occurred
     event_description TEXT NOT NULL, -- detailed description of the event
 
     -- only for issue/fault/problem events
-    issue_status ENUM('open', 'closed') DEFAULT NULL, -- status of the issue (open or closed)
     resolved_date DATETIME, -- date when the issue was resolved
     resolution_description TEXT, -- solution to the issue
 
@@ -152,16 +173,25 @@ CREATE TABLE tester_event_logs (
 
     -- references
     tester_id INT NOT NULL, -- which tester the event is related to
-    maintenance_schedule_id INT, -- reference to the maintenance schedule used
-    calibration_schedule_id INT, -- reference to the calibration schedule used
+    event_type INT NOT NULL, -- reference to the type of the event (issue, maintenance, calibration, software update or hardware change)
     created_by_user_id INT NOT NULL, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
     resolved_by_user_id INT, -- who resolved the issue
+    issue_status INT, -- status of the issue (open or closed)
+    maintenance_schedule_id INT, -- reference to the maintenance schedule used
+    calibration_schedule_id INT, -- reference to the calibration schedule used
 
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
+    FOREIGN KEY (event_type) REFERENCES event_types(event_type_id),
     FOREIGN KEY (created_by_user_id) REFERENCES users(user_id),
     FOREIGN KEY (resolved_by_user_id) REFERENCES users(user_id),
+    FOREIGN KEY (issue_status) REFERENCES issue_statuses(issue_status_id),
     FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(maintenance_schedule_id),
     FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(calibration_schedule_id)
+);
+
+CREATE TABLE procedure_interval_units (
+    interval_unit_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE -- unit of time (Days, Weeks, Months or Years)
 );
 
 -- holds definitions of maintenance procedures for testers
@@ -169,8 +199,12 @@ CREATE TABLE tester_maintenance_procedures (
     maintenance_id INT PRIMARY KEY AUTO_INCREMENT,
     maintenance_type VARCHAR(100) NOT NULL, -- e.g., Preventive Maintenance, Routine Check
     maintenance_interval_value INT NOT NULL, -- numerical value of the maintenance interval
-    maintenance_interval_unit ENUM('Days','Weeks','Months','Years') NOT NULL, -- unit of time (Days, Weeks, Months or Years)
     maintenance_description TEXT -- detailed description of the maintenance activities
+
+    -- references
+    maintenance_interval_unit INT NOT NULL, -- unit of time for the maintenance interval (Days, Weeks, Months or Years)
+
+    FOREIGN KEY (maintenance_interval_unit) REFERENCES procedure_interval_units(interval_unit_id)
 );
 
 -- holds definitions of calibration procedures for testers
@@ -178,8 +212,19 @@ CREATE TABLE tester_calibration_procedures (
     calibration_id INT PRIMARY KEY AUTO_INCREMENT,
     calibration_type VARCHAR(100) NOT NULL, -- e.g., Standard Calibration, Full Calibration
     calibration_interval_value INT NOT NULL, -- numerical value of the calibration interval
-    calibration_interval_unit ENUM('Days','Weeks','Months','Years') NOT NULL, -- unit of time (Days, Weeks, Months or Years)
     calibration_description TEXT -- detailed description of the calibration procedures
+
+    -- references
+    calibration_interval_unit INT NOT NULL, -- unit of time for the calibration interval (Days, Weeks, Months or Years)
+
+    FOREIGN KEY (calibration_interval_unit) REFERENCES procedure_interval_units(interval_unit_id)
+);
+
+-- holds definitions of different statuses for maintenance and calibration schedules
+-- includes ENUM('Scheduled', 'Overdue')
+CREATE TABLE schedule_statuses (
+    schedule_status_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE
 );
 
 -- links testers to maintenance procedures
@@ -188,7 +233,6 @@ CREATE TABLE tester_maintenance_schedules (
     schedule_created_date DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP), -- when the maintenance schedule was created
     last_maintenance_date DATETIME, -- date when maintenance was last performed
     next_maintenance_due DATETIME, -- calculated next maintenance date (USING EVENT!)
-    maintenance_status ENUM('Scheduled', 'Overdue') DEFAULT 'Scheduled', -- status of the maintenance (Scheduled, Overdue)
 
     -- index for faster lookups of maintenance schedules by tester
     INDEX idx_tester_maintenance_schedules_tester (tester_id),
@@ -196,11 +240,13 @@ CREATE TABLE tester_maintenance_schedules (
     -- references
     tester_id INT NOT NULL, -- the tester that needs maintenance
     maintenance_id INT NOT NULL, -- the maintenance procedure used
+    maintenance_status INT, -- status of the maintenance schedule (Scheduled, Overdue)
     last_maintenance_by_user_id INT, -- who performed the last maintenance
     next_maintenance_by_user_id INT, -- who is scheduled to perform the next maintenance
 
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
     FOREIGN KEY (maintenance_id) REFERENCES tester_maintenance_procedures(maintenance_id),
+    FOREIGN KEY (maintenance_status) REFERENCES schedule_statuses(schedule_status_id),
     FOREIGN KEY (last_maintenance_by_user_id) REFERENCES users(user_id),
     FOREIGN KEY (next_maintenance_by_user_id) REFERENCES users(user_id)
 );
@@ -211,7 +257,6 @@ CREATE TABLE tester_calibration_schedules (
     schedule_created_date DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP), -- when this schedule was created
     last_calibration_date DATETIME, -- date when calibration was last performed
     next_calibration_due DATETIME, -- calculated next calibration date (USING EVENT!)
-    calibration_status ENUM('Scheduled', 'Overdue') DEFAULT 'Scheduled', -- status of the calibration (Scheduled, Overdue)
 
     -- index for faster lookups of calibration schedules by tester
     INDEX idx_tester_calibration_schedules_tester (tester_id),
@@ -219,11 +264,13 @@ CREATE TABLE tester_calibration_schedules (
     -- references
     tester_id INT NOT NULL, -- reference to the tester
     calibration_id INT NOT NULL, -- reference to the calibration procedure
+    calibration_status INT, -- status of the calibration schedule (Scheduled, Overdue)
     last_calibration_by_user_id INT, -- who performed the last calibration
     next_calibration_by_user_id INT, -- who is scheduled to perform the next calibration
 
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
     FOREIGN KEY (calibration_id) REFERENCES tester_calibration_procedures(calibration_id),
+    FOREIGN KEY (calibration_status) REFERENCES schedule_statuses(schedule_status_id),
     FOREIGN KEY (last_calibration_by_user_id) REFERENCES users(user_id),
     FOREIGN KEY (next_calibration_by_user_id) REFERENCES users(user_id)
 );
