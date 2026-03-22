@@ -1,5 +1,3 @@
--- TODO: add tester asset table *if* multiple assets are needed for testers
-
 -- Documents (PDF, Excel) can be downloaded from UI with laravel logic that takes info from these tables and convers it to a document
 -- so no need to store documents in the database. If we want to store documents, we can add a table for that and link it to testers or maintenance/calibration schedules.
 
@@ -44,7 +42,6 @@ CREATE TABLE testers (
     product_family VARCHAR(100), -- product family associated with the tester
     manufacturer VARCHAR(100), -- manufacturer of the tester
     implementation_date DATE, -- date when the tester was implemented
-    asset_no VARCHAR(20), 
     additional_info TEXT, -- any additional information about the tester
 
     -- references
@@ -55,6 +52,14 @@ CREATE TABLE testers (
 
     FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id),
     FOREIGN KEY (owner_id) REFERENCES tester_customers(customer_id)
+);
+
+CREATE TABLE tester_assets (
+    asset_id INT PRIMARY KEY AUTO_INCREMENT,
+    asset_no VARCHAR(100) NOT NULL,
+    tester_id INT NOT NULL,
+    
+    FOREIGN KEY (tester_id) REFERENCES testers(tester_id)
 );
 
 -- holds all essential information about suppliers of spare parts for testers
@@ -111,22 +116,22 @@ CREATE TABLE fixtures (
     FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id)
 );
 
--- holds all information on changes made to testers and fixtures
-CREATE TABLE tester_and_fixture_changes (
+-- holds all information on data changes made to testers, fixtures, and spare parts
+-- like adding a tester, changing tester information in the tester table, activating a spare part etc. 
+CREATE TABLE data_change_logs (
     change_id INT PRIMARY KEY AUTO_INCREMENT,
     change_date DATETIME NOT NULL, -- when the change was made
     explanation TEXT NOT NULL, -- explanation of the change
 
-    -- index for faster lookups of changes by tester
-    INDEX idx_tester_changes_tester (tester_id),
-
     -- references
-    tester_id INT NOT NULL, -- which tester this change is related to
+    tester_id INT, -- tester ID if the change is related to a tester
     fixture_id INT, -- fixture ID if the change is related to a fixture
+    spare_part_id INT, -- spare part ID if the change is related to a spare part
     user_id INT, -- who made the change
 
     FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
     FOREIGN KEY (fixture_id) REFERENCES fixtures(fixture_id),
+    FOREIGN KEY (spare_part_id) REFERENCES tester_spare_parts(part_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
