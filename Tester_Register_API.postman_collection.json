@@ -1,0 +1,507 @@
+{
+  "info": {
+    "name": "Tester Register API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/auth/logout",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Get All Customers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/customers?page=1&per_page=15",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "customers"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "per_page", "value": "15"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"Apple Inc\",\n  \"address\": \"Cupertino, CA\",\n  \"contact_person\": \"John Doe\",\n  \"phone\": \"+1-408-996-1010\",\n  \"email\": \"contact@apple.com\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/customers",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "customers"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Customer",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/customers/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "customers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"Apple Inc Updated\",\n  \"phone\": \"+1-408-996-2000\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/customers/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "customers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/customers/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "customers", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testers",
+      "item": [
+        {
+          "name": "Get All Testers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/testers?page=1&status=active",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "testers"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "status", "value": "active"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Tester",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"iPhone Test 3000\",\n  \"serial_number\": \"SN12345\",\n  \"customer_id\": 1,\n  \"purchase_date\": \"2025-01-15\",\n  \"status\": \"active\",\n  \"location\": \"Building A, Room 201\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/testers",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "testers"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Tester",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/testers/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "testers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Tester Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"maintenance\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/testers/1/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "testers", "1", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fixtures",
+      "item": [
+        {
+          "name": "Get All Fixtures",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/fixtures",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "fixtures"]
+            }
+          }
+        },
+        {
+          "name": "Create Fixture",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone Connector Fixture\",\n  \"serial_number\": \"FIX123\",\n  \"tester_id\": 1,\n  \"purchase_date\": \"2025-01-20\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/fixtures",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "fixtures"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Maintenance Schedules",
+      "item": [
+        {
+          "name": "Get All Maintenance Schedules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/maintenance-schedules",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "maintenance-schedules"]
+            }
+          }
+        },
+        {
+          "name": "Create Maintenance Schedule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tester_id\": 1,\n  \"scheduled_date\": \"2026-04-20\",\n  \"procedure\": \"Regular maintenance\",\n  \"notes\": \"Routine inspection\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/maintenance-schedules",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "maintenance-schedules"]
+            }
+          }
+        },
+        {
+          "name": "Complete Maintenance Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed_date\": \"2026-04-20\",\n  \"performed_by\": \"John Smith\",\n  \"notes\": \"Maintenance completed successfully\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/maintenance-schedules/1/complete",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "maintenance-schedules", "1", "complete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Event Logs",
+      "item": [
+        {
+          "name": "Get All Event Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/event-logs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "event-logs"]
+            }
+          }
+        },
+        {
+          "name": "Create Event Log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tester_id\": 1,\n  \"type\": \"maintenance\",\n  \"description\": \"Regular maintenance completed\",\n  \"event_date\": \"2026-03-23 10:30:00\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/event-logs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "event-logs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Spare Parts",
+      "item": [
+        {
+          "name": "Get All Spare Parts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/spare-parts",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "spare-parts"]
+            }
+          }
+        },
+        {
+          "name": "Create Spare Part",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone Connector\",\n  \"part_number\": \"PART123\",\n  \"quantity_in_stock\": 10,\n  \"unit_cost\": 45.99,\n  \"supplier\": \"Tech Supplier Inc\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/spare-parts",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "spare-parts"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
