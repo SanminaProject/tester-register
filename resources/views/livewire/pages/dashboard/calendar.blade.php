@@ -1,0 +1,3 @@
+<div>
+    {{ __('calendar') }}
+</div>
