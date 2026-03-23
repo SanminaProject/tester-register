@@ -158,37 +158,6 @@ CREATE TABLE issue_statuses (
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- holds all information about physical events related to testers
-CREATE TABLE tester_event_logs (
-    event_id INT PRIMARY KEY AUTO_INCREMENT,
-    event_date DATETIME NOT NULL, -- when the event occurred
-    event_description TEXT NOT NULL, -- detailed description of the event
-
-    -- only for issue/fault/problem events
-    resolved_date DATETIME, -- date when the issue was resolved
-    resolution_description TEXT, -- solution to the issue
-
-    -- index for faster lookups of events by tester
-    INDEX idx_tester_event_logs_tester (tester_id),
-
-    -- references
-    tester_id INT NOT NULL, -- which tester the event is related to
-    event_type INT NOT NULL, -- reference to the type of the event (issue, maintenance, calibration, software update or hardware change)
-    created_by_user_id INT NOT NULL, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
-    resolved_by_user_id INT, -- who resolved the issue
-    issue_status INT, -- status of the issue (open or closed)
-    maintenance_schedule_id INT, -- reference to the maintenance schedule used
-    calibration_schedule_id INT, -- reference to the calibration schedule used
-
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (event_type) REFERENCES event_types(event_type_id),
-    FOREIGN KEY (created_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (resolved_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (issue_status) REFERENCES issue_statuses(issue_status_id),
-    FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(maintenance_schedule_id),
-    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(calibration_schedule_id)
-);
-
 CREATE TABLE procedure_interval_units (
     interval_unit_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE -- unit of time (Days, Weeks, Months or Years)
@@ -199,7 +168,7 @@ CREATE TABLE tester_maintenance_procedures (
     maintenance_id INT PRIMARY KEY AUTO_INCREMENT,
     maintenance_type VARCHAR(100) NOT NULL, -- e.g., Preventive Maintenance, Routine Check
     maintenance_interval_value INT NOT NULL, -- numerical value of the maintenance interval
-    maintenance_description TEXT -- detailed description of the maintenance activities
+    maintenance_description TEXT, -- detailed description of the maintenance activities
 
     -- references
     maintenance_interval_unit INT NOT NULL, -- unit of time for the maintenance interval (Days, Weeks, Months or Years)
@@ -212,7 +181,7 @@ CREATE TABLE tester_calibration_procedures (
     calibration_id INT PRIMARY KEY AUTO_INCREMENT,
     calibration_type VARCHAR(100) NOT NULL, -- e.g., Standard Calibration, Full Calibration
     calibration_interval_value INT NOT NULL, -- numerical value of the calibration interval
-    calibration_description TEXT -- detailed description of the calibration procedures
+    calibration_description TEXT, -- detailed description of the calibration procedures
 
     -- references
     calibration_interval_unit INT NOT NULL, -- unit of time for the calibration interval (Days, Weeks, Months or Years)
@@ -273,6 +242,37 @@ CREATE TABLE tester_calibration_schedules (
     FOREIGN KEY (calibration_status) REFERENCES schedule_statuses(schedule_status_id),
     FOREIGN KEY (last_calibration_by_user_id) REFERENCES users(user_id),
     FOREIGN KEY (next_calibration_by_user_id) REFERENCES users(user_id)
+);
+
+-- holds all information about physical events related to testers
+CREATE TABLE tester_event_logs (
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    event_date DATETIME NOT NULL, -- when the event occurred
+    event_description TEXT NOT NULL, -- detailed description of the event
+
+    -- only for issue/fault/problem events
+    resolved_date DATETIME, -- date when the issue was resolved
+    resolution_description TEXT, -- solution to the issue
+
+    -- index for faster lookups of events by tester
+    INDEX idx_tester_event_logs_tester (tester_id),
+
+    -- references
+    tester_id INT NOT NULL, -- which tester the event is related to
+    event_type INT NOT NULL, -- reference to the type of the event (issue, maintenance, calibration, software update or hardware change)
+    created_by_user_id INT NOT NULL, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
+    resolved_by_user_id INT, -- who resolved the issue
+    issue_status INT, -- status of the issue (open or closed)
+    maintenance_schedule_id INT, -- reference to the maintenance schedule used
+    calibration_schedule_id INT, -- reference to the calibration schedule used
+
+    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
+    FOREIGN KEY (event_type) REFERENCES event_types(event_type_id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(user_id),
+    FOREIGN KEY (resolved_by_user_id) REFERENCES users(user_id),
+    FOREIGN KEY (issue_status) REFERENCES issue_statuses(issue_status_id),
+    FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(maintenance_schedule_id),
+    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(calibration_schedule_id)
 );
 
 -- links users to testers they are responsible for
