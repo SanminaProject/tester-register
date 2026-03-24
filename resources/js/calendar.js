@@ -4,7 +4,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
 // Initialize the calendar used in dashboard
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('calendar-ready', function () {
     console.log('Calendar JS loaded')
 
     const calendarEl = document.getElementById('calendar')

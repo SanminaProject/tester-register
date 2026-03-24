@@ -28,6 +28,8 @@ class Calendar extends Component
                 'end' => '2026-03-28T12:00:00',
             ],
         ];
+
+        $this->dispatch('calendar-ready');
     }
 
     public function render()
