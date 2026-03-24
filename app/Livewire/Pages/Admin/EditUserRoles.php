@@ -6,7 +6,7 @@ use Livewire\Component;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
 
-class UserRoles extends Component
+class EditUserRoles extends Component
 {
     public $users;
     public $roles;
@@ -65,6 +65,6 @@ class UserRoles extends Component
 
     public function render()
     {
-        return view('livewire.pages.admin.user-roles')->layout('layouts.app');
+        return view('livewire.pages.admin.edit-user-roles');
     }
 }

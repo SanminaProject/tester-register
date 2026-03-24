@@ -23,9 +23,11 @@ views/
 │   ├── responsive-nav-link.blade.php    # Mobile-responsive navigation link
 │   ├── secondary-button.blade.php       # Secondary action button
 │   └── text-input.blade.php             # Text input field
+│
 ├── layouts/                             # Main page layouts
 │   ├── app.blade.php                    # Authenticated user layout (with navigation & sidebar)
 │   └── guest.blade.php                  # Unauthenticated user layout (public pages)
+│
 ├── livewire/                            # Livewire interactive components
 │   ├── layout/
 │   │   └── navigation.blade.php         # Main navigation bar for authenticated pages
@@ -46,6 +48,7 @@ views/
 │   ├── welcome/
 │   │   └── navigation.blade.php         # Navigation for welcome/public pages
 │   └── .gitkeep
+│
 ├── dashboard.blade.php                  # Main dashboard page (authenticated users)
 ├── profile.blade.php                    # User profile page
 ├── welcome.blade.php                    # Welcome/homepage (public landing page)
