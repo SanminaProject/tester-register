@@ -42,8 +42,8 @@ php artisan key:generate
 ```
 npm run build
 ```
-8. Create a database in phpMyAdmin
-9. Start Apache and MySQL from XAMPP
+8. Start Apache and MySQL from XAMPP
+9. Create a database in phpMyAdmin
 10. If needed, run database migrations
 ```
 php artisan migrate
@@ -52,4 +52,8 @@ php artisan migrate
 ```
 php artisan serve
 ```
-12. Access the application from: http://127.0.0.1:8000
+12. Run frontend
+```
+npm run dev
+```
+13. Access the application from: http://127.0.0.1:8000
