@@ -57,3 +57,9 @@ php artisan serve
 npm run dev
 ```
 13. Access the application from: http://127.0.0.1:8000
+
+
+## Third-Party Licenses
+
+This project uses third-party libraries licensed under the MIT License.  
+For details, see [LICENSES.md](./LICENSES.md).
