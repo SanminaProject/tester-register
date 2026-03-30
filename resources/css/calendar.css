@@ -1,0 +1,78 @@
+.fc .fc-button-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* following style of other tailwind buttons */
+.fc .fc-button {
+    background-color: #1f2937; 
+    color: white;
+    border: none;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 150ms ease-in-out;
+}
+
+.fc .fc-button-group > .fc-button {
+    border-radius: 0.375rem !important;
+}
+
+.fc .fc-button:focus,
+.fc .fc-button:active,
+.fc .fc-button:focus-visible {
+    outline: none !important;
+    border: none !important;
+}
+
+.fc .fc-button:focus,
+.fc .fc-button:focus-visible,
+.fc .fc-button:active {
+    box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px white !important; /* indigo 500 */
+}
+
+.fc .fc-button:hover {
+    background-color: #374151; /* gray-700 */
+}
+
+/* show events as clickable */
+.fc-event {
+    cursor: pointer; 
+}
+
+/* title and time colour */
+.fc-event-title,
+.fc-event-time {
+    color: black;
+}
+
+/* weekly and daily event colours */
+.fc-event.calibration {
+    background-color: #dbeafe;
+    border-color: #dbeafe;
+}
+
+.fc-event.maintenance {
+    background-color: #fef9c3;
+    border-color: #fef9c3;
+}
+
+.fc-event.issue {
+    background-color: #fee2e2;
+    border-color: #fee2e2;
+}
+
+/* monthly event dot colours */
+.fc-event.calibration .fc-daygrid-event-dot{
+    border-color: #3b82f6;
+}
+
+.fc-event.maintenance .fc-daygrid-event-dot {
+    border-color: #f59e0b;
+}
+
+.fc-event.issue .fc-daygrid-event-dot{
+    border-color: #ef4444;
+}

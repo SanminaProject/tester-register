@@ -5,8 +5,6 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 // Initialize the calendar used in dashboard
 document.addEventListener('calendar-ready', function () {
-    console.log('Calendar JS loaded')
-
     const calendarEl = document.getElementById('calendar')
     const events = JSON.parse(calendarEl.dataset.events)
 
@@ -16,12 +14,37 @@ document.addEventListener('calendar-ready', function () {
         initialView: 'dayGridMonth', // monthly view by default
 
         headerToolbar: {
-            left: 'prev,next today',
+            left: 'prev,next,today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
 
-        events: events
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: false
+        },
+
+        events: events,
+
+        eventClassNames: function(arg) {
+            return [arg.event.extendedProps.type];
+        },
+
+        dayMaxEvents: 3,
+        dayMaxEventRows: true,
+
+        eventClick: function(info) {
+            console.log('Event clicked:', info.event);
+        },
+
+        eventMouseEnter: function(info) {
+            console.log('Hover start:', info.event);
+        },
+
+        eventMouseLeave: function(info) {
+            console.log('Hover end:', info.event);
+        }
     })
 
     calendar.render()
