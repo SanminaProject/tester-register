@@ -49,18 +49,22 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('fixtures', FixtureController::class);
 
         // Maintenance Schedules
-        Route::apiResource('maintenance-schedules', MaintenanceScheduleController::class);
+        Route::apiResource('maintenance-schedules', MaintenanceScheduleController::class)
+            ->parameters(['maintenance-schedules' => 'schedule']);
         Route::post('/maintenance-schedules/{schedule}/complete', [MaintenanceScheduleController::class, 'complete']);
 
         // Calibration Schedules
-        Route::apiResource('calibration-schedules', CalibrationScheduleController::class);
+        Route::apiResource('calibration-schedules', CalibrationScheduleController::class)
+            ->parameters(['calibration-schedules' => 'schedule']);
         Route::post('/calibration-schedules/{schedule}/complete', [CalibrationScheduleController::class, 'complete']);
 
         // Event Logs
-        Route::apiResource('event-logs', EventLogController::class, ['only' => ['index', 'store', 'show']]);
+        Route::apiResource('event-logs', EventLogController::class, ['only' => ['index', 'store', 'show']])
+            ->parameters(['event-logs' => 'log']);
 
         // Spare Parts
-        Route::apiResource('spare-parts', SparePartController::class);
+        Route::apiResource('spare-parts', SparePartController::class)
+            ->parameters(['spare-parts' => 'part']);
     });
 });
 
