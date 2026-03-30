@@ -75,12 +75,12 @@ new #[Layout('layouts.guest')] class extends Component
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}" wire:navigate>
-                {{ __('Already registered?') }}
+        <div class="flex flex-col items-center justify-center mt-4">
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mb-6" href="{{ route('login') }}" wire:navigate>
+                {{ __('Already have an account?') }}
             </a>
 
-            <x-primary-button class="ms-4">
+            <x-primary-button class="w-1/2">
                 {{ __('Register') }}
             </x-primary-button>
         </div>
