@@ -11,12 +11,7 @@
                             {{ $item['tester'] }}
                         </div>
 
-                        <div class="text-sm px-2 py-1 rounded 
-                            @if($item['type'] === 'issue') bg-red-100 text-red-700
-                            @elseif($item['type'] === 'maintenance') bg-yellow-100 text-yellow-700
-                            @elseif($item['type'] === 'calibration') bg-blue-100 text-blue-700
-                            @endif
-                        ">
+                        <div class="text-sm px-2 py-1 rounded {{ $this->typeClasses($item['type']) }}">
                             {{ ucfirst($item['type']) }}
                         </div>
 
