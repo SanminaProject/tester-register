@@ -11,6 +11,10 @@
 
 Detailed instructions can be found in [RUNNING-LOCALLY.md](./docs/RUNNING-LOCALLY.md)
 
+## API Contract
+
+Formal API contract documentation is available in [API_DESIGN.md](./API_DESIGN.md)
+
 ## Third-Party Licenses
 
 This project uses third-party libraries licensed under the MIT License.  
