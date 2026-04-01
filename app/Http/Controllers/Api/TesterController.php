@@ -16,8 +16,7 @@ class TesterController extends Controller
     {
         $this->authorize('view', Tester::class);
 
-        $page = $request->query('page', 1);
-        $perPage = $request->query('per_page', 15);
+        $perPage = max(1, (int)$request->query('per_page', 15));
         $status = $request->query('status');
         $customerId = $request->query('customer_id');
         $search = $request->query('search', '');
@@ -39,8 +38,9 @@ class TesterController extends Controller
             });
         }
 
-        $total = $query->count();
-        $testers = $query->forPage($page, $perPage)->get()->map(fn($t) => [
+        $testers = $query->paginate($perPage);
+
+        $items = $testers->getCollection()->map(fn($t) => [
             'id' => $t->id,
             'model' => $t->model,
             'serial_number' => $t->serial_number,
@@ -57,13 +57,13 @@ class TesterController extends Controller
             'success' => true,
             'message' => 'Device list retrieved successfully',
             'data' => [
-                'items' => $testers,
+                'items' => $items,
                 'pagination' => [
-                    'current_page' => (int)$page,
-                    'per_page' => (int)$perPage,
-                    'total' => $total,
-                    'total_pages' => (int)ceil($total / $perPage),
-                    'has_next' => $page * $perPage < $total,
+                    'current_page' => $testers->currentPage(),
+                    'per_page' => $testers->perPage(),
+                    'total' => $testers->total(),
+                    'total_pages' => $testers->lastPage(),
+                    'has_next' => $testers->hasMorePages(),
                 ],
             ],
             'code' => 200,
