@@ -1,4 +1,4 @@
-# Tester Register API Contract (v1)
+# Tester Register API Contract (v2)
 
 Status: Active
 Version: v2
