@@ -15,6 +15,8 @@ Detailed instructions can be found in [RUNNING-LOCALLY.md](./docs/RUNNING-LOCALL
 
 Formal API contract documentation is available in [API_DESIGN.md](./API_DESIGN.md)
 
+Implementation details and development workflow are documented in [API_IMPLEMENTATION_GUIDE.md](./API_IMPLEMENTATION_GUIDE.md)
+
 ## Third-Party Licenses
 
 This project uses third-party libraries licensed under the MIT License.  
