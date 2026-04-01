@@ -1,7 +1,7 @@
 # Tester Register API Contract (v1)
 
 Status: Active
-Version: v1
+Version: v2
 Last Updated: 2026-04-01
 
 ## 1. Scope
