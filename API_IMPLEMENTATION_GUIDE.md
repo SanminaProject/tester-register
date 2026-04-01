@@ -1,8 +1,13 @@
-# Tester Register API Implementation Guide (v1)
+# Tester Register API Implementation Guide (V15)
 
 Status: Active
-Version: v1
+Version: V15
 Last Updated: 2026-04-01
+
+Versioning note:
+
+- `Version: V15` is the document revision aligned with chenqi branch commit progression.
+- Actual API routes remain under `/api/v1` in code.
 
 ## 1. Purpose and Audience
 

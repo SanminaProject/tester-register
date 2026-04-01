@@ -1,7 +1,7 @@
-# Tester Register API Contract (v2)
+# Tester Register API Contract (V15)
 
 Status: Active
-Version: v2
+Version: V15
 Last Updated: 2026-04-01
 
 ## 1. Scope
@@ -16,6 +16,11 @@ It covers:
 - Authorization and permission matrix
 
 ## 2. Base URL and Versioning
+
+Note:
+
+- `Version: V15` in this file refers to document revision based on chenqi commit order.
+- API route version is still `/api/v1` and is unchanged.
 
 - Base URL (local): http://localhost:8000
 - API prefix: /api/v1

@@ -13,9 +13,9 @@ Detailed instructions can be found in [RUNNING-LOCALLY.md](./docs/RUNNING-LOCALL
 
 ## API Contract
 
-Formal API contract documentation is available in [API_DESIGN.md](./API_DESIGN.md)
+Formal API contract documentation is available in [API_DESIGN.md](./API_DESIGN.md) (current doc revision: V15)
 
-Implementation details and development workflow are documented in [API_IMPLEMENTATION_GUIDE.md](./API_IMPLEMENTATION_GUIDE.md)
+Implementation details and development workflow are documented in [API_IMPLEMENTATION_GUIDE.md](./API_IMPLEMENTATION_GUIDE.md) (current doc revision: V15)
 
 ## Third-Party Licenses
 

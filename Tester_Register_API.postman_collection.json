@@ -1,6 +1,8 @@
 {
   "info": {
     "name": "Tester Register API",
+    "version": "V15",
+    "description": "Collection revision aligned with chenqi API documentation version V15.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
