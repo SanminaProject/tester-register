@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 use App\Models\User;
+use App\Models\Event;
 use App\Livewire\Pages\Dashboard\Calendar;
 
 class CalendarTest extends DuskTestCase
@@ -30,14 +31,20 @@ class CalendarTest extends DuskTestCase
 
     public function test_events_are_visible_on_calendar()
     {
+        $event = Event::factory()->create([
+            'title' => 'Dusk Test Event',
+            'type' => 'calibration',
+            'start' => '2026-03-25T10:00:00',
+            'end' => '2026-03-25T11:00:00',
+        ]);
+
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
                 ->visit('/dashboard')
                 ->waitFor('#calendar')
-                ->pause(1000) 
+                ->waitFor('.fc-event', 5)
 
-                ->assertSee('Tester calibration')
-                ->assertSee('Tester maintenance');
+                ->assertSeeIn('#calendar', 'Dusk Test Event');
         });
     }
 }

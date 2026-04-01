@@ -31,10 +31,17 @@ abstract class DuskTestCase extends BaseTestCase
             $this->shouldStartMaximized() ? '--start-maximized' : '--window-size=1920,1080',
             '--disable-search-engine-choice-screen',
             '--disable-smooth-scrolling',
+            '--disable-background-networking',
+            '--disable-sync',
+            '--disable-notifications',
+            '--disable-extensions',
+            '--disable-infobars',
         ])->unless($this->hasHeadlessDisabled(), function (Collection $items) {
             return $items->merge([
                 '--disable-gpu',
                 '--headless=new',
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
             ]);
         })->all());
 
