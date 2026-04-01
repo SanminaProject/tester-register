@@ -25,13 +25,7 @@ use App\Http\Controllers\Api\SparePartController;
 Route::prefix('v1')->group(function () {
     // Public routes - Authentication
     Route::post('/auth/login', [AuthController::class, 'login']);
-    Route::post('/auth/register', function (Request $request) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Registration not implemented yet',
-            'code' => 501,
-        ], 501);
-    });
+    Route::post('/auth/register', [AuthController::class, 'register']);
 
     // Protected routes - Require authentication
     Route::middleware('auth:sanctum')->group(function () {
