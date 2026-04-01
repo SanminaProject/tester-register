@@ -16,7 +16,7 @@ use App\Http\Controllers\Api\SparePartController;
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
+| Here is where we can register API routes for the application. These
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "api" middleware group.
 |
