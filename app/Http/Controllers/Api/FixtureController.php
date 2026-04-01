@@ -3,28 +3,27 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ListFixtureRequest;
 use App\Http\Requests\Api\StoreFixtureRequest;
 use App\Http\Requests\Api\UpdateFixtureRequest;
 use App\Models\Fixture;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-
-// Request is kept here for index() method
 
 class FixtureController extends Controller
 {
     /**
      * Get all fixtures with pagination
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListFixtureRequest $request): JsonResponse
     {
         $this->authorize('view', Fixture::class);
 
-        $page = $request->query('page', 1);
-        $perPage = $request->query('per_page', 15);
-        $testerId = $request->query('tester_id');
-        $status = $request->query('status');
-        $search = $request->query('search', '');
+        $validated = $request->validated();
+        $page = (int) ($validated['page'] ?? 1);
+        $perPage = (int) ($validated['per_page'] ?? 15);
+        $testerId = $validated['tester_id'] ?? null;
+        $status = $validated['status'] ?? null;
+        $search = (string) ($validated['search'] ?? '');
 
         $query = Fixture::with('tester');
 
@@ -61,8 +60,8 @@ class FixtureController extends Controller
             'data' => [
                 'items' => $fixtures,
                 'pagination' => [
-                    'current_page' => (int)$page,
-                    'per_page' => (int)$perPage,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
                     'total' => $total,
                     'total_pages' => (int)ceil($total / $perPage),
                 ],

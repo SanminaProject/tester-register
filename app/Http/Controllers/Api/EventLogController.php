@@ -3,28 +3,27 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ListEventLogRequest;
 use App\Http\Requests\Api\StoreEventLogRequest;
 use App\Models\EventLog;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-
-// Request is kept here for index() method
 
 class EventLogController extends Controller
 {
     /**
      * Get all event logs with filtering
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListEventLogRequest $request): JsonResponse
     {
         $this->authorize('view', EventLog::class);
 
-        $page = $request->query('page', 1);
-        $perPage = $request->query('per_page', 15);
-        $testerId = $request->query('tester_id');
-        $type = $request->query('type');
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
+        $validated = $request->validated();
+        $page = (int) ($validated['page'] ?? 1);
+        $perPage = (int) ($validated['per_page'] ?? 15);
+        $testerId = $validated['tester_id'] ?? null;
+        $type = $validated['type'] ?? null;
+        $startDate = $validated['start_date'] ?? null;
+        $endDate = $validated['end_date'] ?? null;
 
         $query = EventLog::with('tester');
 
@@ -61,8 +60,8 @@ class EventLogController extends Controller
             'data' => [
                 'items' => $logs,
                 'pagination' => [
-                    'current_page' => (int)$page,
-                    'per_page' => (int)$perPage,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
                     'total' => $total,
                     'total_pages' => (int)ceil($total / $perPage),
                 ],

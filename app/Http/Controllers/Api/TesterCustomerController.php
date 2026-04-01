@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ListTesterCustomerRequest;
 use App\Http\Requests\Api\UpdateTesterCustomerRequest;
 use App\Models\TesterCustomer;
 use Illuminate\Http\JsonResponse;
@@ -13,13 +14,14 @@ class TesterCustomerController extends Controller
     /**
      * Get all customers with pagination
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListTesterCustomerRequest $request): JsonResponse
     {
         $this->authorize('view', TesterCustomer::class);
 
-        $page = $request->query('page', 1);
-        $perPage = $request->query('per_page', 15);
-        $search = $request->query('search', '');
+        $validated = $request->validated();
+        $page = (int) ($validated['page'] ?? 1);
+        $perPage = (int) ($validated['per_page'] ?? 15);
+        $search = (string) ($validated['search'] ?? '');
 
         $query = TesterCustomer::query();
 
@@ -39,8 +41,8 @@ class TesterCustomerController extends Controller
             'data' => [
                 'items' => $customers,
                 'pagination' => [
-                    'current_page' => (int)$page,
-                    'per_page' => (int)$perPage,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
                     'total' => $total,
                     'total_pages' => (int)ceil($total / $perPage),
                 ],
