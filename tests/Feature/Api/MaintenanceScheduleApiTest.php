@@ -287,7 +287,7 @@ class MaintenanceScheduleApiTest extends TestCase
         $schedule = $this->createTestSchedule();
 
         $response = $this->postJson("/api/v1/maintenance-schedules/{$schedule->id}/complete", [
-            'completed_date' => '2026-04-02',
+            'completed_date' => '2026-04-01',
             'performed_by' => 'John Doe',
             'notes' => 'Maintenance completed successfully',
         ]);

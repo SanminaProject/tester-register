@@ -294,7 +294,7 @@ class SparePartApiTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('data.quantity_in_stock', 20)
-            ->assertJsonPath('data.unit_cost', 55.75);
+            ->assertJsonPath('data.unit_cost', '55.75');
 
         $this->assertDatabaseHas('spare_parts', [
             'id' => $part->id,

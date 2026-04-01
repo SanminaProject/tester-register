@@ -19,7 +19,7 @@ class CalibrationScheduleFactory extends Factory
             'tester_id' => Tester::factory(),
             'scheduled_date' => $this->faker->dateTimeBetween('+1 day', '+30 days')->format('Y-m-d'),
             'procedure' => $this->faker->sentence(),
-            'status' => $this->faker->randomElement(['pending', 'in_progress', 'completed']),
+            'status' => $this->faker->randomElement(['pending', 'completed']),
             'notes' => $this->faker->optional()->text(),
             'completed_date' => null,
             'performed_by' => null,

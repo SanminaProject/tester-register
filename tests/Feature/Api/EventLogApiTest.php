@@ -164,7 +164,7 @@ class EventLogApiTest extends TestCase
             'tester_id' => $tester->id,
             'type' => 'maintenance',
             'description' => 'Regular maintenance performed',
-            'event_date' => '2026-04-02 14:30:00',
+            'event_date' => '2026-04-01 14:30:00',
         ]);
 
         $response->assertCreated()
@@ -187,8 +187,8 @@ class EventLogApiTest extends TestCase
         $response = $this->postJson('/api/v1/event-logs', [
             'tester_id' => $tester->id,
             'type' => 'maintenance',
-            'description' => 'Test',
-            'event_date' => '2026-04-02 14:30:00',
+            'description' => 'This is a test description',
+            'event_date' => '2026-04-01 14:30:00',
         ]);
 
         $response->assertForbidden();
