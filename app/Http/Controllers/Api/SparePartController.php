@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreSparePartRequest;
+use App\Http\Requests\Api\UpdateSparePartRequest;
 use App\Models\SparePart;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
+// Request is kept here for index() method
 
 class SparePartController extends Controller
 {
@@ -71,19 +75,11 @@ class SparePartController extends Controller
     /**
      * Create a new spare part
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreSparePartRequest $request): JsonResponse
     {
         $this->authorize('create', SparePart::class);
 
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'part_number' => 'required|string|unique:spare_parts',
-            'quantity_in_stock' => 'required|integer|min:0',
-            'unit_cost' => 'required|numeric|min:0',
-            'supplier' => 'nullable|string',
-        ]);
-
-        $part = SparePart::create($validated);
+        $part = SparePart::create($request->validated());
 
         return response()->json([
             'success' => true,
@@ -130,19 +126,11 @@ class SparePartController extends Controller
     /**
      * Update a spare part
      */
-    public function update(Request $request, SparePart $part): JsonResponse
+    public function update(UpdateSparePartRequest $request, SparePart $part): JsonResponse
     {
         $this->authorize('update', $part);
 
-        $validated = $request->validate([
-            'name' => 'string',
-            'part_number' => 'string|unique:spare_parts,part_number,' . $part->id,
-            'quantity_in_stock' => 'integer|min:0',
-            'unit_cost' => 'numeric|min:0',
-            'supplier' => 'nullable|string',
-        ]);
-
-        $part->update($validated);
+        $part->update($request->validated());
 
         return response()->json([
             'success' => true,

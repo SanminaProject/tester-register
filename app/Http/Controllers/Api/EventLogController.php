@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreEventLogRequest;
 use App\Models\EventLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
+// Request is kept here for index() method
 
 class EventLogController extends Controller
 {
@@ -71,17 +74,11 @@ class EventLogController extends Controller
     /**
      * Create a new event log
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreEventLogRequest $request): JsonResponse
     {
         $this->authorize('create', EventLog::class);
 
-        $validated = $request->validate([
-            'tester_id' => 'required|exists:testers,id',
-            'type' => 'required|in:maintenance,calibration,issue,repair,other',
-            'description' => 'required|string',
-            'event_date' => 'required|date_format:Y-m-d H:i:s',
-        ]);
-
+        $validated = $request->validated();
         $validated['recorded_by'] = $request->user()->name ?? 'System';
         $log = EventLog::create($validated);
 

@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreCalibrationScheduleRequest;
+use App\Http\Requests\Api\UpdateCalibrationScheduleRequest;
+use App\Http\Requests\Api\CompleteCalibrationRequest;
 use App\Models\CalibrationSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
+// Request is kept here for index() method
 
 class CalibrationScheduleController extends Controller
 {
@@ -72,17 +77,11 @@ class CalibrationScheduleController extends Controller
     /**
      * Create a new calibration schedule
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreCalibrationScheduleRequest $request): JsonResponse
     {
         $this->authorize('create', CalibrationSchedule::class);
 
-        $validated = $request->validate([
-            'tester_id' => 'required|exists:testers,id',
-            'scheduled_date' => 'required|date',
-            'procedure' => 'required|string',
-            'notes' => 'nullable|string',
-        ]);
-
+        $validated = $request->validated();
         $validated['status'] = 'pending';
         $schedule = CalibrationSchedule::create($validated);
 
@@ -114,17 +113,11 @@ class CalibrationScheduleController extends Controller
     /**
      * Update a calibration schedule
      */
-    public function update(Request $request, CalibrationSchedule $schedule): JsonResponse
+    public function update(UpdateCalibrationScheduleRequest $request, CalibrationSchedule $schedule): JsonResponse
     {
         $this->authorize('update', $schedule);
 
-        $validated = $request->validate([
-            'scheduled_date' => 'date',
-            'procedure' => 'string',
-            'notes' => 'nullable|string',
-        ]);
-
-        $schedule->update($validated);
+        $schedule->update($request->validated());
 
         return response()->json([
             'success' => true,
@@ -137,16 +130,11 @@ class CalibrationScheduleController extends Controller
     /**
      * Complete a calibration task
      */
-    public function complete(Request $request, CalibrationSchedule $schedule): JsonResponse
+    public function complete(CompleteCalibrationRequest $request, CalibrationSchedule $schedule): JsonResponse
     {
         $this->authorize('update', $schedule);
 
-        $validated = $request->validate([
-            'completed_date' => 'required|date',
-            'performed_by' => 'required|string',
-            'notes' => 'nullable|string',
-        ]);
-
+        $validated = $request->validated();
         $schedule->update([
             'status' => 'completed',
             'completed_date' => $validated['completed_date'],

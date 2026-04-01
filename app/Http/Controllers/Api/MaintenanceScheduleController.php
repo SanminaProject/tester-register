@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreMaintenanceScheduleRequest;
+use App\Http\Requests\Api\UpdateMaintenanceScheduleRequest;
+use App\Http\Requests\Api\CompleteMaintenanceRequest;
 use App\Models\MaintenanceSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
+// Request is kept here for index() method
 
 class MaintenanceScheduleController extends Controller
 {
@@ -72,17 +77,11 @@ class MaintenanceScheduleController extends Controller
     /**
      * Create a new maintenance schedule
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreMaintenanceScheduleRequest $request): JsonResponse
     {
         $this->authorize('create', MaintenanceSchedule::class);
 
-        $validated = $request->validate([
-            'tester_id' => 'required|exists:testers,id',
-            'scheduled_date' => 'required|date',
-            'procedure' => 'required|string',
-            'notes' => 'nullable|string',
-        ]);
-
+        $validated = $request->validated();
         $validated['status'] = 'pending';
         $schedule = MaintenanceSchedule::create($validated);
 
@@ -114,17 +113,11 @@ class MaintenanceScheduleController extends Controller
     /**
      * Update a maintenance schedule
      */
-    public function update(Request $request, MaintenanceSchedule $schedule): JsonResponse
+    public function update(UpdateMaintenanceScheduleRequest $request, MaintenanceSchedule $schedule): JsonResponse
     {
         $this->authorize('update', $schedule);
 
-        $validated = $request->validate([
-            'scheduled_date' => 'date',
-            'procedure' => 'string',
-            'notes' => 'nullable|string',
-        ]);
-
-        $schedule->update($validated);
+        $schedule->update($request->validated());
 
         return response()->json([
             'success' => true,
@@ -137,16 +130,11 @@ class MaintenanceScheduleController extends Controller
     /**
      * Complete a maintenance task
      */
-    public function complete(Request $request, MaintenanceSchedule $schedule): JsonResponse
+    public function complete(CompleteMaintenanceRequest $request, MaintenanceSchedule $schedule): JsonResponse
     {
         $this->authorize('update', $schedule);
 
-        $validated = $request->validate([
-            'completed_date' => 'required|date',
-            'performed_by' => 'required|string',
-            'notes' => 'nullable|string',
-        ]);
-
+        $validated = $request->validated();
         $schedule->update([
             'status' => 'completed',
             'completed_date' => $validated['completed_date'],

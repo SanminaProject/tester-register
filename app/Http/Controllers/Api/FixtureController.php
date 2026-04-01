@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreFixtureRequest;
+use App\Http\Requests\Api\UpdateFixtureRequest;
 use App\Models\Fixture;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
+// Request is kept here for index() method
 
 class FixtureController extends Controller
 {
@@ -70,17 +74,11 @@ class FixtureController extends Controller
     /**
      * Create a new fixture
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreFixtureRequest $request): JsonResponse
     {
         $this->authorize('create', Fixture::class);
 
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'serial_number' => 'required|string|unique:fixtures',
-            'tester_id' => 'required|exists:testers,id',
-            'purchase_date' => 'required|date',
-            'status' => 'in:active,inactive',
-        ]);
+        $validated = $request->validated();
 
         $fixture = Fixture::create($validated);
         $fixture->load('tester');
@@ -121,19 +119,11 @@ class FixtureController extends Controller
     /**
      * Update a fixture
      */
-    public function update(Request $request, Fixture $fixture): JsonResponse
+    public function update(UpdateFixtureRequest $request, Fixture $fixture): JsonResponse
     {
         $this->authorize('update', $fixture);
 
-        $validated = $request->validate([
-            'name' => 'string',
-            'serial_number' => 'string|unique:fixtures,serial_number,' . $fixture->id,
-            'tester_id' => 'exists:testers,id',
-            'purchase_date' => 'date',
-            'status' => 'in:active,inactive',
-        ]);
-
-        $fixture->update($validated);
+        $fixture->update($request->validated());
 
         return response()->json([
             'success' => true,

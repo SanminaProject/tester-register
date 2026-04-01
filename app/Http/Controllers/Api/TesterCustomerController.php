@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\UpdateTesterCustomerRequest;
 use App\Models\TesterCustomer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -106,19 +107,11 @@ class TesterCustomerController extends Controller
     /**
      * Update a customer
      */
-    public function update(Request $request, TesterCustomer $customer): JsonResponse
+    public function update(UpdateTesterCustomerRequest $request, TesterCustomer $customer): JsonResponse
     {
         $this->authorize('update', $customer);
 
-        $validated = $request->validate([
-            'company_name' => 'string|unique:tester_customers,company_name,' . $customer->id,
-            'address' => 'string',
-            'contact_person' => 'string',
-            'phone' => 'string',
-            'email' => 'email',
-        ]);
-
-        $customer->update($validated);
+        $customer->update($request->validated());
 
         return response()->json([
             'success' => true,
