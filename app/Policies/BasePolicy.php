@@ -36,36 +36,4 @@ class BasePolicy
 
         return $user->hasRole(array_values(array_unique($expandedRoles)));
     }
-
-    /**
-     * Check if user can view
-     */
-    public function view(User $user): bool
-    {
-        return true;
-    }
-
-    /**
-     * Check if user can create
-     */
-    public function create(User $user): bool
-    {
-        return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
-    }
-
-    /**
-     * Check if user can update
-     */
-    public function update(User $user): bool
-    {
-        return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
-    }
-
-    /**
-     * Check if user can delete
-     */
-    public function delete(User $user): bool
-    {
-        return $this->hasAnyRole($user, ['admin']);
-    }
 }
