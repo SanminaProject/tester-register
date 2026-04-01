@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ListTesterCustomerRequest;
+use App\Http\Requests\Api\StoreTesterCustomerRequest;
 use App\Http\Requests\Api\UpdateTesterCustomerRequest;
 use App\Models\TesterCustomer;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class TesterCustomerController extends Controller
 {
@@ -54,19 +54,11 @@ class TesterCustomerController extends Controller
     /**
      * Create a new customer
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreTesterCustomerRequest $request): JsonResponse
     {
         $this->authorize('create', TesterCustomer::class);
 
-        $validated = $request->validate([
-            'company_name' => 'required|string|unique:tester_customers',
-            'address' => 'required|string',
-            'contact_person' => 'required|string',
-            'phone' => 'required|string',
-            'email' => 'required|email',
-        ]);
-
-        $customer = TesterCustomer::create($validated);
+        $customer = TesterCustomer::create($request->validated());
 
         return response()->json([
             'success' => true,
