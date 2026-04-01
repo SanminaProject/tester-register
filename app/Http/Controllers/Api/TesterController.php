@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreTesterRequest;
+use App\Http\Requests\Api\UpdateTesterRequest;
+use App\Http\Requests\Api\UpdateTesterStatusRequest;
 use App\Models\Tester;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -64,18 +67,11 @@ class TesterController extends Controller
     /**
      * Create a new tester
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreTesterRequest $request): JsonResponse
     {
         $this->authorize('create', Tester::class);
 
-        $validated = $request->validate([
-            'model' => 'required|string|max:100',
-            'serial_number' => 'required|string|unique:testers|max:50',
-            'customer_id' => 'required|exists:tester_customers,id',
-            'purchase_date' => 'required|date',
-            'status' => 'in:active,inactive,maintenance',
-            'location' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         $tester = Tester::create($validated);
         $tester->load('customer');
@@ -126,18 +122,11 @@ class TesterController extends Controller
     /**
      * Update a tester
      */
-    public function update(Request $request, Tester $tester): JsonResponse
+    public function update(UpdateTesterRequest $request, Tester $tester): JsonResponse
     {
         $this->authorize('update', $tester);
 
-        $validated = $request->validate([
-            'model' => 'string|max:100',
-            'serial_number' => 'string|unique:testers,serial_number,' . $tester->id . '|max:50',
-            'customer_id' => 'exists:tester_customers,id',
-            'purchase_date' => 'date',
-            'status' => 'in:active,inactive,maintenance',
-            'location' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         $tester->update($validated);
         $tester->load('customer');
@@ -183,13 +172,11 @@ class TesterController extends Controller
     /**
      * Update tester status
      */
-    public function updateStatus(Request $request, Tester $tester): JsonResponse
+    public function updateStatus(UpdateTesterStatusRequest $request, Tester $tester): JsonResponse
     {
         $this->authorize('update', $tester);
 
-        $validated = $request->validate([
-            'status' => 'required|in:active,inactive,maintenance',
-        ]);
+        $validated = $request->validated();
 
         $tester->update($validated);
 
