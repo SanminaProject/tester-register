@@ -37,5 +37,8 @@ yarn-error.log
 
 
 
+# Local development audit - keep locally only
+/docs/API_DEVELOPMENT_AUDIT.md
 /CQL-LearningNotes.md
 /LearningNotes.md
+/docs/CHENQI_API_DEVELOPMENT_PROGRESS.md
