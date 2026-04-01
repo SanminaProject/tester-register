@@ -65,32 +65,38 @@ Notes:
 - code mirrors the HTTP status code in business responses.
 - list endpoints return data.items and data.pagination.
 
-### 4.2 Framework Error Envelopes
+### 4.2 Unified API Error Envelope
 
-Validation and framework exceptions can return Laravel default JSON bodies.
-Typical validation body:
+All API errors under `/api/v1/*` return a consistent envelope:
 
 ```json
 {
-    "message": "The given data was invalid.",
+    "success": false,
+    "message": "Human readable error message",
+    "code": 422,
     "errors": {
         "field": ["Validation message"]
     }
 }
 ```
 
+Notes:
+
+- `errors` appears for validation failures (422).
+- Other error types omit `errors` unless field-level details exist.
+
 ## 5. Error Codes
 
-| HTTP | Meaning               | Typical Trigger                                 | Body Notes                                        |
-| ---- | --------------------- | ----------------------------------------------- | ------------------------------------------------- |
-| 200  | OK                    | Query/update/delete success                     | success=true                                      |
-| 201  | Created               | Resource created or registration success        | success=true                                      |
-| 401  | Unauthorized          | Missing/invalid token, or bad login credentials | For login failure, custom body with success=false |
-| 403  | Forbidden             | Authenticated but policy denies action          | Framework authorization error                     |
-| 404  | Not Found             | Missing route model binding id                  | Framework not found error                         |
-| 409  | Conflict              | Delete customer with linked testers             | Custom conflict body                              |
-| 422  | Unprocessable Entity  | Validation failure                              | Validation errors object                          |
-| 500  | Internal Server Error | Unhandled server exception                      | Should be treated as non-contract failure         |
+| HTTP | Meaning               | Typical Trigger                                 | Body Notes                       |
+| ---- | --------------------- | ----------------------------------------------- | -------------------------------- |
+| 200  | OK                    | Query/update/delete success                     | success=true                     |
+| 201  | Created               | Resource created or registration success        | success=true                     |
+| 401  | Unauthorized          | Missing/invalid token, or bad login credentials | Unified error envelope           |
+| 403  | Forbidden             | Authenticated but policy denies action          | Unified error envelope           |
+| 404  | Not Found             | Missing route model binding id                  | Unified error envelope           |
+| 409  | Conflict              | Delete customer with linked testers             | Custom conflict body             |
+| 422  | Unprocessable Entity  | Validation failure                              | Unified envelope + errors object |
+| 500  | Internal Server Error | Unhandled server exception                      | Unified error envelope           |
 
 ## 6. Role Model and Permission Matrix
 

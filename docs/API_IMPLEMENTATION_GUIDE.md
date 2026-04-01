@@ -312,7 +312,7 @@ The running API behavior should always be treated as defined by migrations + mod
 
 ## 11. Error Handling Behavior
 
-Current behavior is mixed by source:
+Current behavior is unified for API routes (`/api/*`) via centralized exception rendering in `bootstrap/app.php`.
 
 1. Business errors (manual response)
 
@@ -325,9 +325,23 @@ Current behavior is mixed by source:
 - Authorization denials (403)
 - Route model not found (404)
 
-Recommendation:
+All framework errors above are normalized to the API error envelope:
 
-- Add a centralized API exception renderer to normalize all errors into one envelope.
+```json
+{
+    "success": false,
+    "message": "Human readable error message",
+    "code": 422,
+    "errors": {
+        "field": ["Validation message"]
+    }
+}
+```
+
+Notes:
+
+- `errors` is present for validation exceptions.
+- 401/403/404/405/500 return the same envelope shape without `errors` by default.
 
 ## 12. API Testing Strategy
 
