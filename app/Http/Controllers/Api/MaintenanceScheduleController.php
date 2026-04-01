@@ -3,30 +3,29 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ListMaintenanceScheduleRequest;
 use App\Http\Requests\Api\StoreMaintenanceScheduleRequest;
 use App\Http\Requests\Api\UpdateMaintenanceScheduleRequest;
 use App\Http\Requests\Api\CompleteMaintenanceRequest;
 use App\Models\MaintenanceSchedule;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-
-// Request is kept here for index() method
 
 class MaintenanceScheduleController extends Controller
 {
     /**
      * Get all maintenance schedules with filtering
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListMaintenanceScheduleRequest $request): JsonResponse
     {
         $this->authorize('view', MaintenanceSchedule::class);
 
-        $page = $request->query('page', 1);
-        $perPage = $request->query('per_page', 15);
-        $testerId = $request->query('tester_id');
-        $status = $request->query('status');
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
+        $validated = $request->validated();
+        $page = (int) ($validated['page'] ?? 1);
+        $perPage = (int) ($validated['per_page'] ?? 15);
+        $testerId = $validated['tester_id'] ?? null;
+        $status = $validated['status'] ?? null;
+        $startDate = $validated['start_date'] ?? null;
+        $endDate = $validated['end_date'] ?? null;
 
         $query = MaintenanceSchedule::with('tester');
 
@@ -64,8 +63,8 @@ class MaintenanceScheduleController extends Controller
             'data' => [
                 'items' => $schedules,
                 'pagination' => [
-                    'current_page' => (int)$page,
-                    'per_page' => (int)$perPage,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
                     'total' => $total,
                     'total_pages' => (int)ceil($total / $perPage),
                 ],

@@ -3,27 +3,26 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ListSparePartRequest;
 use App\Http\Requests\Api\StoreSparePartRequest;
 use App\Http\Requests\Api\UpdateSparePartRequest;
 use App\Models\SparePart;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-
-// Request is kept here for index() method
 
 class SparePartController extends Controller
 {
     /**
      * Get all spare parts with pagination
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListSparePartRequest $request): JsonResponse
     {
         $this->authorize('view', SparePart::class);
 
-        $page = $request->query('page', 1);
-        $perPage = $request->query('per_page', 15);
-        $search = $request->query('search', '');
-        $stockStatus = $request->query('stock_status');
+        $validated = $request->validated();
+        $page = (int) ($validated['page'] ?? 1);
+        $perPage = (int) ($validated['per_page'] ?? 15);
+        $search = (string) ($validated['search'] ?? '');
+        $stockStatus = $validated['stock_status'] ?? null;
 
         $query = SparePart::query();
 
@@ -62,8 +61,8 @@ class SparePartController extends Controller
             'data' => [
                 'items' => $parts,
                 'pagination' => [
-                    'current_page' => (int)$page,
-                    'per_page' => (int)$perPage,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
                     'total' => $total,
                     'total_pages' => (int)ceil($total / $perPage),
                 ],

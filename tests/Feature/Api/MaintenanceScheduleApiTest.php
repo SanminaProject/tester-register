@@ -141,6 +141,17 @@ class MaintenanceScheduleApiTest extends TestCase
             ->assertJsonPath('data.pagination.total', 1);
     }
 
+    public function test_list_maintenance_schedules_validates_pagination_parameters(): void
+    {
+        $admin = $this->createAdminUser();
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson('/api/v1/maintenance-schedules?page=0&per_page=0');
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['page', 'per_page']);
+    }
+
     // ==================== CREATE ENDPOINT TESTS ====================
 
     public function test_admin_can_create_maintenance_schedule(): void

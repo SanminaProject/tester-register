@@ -3,30 +3,29 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ListCalibrationScheduleRequest;
 use App\Http\Requests\Api\StoreCalibrationScheduleRequest;
 use App\Http\Requests\Api\UpdateCalibrationScheduleRequest;
 use App\Http\Requests\Api\CompleteCalibrationRequest;
 use App\Models\CalibrationSchedule;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-
-// Request is kept here for index() method
 
 class CalibrationScheduleController extends Controller
 {
     /**
      * Get all calibration schedules with filtering
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListCalibrationScheduleRequest $request): JsonResponse
     {
         $this->authorize('view', CalibrationSchedule::class);
 
-        $page = $request->query('page', 1);
-        $perPage = $request->query('per_page', 15);
-        $testerId = $request->query('tester_id');
-        $status = $request->query('status');
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
+        $validated = $request->validated();
+        $page = (int) ($validated['page'] ?? 1);
+        $perPage = (int) ($validated['per_page'] ?? 15);
+        $testerId = $validated['tester_id'] ?? null;
+        $status = $validated['status'] ?? null;
+        $startDate = $validated['start_date'] ?? null;
+        $endDate = $validated['end_date'] ?? null;
 
         $query = CalibrationSchedule::with('tester');
 
@@ -64,8 +63,8 @@ class CalibrationScheduleController extends Controller
             'data' => [
                 'items' => $schedules,
                 'pagination' => [
-                    'current_page' => (int)$page,
-                    'per_page' => (int)$perPage,
+                    'current_page' => $page,
+                    'per_page' => $perPage,
                     'total' => $total,
                     'total_pages' => (int)ceil($total / $perPage),
                 ],

@@ -148,6 +148,17 @@ class SparePartApiTest extends TestCase
             ->assertJsonCount(10, 'data.items');
     }
 
+    public function test_list_spare_parts_validates_pagination_parameters(): void
+    {
+        $admin = $this->createAdminUser();
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson('/api/v1/spare-parts?page=0&per_page=0');
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['page', 'per_page']);
+    }
+
     // ==================== CREATE ENDPOINT TESTS ====================
 
     public function test_admin_can_create_spare_part(): void
