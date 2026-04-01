@@ -33,8 +33,10 @@ class FixtureController extends Controller
         }
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('serial_number', 'like', "%{$search}%");
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('name', 'like', "%{$search}%")
+                    ->orWhere('serial_number', 'like', "%{$search}%");
+            });
         }
 
         $total = $query->count();

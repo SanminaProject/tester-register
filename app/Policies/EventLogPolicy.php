@@ -9,12 +9,12 @@ class EventLogPolicy extends BasePolicy
 {
     public function view(User $user): bool
     {
-        return $user->hasRole(['admin', 'manager', 'technician']);
+        return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole(['admin', 'manager', 'technician']);
+        return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
     }
 
     public function update(User $user, EventLog $log): bool
@@ -24,6 +24,6 @@ class EventLogPolicy extends BasePolicy
 
     public function delete(User $user, EventLog $log): bool
     {
-        return $user->hasRole(['admin']);
+        return $this->hasAnyRole($user, ['admin']);
     }
 }

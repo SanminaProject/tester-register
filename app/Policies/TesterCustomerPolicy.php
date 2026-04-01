@@ -9,21 +9,21 @@ class TesterCustomerPolicy extends BasePolicy
 {
     public function view(User $user): bool
     {
-        return $user->hasRole(['admin', 'manager', 'technician', 'guest']);
+        return $this->hasAnyRole($user, ['admin', 'manager', 'technician', 'guest']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole(['admin', 'manager']);
+        return $this->hasAnyRole($user, ['admin', 'manager']);
     }
 
     public function update(User $user, TesterCustomer $customer): bool
     {
-        return $user->hasRole(['admin', 'manager']);
+        return $this->hasAnyRole($user, ['admin', 'manager']);
     }
 
     public function delete(User $user, TesterCustomer $customer): bool
     {
-        return $user->hasRole(['admin']);
+        return $this->hasAnyRole($user, ['admin']);
     }
 }

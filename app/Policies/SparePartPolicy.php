@@ -9,21 +9,21 @@ class SparePartPolicy extends BasePolicy
 {
     public function view(User $user): bool
     {
-        return $user->hasRole(['admin', 'manager', 'technician']);
+        return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole(['admin', 'manager']);
+        return $this->hasAnyRole($user, ['admin', 'manager']);
     }
 
     public function update(User $user, SparePart $part): bool
     {
-        return $user->hasRole(['admin', 'manager']);
+        return $this->hasAnyRole($user, ['admin', 'manager']);
     }
 
     public function delete(User $user, SparePart $part): bool
     {
-        return $user->hasRole(['admin']);
+        return $this->hasAnyRole($user, ['admin']);
     }
 }

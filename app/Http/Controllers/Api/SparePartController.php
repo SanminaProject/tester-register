@@ -24,8 +24,10 @@ class SparePartController extends Controller
         $query = SparePart::query();
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('part_number', 'like', "%{$search}%");
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('name', 'like', "%{$search}%")
+                    ->orWhere('part_number', 'like', "%{$search}%");
+            });
         }
 
         if ($stockStatus) {

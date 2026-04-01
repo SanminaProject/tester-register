@@ -23,8 +23,10 @@ class TesterCustomerController extends Controller
         $query = TesterCustomer::query();
 
         if ($search) {
-            $query->where('company_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('company_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
         }
 
         $total = $query->count();
