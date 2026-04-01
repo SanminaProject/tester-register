@@ -115,7 +115,7 @@ Legend:
 | --------------------------- | -------------------: | ---------: | --------: | --------: |
 | Auth register/login         |                    Y |          Y |         Y |         Y |
 | Auth logout                 | Y (if authenticated) |          Y |         Y |         Y |
-| Customers list/show         |                    Y |          Y |         Y |         Y |
+| Customers list/show         |                    N |          Y |         Y |         Y |
 | Customers create            |                    N |          N |         Y |         Y |
 | Customers update            |                    N |          N |         Y |         Y |
 | Customers delete            |                    N |          N |         N |         Y |
@@ -268,6 +268,12 @@ Endpoints:
 - GET /api/v1/customers/{customer}
 - PUT/PATCH /api/v1/customers/{customer}
 - DELETE /api/v1/customers/{customer}
+
+Access roles:
+
+- list/show: admin, manager, technician
+- create/update: admin, manager
+- delete: admin
 
 List query params:
 

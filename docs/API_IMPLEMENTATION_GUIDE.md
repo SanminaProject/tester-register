@@ -343,9 +343,38 @@ Implemented tests:
 
 - tests/Feature/Api/CustomerApiTest.php
     - unauthenticated blocked
-    - authenticated without role blocked
-    - admin CRUD happy path
-    - validation failure
+    - guest role blocked from customer list
+        - authenticated without role blocked
+        - admin CRUD happy path
+        - validation failure
+
+- tests/Feature/Api/TesterApiTest.php
+    - list/show/create/update/delete/status flows
+    - filters, pagination, and validation checks
+
+- tests/Feature/Api/FixtureApiTest.php
+    - list/show/create/update/delete flows
+    - filters, search, pagination, and validation checks
+
+- tests/Feature/Api/MaintenanceScheduleApiTest.php
+    - list/show/create/update/delete flows
+    - complete action and validation checks
+
+- tests/Feature/Api/CalibrationScheduleApiTest.php
+    - list/show/create/update/delete flows
+    - complete action and validation checks
+
+- tests/Feature/Api/EventLogApiTest.php
+    - list/show/create flows
+    - immutable endpoint constraints (update/delete blocked)
+
+- tests/Feature/Api/SparePartApiTest.php
+    - list/show/create/update/delete flows
+    - stock filters/search/pagination and validation checks
+
+Current status:
+
+- API test suite: 120 passed
 
 ### 12.2 Test Commands
 
@@ -361,15 +390,13 @@ Run full suite:
 php artisan test
 ```
 
-### 12.3 Recommended Next API Tests
+### 12.3 Next Testing Improvements
 
-Add in this order:
+Suggested next additions:
 
-1. Testers endpoint tests (including status update)
-2. Fixtures endpoint tests
-3. Maintenance and calibration complete actions
-4. Event logs date format and list filter combinations
-5. Spare parts stock_status filtering and boundary checks
+1. Rate limit and abuse-protection tests on auth endpoints
+2. Data-volume and pagination boundary tests with larger fixtures
+3. Contract tests that assert response envelope consistency for all error paths
 
 ## 13. Implementation Workflow for New API Endpoints
 

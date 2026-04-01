@@ -17,6 +17,15 @@ class CustomerApiTest extends TestCase
         $this->getJson('/api/v1/customers')->assertUnauthorized();
     }
 
+    public function test_guest_cannot_access_customers_endpoint(): void
+    {
+        $guest = User::factory()->create();
+        $guest->assignRole(Role::firstOrCreate(['name' => 'Guest']));
+        Sanctum::actingAs($guest);
+
+        $this->getJson('/api/v1/customers')->assertForbidden();
+    }
+
     public function test_user_without_required_role_cannot_create_customer(): void
     {
         $user = User::factory()->create();

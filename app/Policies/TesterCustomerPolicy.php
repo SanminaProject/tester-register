@@ -9,7 +9,7 @@ class TesterCustomerPolicy extends BasePolicy
 {
     public function view(User $user): bool
     {
-        return $this->hasAnyRole($user, ['admin', 'manager', 'technician', 'guest']);
+        return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
     }
 
     public function create(User $user): bool
