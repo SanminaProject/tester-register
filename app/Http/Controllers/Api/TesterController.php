@@ -40,18 +40,9 @@ class TesterController extends Controller
 
         $testers = $query->paginate($perPage);
 
-        $items = $testers->getCollection()->map(fn($t) => [
-            'id' => $t->id,
-            'model' => $t->model,
-            'serial_number' => $t->serial_number,
-            'customer_id' => $t->customer_id,
-            'customer_name' => $t->customer?->company_name,
-            'status' => $t->status,
-            'purchase_date' => $t->purchase_date,
-            'location' => $t->location,
-            'created_at' => $t->created_at,
-            'updated_at' => $t->updated_at,
-        ]);
+        $items = $testers->getCollection()->map(
+            fn(Tester $tester) => $this->transformTester($tester, true, true)
+        );
 
         return response()->json([
             'success' => true,
@@ -92,17 +83,7 @@ class TesterController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Device created successfully',
-            'data' => [
-                'id' => $tester->id,
-                'model' => $tester->model,
-                'serial_number' => $tester->serial_number,
-                'customer_id' => $tester->customer_id,
-                'customer_name' => $tester->customer->company_name,
-                'status' => $tester->status,
-                'purchase_date' => $tester->purchase_date,
-                'location' => $tester->location,
-                'created_at' => $tester->created_at,
-            ],
+            'data' => $this->transformTester($tester, true),
             'code' => 201,
         ], 201);
     }
@@ -119,17 +100,7 @@ class TesterController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Device details retrieved successfully',
-            'data' => [
-                'id' => $tester->id,
-                'model' => $tester->model,
-                'serial_number' => $tester->serial_number,
-                'customer_id' => $tester->customer_id,
-                'customer_name' => $tester->customer->company_name,
-                'status' => $tester->status,
-                'purchase_date' => $tester->purchase_date,
-                'location' => $tester->location,
-                'created_at' => $tester->created_at,
-                'updated_at' => $tester->updated_at,
+            'data' => array_merge($this->transformTester($tester, true, true), [
                 'fixtures' => $tester->fixtures->map(fn($f) => [
                     'id' => $f->id,
                     'name' => $f->name,
@@ -147,7 +118,7 @@ class TesterController extends Controller
                     'scheduled_date' => $m->scheduled_date,
                     'status' => $m->status,
                 ]),
-            ],
+            ]),
             'code' => 200,
         ]);
     }
@@ -174,19 +145,39 @@ class TesterController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Device updated successfully',
-            'data' => [
-                'id' => $tester->id,
-                'model' => $tester->model,
-                'serial_number' => $tester->serial_number,
-                'customer_id' => $tester->customer_id,
-                'customer_name' => $tester->customer->company_name,
-                'status' => $tester->status,
-                'purchase_date' => $tester->purchase_date,
-                'location' => $tester->location,
-                'updated_at' => $tester->updated_at,
-            ],
+            'data' => $this->transformTester($tester, false, true),
             'code' => 200,
         ]);
+    }
+
+    /**
+     * Transform tester model to API response payload.
+     */
+    private function transformTester(
+        Tester $tester,
+        bool $includeCreatedAt = false,
+        bool $includeUpdatedAt = false
+    ): array {
+        $data = [
+            'id' => $tester->id,
+            'model' => $tester->model,
+            'serial_number' => $tester->serial_number,
+            'customer_id' => $tester->customer_id,
+            'customer_name' => $tester->customer?->company_name,
+            'status' => $tester->status,
+            'purchase_date' => $tester->purchase_date,
+            'location' => $tester->location,
+        ];
+
+        if ($includeCreatedAt) {
+            $data['created_at'] = $tester->created_at;
+        }
+
+        if ($includeUpdatedAt) {
+            $data['updated_at'] = $tester->updated_at;
+        }
+
+        return $data;
     }
 
     /**
