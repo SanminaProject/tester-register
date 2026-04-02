@@ -38,12 +38,12 @@ CREATE TABLE asset_statuses (
 
 -- holds all essential information about testers
 CREATE TABLE testers (
-    tester_id INT PRIMARY KEY AUTO_INCREMENT,
-    tester_name VARCHAR(100) NOT NULL, -- name of the tester
-    tester_description TEXT, -- detailed description of the tester
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL, -- name of the tester
+    description TEXT, -- detailed description of the tester
     id_number_by_customer VARCHAR(50), -- the ID number given to the tester by the customer
     operating_system VARCHAR(50), -- operating system used by the tester pc or test system
-    tester_type VARCHAR(50), -- type of tester
+    type VARCHAR(50), -- type of tester
     product_family VARCHAR(100), -- product family associated with the tester
     manufacturer VARCHAR(100), -- manufacturer of the tester
     implementation_date DATE, -- date when the tester was implemented
@@ -52,13 +52,13 @@ CREATE TABLE testers (
     -- references
     location_id INT, -- physicallocation of the tester
     owner_id INT, -- owner of the tester, which is usually the customer (NOKIA, HALTIAN etc.)
-    tester_status INT, -- status of the tester (active, inactive or maintenance) 
+    status INT, -- status of the tester (active, inactive or maintenance) 
 
     -- the information on who is responsible for each tester will be stored in the user_tester_assignments table, which links users to testers
 
-    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id),
-    FOREIGN KEY (owner_id) REFERENCES tester_customers(customer_id),
-    FOREIGN KEY (tester_status) REFERENCES asset_statuses(status_id)
+    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(id),
+    FOREIGN KEY (owner_id) REFERENCES tester_customers(id),
+    FOREIGN KEY (status) REFERENCES asset_statuses(id)
 );
 
 CREATE TABLE tester_assets (
@@ -66,7 +66,7 @@ CREATE TABLE tester_assets (
     asset_no VARCHAR(100) NOT NULL,
     tester_id INT NOT NULL,
     
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id)
 );
 
 -- holds all essential information about suppliers of spare parts for testers
