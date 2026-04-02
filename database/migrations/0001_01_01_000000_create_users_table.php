@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
 
-            $table->string('phone_number', 50);
+            $table->string('phone', 50);
             $table->text('responsibilities')->nullable();
             $table->text('qualifications_certifications')->nullable();
 

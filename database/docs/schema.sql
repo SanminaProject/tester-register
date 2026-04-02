@@ -20,7 +20,7 @@ CREATE TABLE users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     email_verified_at TIMESTAMP NULL, 
-    phone_number VARCHAR(50) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
     responsibilities TEXT, -- description of the tasks they are responsible for
     qualifications_certifications TEXT, -- any relevant qualifications or certifications they hold
     password VARCHAR(255) NOT NULL,
@@ -105,10 +105,10 @@ CREATE TABLE tester_spare_parts (
 
 -- holds all essential information about fixtures associated with testers
 CREATE TABLE fixtures (
-    fixture_id INT PRIMARY KEY AUTO_INCREMENT,
-    fixture_name VARCHAR(100) NOT NULL, -- name of the fixture
-    fixture_description TEXT, -- detailed description of the fixture
-    fixture_manufacturer VARCHAR(100), -- manufacturer of the fixture
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL, -- name of the fixture
+    description TEXT, -- detailed description of the fixture
+    manufacturer VARCHAR(100), -- manufacturer of the fixture
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- index for faster lookups of fixtures by tester
@@ -116,12 +116,12 @@ CREATE TABLE fixtures (
 
     -- references
     tester_id INT NOT NULL, -- reference to the tester this fixture is associated with
-    location_id INT, -- physical location of the fixture
+    location_id INT, -- physical location of the fixture    
     fixture_status INT, -- current status of the fixture (active, inactive or maintenance)
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id),
-    FOREIGN KEY (fixture_status) REFERENCES asset_statuses(status_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(id) ON DELETE SET NULL,
+    FOREIGN KEY (fixture_status) REFERENCES asset_statuses(id) ON DELETE SET NULL
 );
 
 -- holds all information on data changes made to testers, fixtures, and spare parts

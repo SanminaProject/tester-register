@@ -13,17 +13,29 @@ return new class extends Migration
     {
         Schema::create('fixtures', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tester_id')->constrained('testers')->cascadeOnDelete();
-            $table->string('name');
-            $table->string('serial_number', 100)->unique();
-            $table->date('purchase_date')->nullable();
-            $table->enum('status', ['active', 'inactive', 'maintenance'])->default('active');
-            $table->string('location')->nullable();
-            $table->text('notes')->nullable();
-            $table->timestamps();
+            $table->string('name', 100);
+            $table->text('description')->nullable();
+            $table->string('manufacturer', 100)->nullable();
+            $table->timestamp('created_at')->useCurrent();
 
-            $table->index(['tester_id', 'status']);
-            $table->index('name');
+            // index for faster lookups of fixtures by tester
+            $table->index('tester_id', 'idx_fixtures_tester');
+
+            // Foreign keys
+            $table->foreign('tester_id')
+                  ->references('id')
+                  ->on('testers')
+                  ->cascadeOnDelete();
+
+            $table->foreign('location_id')
+                  ->references('id')
+                  ->on('tester_and_fixture_locations')
+                  ->nullOnDelete();
+
+            $table->foreign('fixture_status')
+                  ->references('id')
+                  ->on('asset_statuses')
+                  ->nullOnDelete();
         });
     }
 
