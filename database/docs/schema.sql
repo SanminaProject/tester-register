@@ -71,7 +71,7 @@ CREATE TABLE tester_assets (
 
 -- holds all essential information about suppliers of spare parts for testers
 CREATE TABLE tester_spare_part_suppliers (
-    supplier_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     supplier_name VARCHAR(255) NOT NULL,
     contact_person VARCHAR(255),
     contact_email VARCHAR(255),
