@@ -1,10 +1,68 @@
 {
   "info": {
     "name": "Tester Register API",
-    "version": "V15",
-    "description": "Collection revision aligned with chenqi API documentation version V15.",
+    "version": "V16",
+    "description": "Postman collection aligned with the current /api/v1 routes, FormRequest validation, and API controller responses.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "auth_token",
+      "value": ""
+    },
+    {
+      "key": "customer_id",
+      "value": "1"
+    },
+    {
+      "key": "tester_id",
+      "value": "1"
+    },
+    {
+      "key": "fixture_id",
+      "value": "1"
+    },
+    {
+      "key": "maintenance_schedule_id",
+      "value": "1"
+    },
+    {
+      "key": "calibration_schedule_id",
+      "value": "1"
+    },
+    {
+      "key": "event_log_id",
+      "value": "1"
+    },
+    {
+      "key": "spare_part_id",
+      "value": "1"
+    },
+    {
+      "key": "login_email",
+      "value": "admin@example.com"
+    },
+    {
+      "key": "login_password",
+      "value": "12345678"
+    },
+    {
+      "key": "register_name",
+      "value": "Tester Admin"
+    },
+    {
+      "key": "register_email",
+      "value": "newadmin@example.com"
+    },
+    {
+      "key": "register_password",
+      "value": "password123"
+    }
+  ],
   "item": [
     {
       "name": "Auth",
@@ -21,16 +79,65 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"{{login_email}}\",\n  \"password\": \"{{login_password}}\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/auth/login",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "auth", "login"]
+              "raw": "{{base_url}}/api/v1/auth/login"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const token = response?.data?.access_token;",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('auth_token', token);",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{register_name}}\",\n  \"email\": \"{{register_email}}\",\n  \"password\": \"{{register_password}}\",\n  \"password_confirmation\": \"{{register_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const token = response?.data?.access_token;",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('auth_token', token);",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Logout",
@@ -39,15 +146,37 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/auth/logout",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "auth", "logout"]
+              "raw": "{{base_url}}/api/v1/auth/logout"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.unset('auth_token');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user"
             }
           }
         }
@@ -63,19 +192,11 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/customers?page=1&per_page=15",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "customers"],
-              "query": [
-                {"key": "page", "value": "1"},
-                {"key": "per_page", "value": "15"}
-              ]
+              "raw": "{{base_url}}/api/v1/customers?page=1&per_page=15&search=Apple"
             }
           }
         },
@@ -90,7 +211,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
@@ -98,13 +219,26 @@
               "raw": "{\n  \"company_name\": \"Apple Inc\",\n  \"address\": \"Cupertino, CA\",\n  \"contact_person\": \"John Doe\",\n  \"phone\": \"+1-408-996-1010\",\n  \"email\": \"contact@apple.com\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/customers",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "customers"]
+              "raw": "{{base_url}}/api/v1/customers"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const id = response?.data?.id;",
+                  "  if (id) {",
+                  "    pm.collectionVariables.set('customer_id', String(id));",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Single Customer",
@@ -113,15 +247,11 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/customers/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "customers", "1"]
+              "raw": "{{base_url}}/api/v1/customers/{{customer_id}}"
             }
           }
         },
@@ -136,7 +266,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
@@ -144,11 +274,7 @@
               "raw": "{\n  \"company_name\": \"Apple Inc Updated\",\n  \"phone\": \"+1-408-996-2000\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/customers/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "customers", "1"]
+              "raw": "{{base_url}}/api/v1/customers/{{customer_id}}"
             }
           }
         },
@@ -159,15 +285,11 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/customers/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "customers", "1"]
+              "raw": "{{base_url}}/api/v1/customers/{{customer_id}}"
             }
           }
         }
@@ -183,19 +305,11 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/testers?page=1&status=active",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "testers"],
-              "query": [
-                {"key": "page", "value": "1"},
-                {"key": "status", "value": "active"}
-              ]
+              "raw": "{{base_url}}/api/v1/testers?page=1&per_page=15&status=active&customer_id={{customer_id}}&search=iPhone"
             }
           }
         },
@@ -210,21 +324,34 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"model\": \"iPhone Test 3000\",\n  \"serial_number\": \"SN12345\",\n  \"customer_id\": 1,\n  \"purchase_date\": \"2025-01-15\",\n  \"status\": \"active\",\n  \"location\": \"Building A, Room 201\"\n}"
+              "raw": "{\n  \"model\": \"iPhone Test 3000\",\n  \"serial_number\": \"SN12345\",\n  \"customer_id\": {{customer_id}},\n  \"purchase_date\": \"2025-01-15\",\n  \"status\": \"active\",\n  \"location\": \"Building A, Room 201\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/testers",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "testers"]
+              "raw": "{{base_url}}/api/v1/testers"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const id = response?.data?.id;",
+                  "  if (id) {",
+                  "    pm.collectionVariables.set('tester_id', String(id));",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Single Tester",
@@ -233,15 +360,34 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/testers/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "testers", "1"]
+              "raw": "{{base_url}}/api/v1/testers/{{tester_id}}"
+            }
+          }
+        },
+        {
+          "name": "Update Tester",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"iPhone Test 3000 Updated\",\n  \"location\": \"Building B, Room 101\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/testers/{{tester_id}}"
             }
           }
         },
@@ -256,7 +402,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
@@ -264,11 +410,22 @@
               "raw": "{\n  \"status\": \"maintenance\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/testers/1/status",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "testers", "1", "status"]
+              "raw": "{{base_url}}/api/v1/testers/{{tester_id}}/status"
+            }
+          }
+        },
+        {
+          "name": "Delete Tester",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/testers/{{tester_id}}"
             }
           }
         }
@@ -284,15 +441,11 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/fixtures",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "fixtures"]
+              "raw": "{{base_url}}/api/v1/fixtures?page=1&per_page=15&tester_id={{tester_id}}&status=active&search=Connector"
             }
           }
         },
@@ -307,19 +460,85 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"iPhone Connector Fixture\",\n  \"serial_number\": \"FIX123\",\n  \"tester_id\": 1,\n  \"purchase_date\": \"2025-01-20\",\n  \"status\": \"active\"\n}"
+              "raw": "{\n  \"name\": \"iPhone Connector Fixture\",\n  \"serial_number\": \"FIX123\",\n  \"tester_id\": {{tester_id}},\n  \"purchase_date\": \"2025-01-20\",\n  \"status\": \"active\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/fixtures",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "fixtures"]
+              "raw": "{{base_url}}/api/v1/fixtures"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const id = response?.data?.id;",
+                  "  if (id) {",
+                  "    pm.collectionVariables.set('fixture_id', String(id));",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Single Fixture",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fixtures/{{fixture_id}}"
+            }
+          }
+        },
+        {
+          "name": "Update Fixture",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone Connector Fixture Updated\",\n  \"status\": \"inactive\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/fixtures/{{fixture_id}}"
+            }
+          }
+        },
+        {
+          "name": "Delete Fixture",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fixtures/{{fixture_id}}"
             }
           }
         }
@@ -335,15 +554,11 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/maintenance-schedules",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "maintenance-schedules"]
+              "raw": "{{base_url}}/api/v1/maintenance-schedules?page=1&per_page=15&tester_id={{tester_id}}&status=pending&start_date=2026-01-01&end_date=2026-12-31"
             }
           }
         },
@@ -358,19 +573,70 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tester_id\": 1,\n  \"scheduled_date\": \"2026-04-20\",\n  \"procedure\": \"Regular maintenance\",\n  \"notes\": \"Routine inspection\"\n}"
+              "raw": "{\n  \"tester_id\": {{tester_id}},\n  \"scheduled_date\": \"2026-04-20\",\n  \"procedure\": \"Regular maintenance\",\n  \"notes\": \"Routine inspection\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/maintenance-schedules",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "maintenance-schedules"]
+              "raw": "{{base_url}}/api/v1/maintenance-schedules"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const id = response?.data?.id;",
+                  "  if (id) {",
+                  "    pm.collectionVariables.set('maintenance_schedule_id', String(id));",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Single Maintenance Schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/maintenance-schedules/{{maintenance_schedule_id}}"
+            }
+          }
+        },
+        {
+          "name": "Update Maintenance Schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduled_date\": \"2026-04-25\",\n  \"procedure\": \"Updated maintenance procedure\",\n  \"notes\": \"Updated note\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/maintenance-schedules/{{maintenance_schedule_id}}"
             }
           }
         },
@@ -385,7 +651,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
@@ -393,11 +659,158 @@
               "raw": "{\n  \"completed_date\": \"2026-04-20\",\n  \"performed_by\": \"John Smith\",\n  \"notes\": \"Maintenance completed successfully\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/maintenance-schedules/1/complete",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "maintenance-schedules", "1", "complete"]
+              "raw": "{{base_url}}/api/v1/maintenance-schedules/{{maintenance_schedule_id}}/complete"
+            }
+          }
+        },
+        {
+          "name": "Delete Maintenance Schedule",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/maintenance-schedules/{{maintenance_schedule_id}}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Calibration Schedules",
+      "item": [
+        {
+          "name": "Get All Calibration Schedules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/calibration-schedules?page=1&per_page=15&tester_id={{tester_id}}&status=pending&start_date=2026-01-01&end_date=2026-12-31"
+            }
+          }
+        },
+        {
+          "name": "Create Calibration Schedule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tester_id\": {{tester_id}},\n  \"scheduled_date\": \"2026-04-20\",\n  \"procedure\": \"Calibration procedure\",\n  \"notes\": \"Routine calibration\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/calibration-schedules"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const id = response?.data?.id;",
+                  "  if (id) {",
+                  "    pm.collectionVariables.set('calibration_schedule_id', String(id));",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Single Calibration Schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/calibration-schedules/{{calibration_schedule_id}}"
+            }
+          }
+        },
+        {
+          "name": "Update Calibration Schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduled_date\": \"2026-04-25\",\n  \"procedure\": \"Updated calibration procedure\",\n  \"notes\": \"Updated note\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/calibration-schedules/{{calibration_schedule_id}}"
+            }
+          }
+        },
+        {
+          "name": "Complete Calibration Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed_date\": \"2026-04-20\",\n  \"performed_by\": \"John Smith\",\n  \"notes\": \"Calibration completed successfully\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/calibration-schedules/{{calibration_schedule_id}}/complete"
+            }
+          }
+        },
+        {
+          "name": "Delete Calibration Schedule",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/calibration-schedules/{{calibration_schedule_id}}"
             }
           }
         }
@@ -413,15 +826,11 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/event-logs",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "event-logs"]
+              "raw": "{{base_url}}/api/v1/event-logs?page=1&per_page=15&tester_id={{tester_id}}&type=maintenance&start_date=2026-01-01&end_date=2026-12-31"
             }
           }
         },
@@ -436,19 +845,47 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tester_id\": 1,\n  \"type\": \"maintenance\",\n  \"description\": \"Regular maintenance completed\",\n  \"event_date\": \"2026-03-23 10:30:00\"\n}"
+              "raw": "{\n  \"tester_id\": {{tester_id}},\n  \"type\": \"maintenance\",\n  \"description\": \"Regular maintenance completed\",\n  \"event_date\": \"2026-03-23 10:30:00\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/event-logs",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "event-logs"]
+              "raw": "{{base_url}}/api/v1/event-logs"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const id = response?.data?.id;",
+                  "  if (id) {",
+                  "    pm.collectionVariables.set('event_log_id', String(id));",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Single Event Log",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/event-logs/{{event_log_id}}"
             }
           }
         }
@@ -464,15 +901,11 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "url": {
-              "raw": "http://localhost:8000/api/v1/spare-parts",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "spare-parts"]
+              "raw": "{{base_url}}/api/v1/spare-parts?page=1&per_page=15&search=Connector&stock_status=normal"
             }
           }
         },
@@ -487,7 +920,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer YOUR_TOKEN"
+                "value": "Bearer {{auth_token}}"
               }
             ],
             "body": {
@@ -495,11 +928,77 @@
               "raw": "{\n  \"name\": \"iPhone Connector\",\n  \"part_number\": \"PART123\",\n  \"quantity_in_stock\": 10,\n  \"unit_cost\": 45.99,\n  \"supplier\": \"Tech Supplier Inc\"\n}"
             },
             "url": {
-              "raw": "http://localhost:8000/api/v1/spare-parts",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["api", "v1", "spare-parts"]
+              "raw": "{{base_url}}/api/v1/spare-parts"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const id = response?.data?.id;",
+                  "  if (id) {",
+                  "    pm.collectionVariables.set('spare_part_id', String(id));",
+                  "  }",
+                  "} catch (error) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Single Spare Part",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/spare-parts/{{spare_part_id}}"
+            }
+          }
+        },
+        {
+          "name": "Update Spare Part",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone Connector Updated\",\n  \"quantity_in_stock\": 15,\n  \"unit_cost\": 49.99\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/spare-parts/{{spare_part_id}}"
+            }
+          }
+        },
+        {
+          "name": "Delete Spare Part",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/spare-parts/{{spare_part_id}}"
             }
           }
         }
