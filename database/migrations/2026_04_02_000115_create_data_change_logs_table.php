@@ -17,10 +17,10 @@ return new class extends Migration
             $table->text('explanation');
 
             // foreign keys
-            $table->unsignedInteger('tester_id')->nullable();
-            $table->unsignedInteger('fixture_id')->nullable();
-            $table->unsignedInteger('spare_part_id')->nullable();
-            $table->unsignedInteger('user_id')->nullable();
+            $table->unsignedBigInteger('tester_id')->nullable();
+            $table->unsignedBigInteger('fixture_id')->nullable();
+            $table->unsignedBigInteger('spare_part_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
 
             // foreign key constraints
             $table->foreign('tester_id')->references('id')->on('testers')->nullOnDelete();

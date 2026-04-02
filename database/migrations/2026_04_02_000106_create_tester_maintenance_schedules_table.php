@@ -17,11 +17,11 @@ return new class extends Migration
             $table->dateTime('last_maintenance_date')->nullable();
             $table->dateTime('next_maintenance_due')->nullable();
 
-            $table->unsignedInteger('tester_id');
-            $table->unsignedInteger('maintenance_id');
-            $table->unsignedInteger('maintenance_status')->nullable();
-            $table->unsignedInteger('last_maintenance_by_user_id')->nullable();
-            $table->unsignedInteger('next_maintenance_by_user_id')->nullable();
+            $table->unsignedBigInteger('tester_id');
+            $table->unsignedBigInteger('maintenance_id');
+            $table->unsignedBigInteger('maintenance_status')->nullable();
+            $table->unsignedBigInteger('last_maintenance_by_user_id')->nullable();
+            $table->unsignedBigInteger('next_maintenance_by_user_id')->nullable();
 
             // Index for faster lookups
             $table->index('tester_id', 'idx_tester_maintenance_schedules_tester');

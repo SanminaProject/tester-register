@@ -24,9 +24,9 @@ return new class extends Migration
             $table->text('additional_info')->nullable();
 
             // Foreign keys
-            $table->unsignedInteger('location_id')->nullable();
-            $table->unsignedInteger('owner_id')->nullable();
-            $table->unsignedInteger('tester_status')->nullable();
+            $table->unsignedBigInteger('location_id')->nullable();
+            $table->unsignedBigInteger('owner_id')->nullable();
+            $table->unsignedBigInteger('tester_status')->nullable();
 
             // Foreign key constraints
             $table->foreign('location_id')

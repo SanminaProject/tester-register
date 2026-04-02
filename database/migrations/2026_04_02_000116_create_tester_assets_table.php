@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tester_assets', function (Blueprint $table) {
             $table->id();
             $table->string('asset_no', 100);
-            $table->unsignedInteger('tester_id');
+            $table->unsignedBigInteger('tester_id');
 
             // Foreign key
             $table->foreign('tester_id')
