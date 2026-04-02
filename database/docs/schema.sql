@@ -21,7 +21,7 @@ CREATE TABLE users (
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     email_verified_at TIMESTAMP NULL, 
-    phone_number VARCHAR(50) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
     responsibilities TEXT, -- description of the tasks they are responsible for
     qualifications_certifications TEXT, -- any relevant qualifications or certifications they hold
     password VARCHAR(255) NOT NULL,
