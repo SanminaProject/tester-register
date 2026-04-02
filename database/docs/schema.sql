@@ -127,8 +127,8 @@ CREATE TABLE fixtures (
 -- holds all information on data changes made to testers, fixtures, and spare parts
 -- like adding a tester, changing tester information in the tester table, activating a spare part etc. 
 CREATE TABLE data_change_logs (
-    change_id INT PRIMARY KEY AUTO_INCREMENT,
-    change_date DATETIME NOT NULL, -- when the change was made
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    changed_at DATETIME NOT NULL, -- when the change was made
     explanation TEXT NOT NULL, -- explanation of the change
 
     -- references
@@ -137,10 +137,10 @@ CREATE TABLE data_change_logs (
     spare_part_id INT, -- spare part ID if the change is related to a spare part
     user_id INT, -- who made the change
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (fixture_id) REFERENCES fixtures(fixture_id),
-    FOREIGN KEY (spare_part_id) REFERENCES tester_spare_parts(part_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE SET NULL,
+    FOREIGN KEY (fixture_id) REFERENCES fixtures(id) ON DELETE SET NULL,
+    FOREIGN KEY (spare_part_id) REFERENCES tester_spare_parts(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- holds definitions of different types of events that can be logged into tester_event_logs
