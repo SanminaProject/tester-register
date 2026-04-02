@@ -164,15 +164,15 @@ CREATE TABLE procedure_interval_units (
 
 -- holds definitions of maintenance procedures for testers
 CREATE TABLE tester_maintenance_procedures (
-    maintenance_id INT PRIMARY KEY AUTO_INCREMENT,
-    maintenance_type VARCHAR(100) NOT NULL, -- e.g., Preventive Maintenance, Routine Check
-    maintenance_interval_value INT NOT NULL, -- numerical value of the maintenance interval
-    maintenance_description TEXT, -- detailed description of the maintenance activities
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    type VARCHAR(100) NOT NULL, -- e.g., Preventive Maintenance, Routine Check
+    interval_value INT NOT NULL, -- numerical value of the maintenance interval
+    description TEXT, -- detailed description of the maintenance activities
 
     -- references
-    maintenance_interval_unit INT NOT NULL, -- unit of time for the maintenance interval (Days, Weeks, Months or Years)
+    interval_unit INT NOT NULL, -- unit of time for the maintenance interval (Days, Weeks, Months or Years)
 
-    FOREIGN KEY (maintenance_interval_unit) REFERENCES procedure_interval_units(interval_unit_id)
+    FOREIGN KEY (interval_unit) REFERENCES procedure_interval_units(id) ON DELETE CASCADE   
 );
 
 -- holds definitions of calibration procedures for testers
