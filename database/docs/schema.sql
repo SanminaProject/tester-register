@@ -153,7 +153,7 @@ CREATE TABLE event_types (
 -- holds definitions of different statuses for issues logged into tester_event_logs
 -- includes ENUM('open', 'closed')
 CREATE TABLE issue_statuses (
-    issue_status_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
