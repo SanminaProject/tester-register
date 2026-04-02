@@ -212,11 +212,11 @@ CREATE TABLE tester_maintenance_schedules (
     last_maintenance_by_user_id INT, -- who performed the last maintenance
     next_maintenance_by_user_id INT, -- who is scheduled to perform the next maintenance
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id) ON DELETE CASCADE,
-    FOREIGN KEY (maintenance_id) REFERENCES tester_maintenance_procedures(maintenance_id) ON DELETE CASCADE,
-    FOREIGN KEY (maintenance_status) REFERENCES schedule_statuses(schedule_status_id) ON DELETE SET NULL,
-    FOREIGN KEY (last_maintenance_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
-    FOREIGN KEY (next_maintenance_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (maintenance_id) REFERENCES tester_maintenance_procedures(id) ON DELETE CASCADE,
+    FOREIGN KEY (maintenance_status) REFERENCES schedule_statuses(id) ON DELETE SET NULL,
+    FOREIGN KEY (last_maintenance_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (next_maintenance_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- links testers to calibration procedures
@@ -236,11 +236,11 @@ CREATE TABLE tester_calibration_schedules (
     last_calibration_by_user_id INT, -- who performed the last calibration
     next_calibration_by_user_id INT, -- who is scheduled to perform the next calibration
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (calibration_id) REFERENCES tester_calibration_procedures(calibration_id),
-    FOREIGN KEY (calibration_status) REFERENCES schedule_statuses(schedule_status_id),
-    FOREIGN KEY (last_calibration_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (next_calibration_by_user_id) REFERENCES users(user_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (calibration_id) REFERENCES tester_calibration_procedures(id) ON DELETE CASCADE,
+    FOREIGN KEY (calibration_status) REFERENCES schedule_statuses(id) ON DELETE SET NULL,
+    FOREIGN KEY (last_calibration_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (next_calibration_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- holds all information about physical events related to testers
