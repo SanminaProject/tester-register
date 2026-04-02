@@ -106,7 +106,7 @@ A typical protected API request goes through these stages:
 
 4. Validation
 
-- Most actions use $request->validate([...]) inline.
+- Most actions use dedicated FormRequest classes for validation.
 - Validation failures return HTTP 422.
 
 5. Business logic and persistence

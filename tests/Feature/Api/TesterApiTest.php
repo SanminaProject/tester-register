@@ -169,6 +169,22 @@ class TesterApiTest extends TestCase
             ->assertJsonPath('data.items.0.model', 'Model-X-500');
     }
 
+    public function test_list_testers_validates_query_parameters(): void
+    {
+        $admin = $this->createAdminUser();
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson('/api/v1/testers?page=0&per_page=0&status=broken&customer_id=999999');
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'page',
+                'per_page',
+                'status',
+                'customer_id',
+            ]);
+    }
+
     // ==================== CREATE ENDPOINT TESTS ====================
 
     public function test_admin_can_create_tester(): void

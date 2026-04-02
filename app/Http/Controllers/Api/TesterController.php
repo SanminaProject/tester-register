@@ -3,26 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ListTesterRequest;
 use App\Http\Requests\Api\StoreTesterRequest;
 use App\Http\Requests\Api\UpdateTesterRequest;
 use App\Http\Requests\Api\UpdateTesterStatusRequest;
 use App\Models\Tester;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class TesterController extends Controller
 {
     /**
      * Get all testers with pagination and filtering
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListTesterRequest $request): JsonResponse
     {
         $this->authorize('view', Tester::class);
 
-        $perPage = max(1, (int)$request->query('per_page', 15));
-        $status = $request->query('status');
-        $customerId = $request->query('customer_id');
-        $search = $request->query('search', '');
+        $validated = $request->validated();
+
+        $perPage = (int)($validated['per_page'] ?? 15);
+        $status = $validated['status'] ?? null;
+        $customerId = $validated['customer_id'] ?? null;
+        $search = $validated['search'] ?? '';
 
         $query = Tester::with('customer');
 

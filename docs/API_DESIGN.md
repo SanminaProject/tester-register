@@ -207,7 +207,7 @@ Request body fields:
 | Field    | Type   | Required | Rules |
 | -------- | ------ | -------: | ----- |
 | email    | string |        Y | email |
-| password | string |        Y | min:6 |
+| password | string |        Y | min:8 |
 
 Example request:
 
