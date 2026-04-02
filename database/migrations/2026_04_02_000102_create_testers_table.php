@@ -31,18 +31,15 @@ return new class extends Migration
             // Foreign key constraints
             $table->foreign('location_id')
                 ->references('id')
-                ->on('tester_and_fixture_locations')
-                ->nullOnDelete();
+                ->on('tester_and_fixture_locations');
 
             $table->foreign('owner_id')
                 ->references('id')
-                ->on('tester_customers')
-                ->nullOnDelete();
+                ->on('tester_customers');
 
             $table->foreign('tester_status')
                 ->references('id')
-                ->on('asset_statuses')
-                ->nullOnDelete();
+                ->on('asset_statuses');
         });
     }
 

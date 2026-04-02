@@ -62,7 +62,7 @@ CREATE TABLE testers (
 );
 
 CREATE TABLE tester_assets (
-    asset_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     asset_no VARCHAR(100) NOT NULL,
     tester_id INT NOT NULL,
     
