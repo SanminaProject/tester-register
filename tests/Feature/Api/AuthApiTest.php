@@ -67,6 +67,17 @@ class AuthApiTest extends TestCase
             ]);
     }
 
+    public function test_login_validates_minimum_password_length(): void
+    {
+        $response = $this->postJson('/api/v1/auth/login', [
+            'email' => 'login-user@example.com',
+            'password' => 'short77',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
     public function test_login_fails_with_invalid_credentials(): void
     {
         User::factory()->create([
@@ -82,16 +93,5 @@ class AuthApiTest extends TestCase
         $response->assertUnauthorized()
             ->assertJsonPath('success', false)
             ->assertJsonPath('code', 401);
-    }
-
-    public function test_login_validates_minimum_password_length(): void
-    {
-        $response = $this->postJson('/api/v1/auth/login', [
-            'email' => 'login-user@example.com',
-            'password' => 'short',
-        ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['password']);
     }
 }

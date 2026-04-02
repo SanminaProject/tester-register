@@ -112,6 +112,23 @@ class TesterApiTest extends TestCase
             ->assertJsonCount(5, 'data.items');
     }
 
+    public function test_list_testers_validates_query_parameters(): void
+    {
+        $admin = $this->createAdminUser();
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson('/api/v1/testers?page=0&per_page=0&status=invalid&customer_id=999999&search=' . str_repeat('a', 256));
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'page',
+                'per_page',
+                'status',
+                'customer_id',
+                'search',
+            ]);
+    }
+
     public function test_can_filter_testers_by_status(): void
     {
         $admin = $this->createAdminUser();
@@ -167,22 +184,6 @@ class TesterApiTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('data.pagination.total', 1)
             ->assertJsonPath('data.items.0.model', 'Model-X-500');
-    }
-
-    public function test_list_testers_validates_query_parameters(): void
-    {
-        $admin = $this->createAdminUser();
-        Sanctum::actingAs($admin);
-
-        $response = $this->getJson('/api/v1/testers?page=0&per_page=0&status=broken&customer_id=999999');
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors([
-                'page',
-                'per_page',
-                'status',
-                'customer_id',
-            ]);
     }
 
     // ==================== CREATE ENDPOINT TESTS ====================

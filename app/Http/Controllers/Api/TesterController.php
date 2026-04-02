@@ -20,11 +20,11 @@ class TesterController extends Controller
         $this->authorize('view', Tester::class);
 
         $validated = $request->validated();
-
-        $perPage = (int)($validated['per_page'] ?? 15);
+        $page = (int) ($validated['page'] ?? 1);
+        $perPage = (int) ($validated['per_page'] ?? 15);
         $status = $validated['status'] ?? null;
         $customerId = $validated['customer_id'] ?? null;
-        $search = $validated['search'] ?? '';
+        $search = (string) ($validated['search'] ?? '');
 
         $query = Tester::with('customer');
 
@@ -32,7 +32,7 @@ class TesterController extends Controller
             $query->where('status', $status);
         }
 
-        if ($customerId) {
+        if ($customerId !== null) {
             $query->where('customer_id', $customerId);
         }
 
@@ -43,7 +43,7 @@ class TesterController extends Controller
             });
         }
 
-        $testers = $query->paginate($perPage);
+        $testers = $query->paginate($perPage, ['*'], 'page', $page);
 
         $items = $testers->getCollection()->map(
             fn(Tester $tester) => $this->transformTester($tester, true, true)

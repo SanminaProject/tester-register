@@ -2,7 +2,7 @@
 
 Status: Active
 Version: V15
-Last Updated: 2026-04-01
+Last Updated: 2026-04-02
 
 Versioning note:
 
@@ -106,7 +106,7 @@ A typical protected API request goes through these stages:
 
 4. Validation
 
-- Most actions use dedicated FormRequest classes for validation.
+- API actions use dedicated FormRequest classes for validation.
 - Validation failures return HTTP 422.
 
 5. Business logic and persistence
