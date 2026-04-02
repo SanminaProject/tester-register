@@ -146,7 +146,7 @@ CREATE TABLE data_change_logs (
 -- holds definitions of different types of events that can be logged into tester_event_logs
 -- includes ENUM('issue', 'maintenance', 'calibration', 'software_update', 'hardware_change')
 CREATE TABLE event_types (
-    event_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
