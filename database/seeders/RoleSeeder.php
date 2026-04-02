@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -15,21 +15,55 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         $roles = [
-        'Admin',
-        'Maintenance Technician',
-        'Calibration Specialist'
+            'Admin',
+            'Manager',
+            'Maintenance Technician',
+            'Calibration Specialist',
+            'Guest',
         ];
 
         foreach ($roles as $role) {
-            Role::firstOrCreate(['name' => $role]);
+            Role::findOrCreate($role, 'web');
+        }
 
-            // create a default admin user and assign the Admin role
+        $defaultUsers = [
+            [
+                'email' => 'admin@example.com',
+                'name' => 'Admin User',
+                'password' => '12345678',
+                'role' => 'Admin',
+            ],
+            [
+                'email' => 'manager@example.com',
+                'name' => 'Manager User',
+                'password' => '12345678',
+                'role' => 'Manager',
+            ],
+            [
+                'email' => 'technician@example.com',
+                'name' => 'Technician User',
+                'password' => '12345678',
+                'role' => 'Calibration Specialist',
+            ],
+            [
+                'email' => 'guest@example.com',
+                'name' => 'Guest User',
+                'password' => '12345678',
+                'role' => 'Guest',
+            ],
+        ];
+
+        foreach ($defaultUsers as $entry) {
             $user = User::firstOrCreate(
-                ['email' => 'admin@example.com'],
-                ['name' => 'Admin User', 'password' => '12345678']
+                ['email' => $entry['email']],
+                [
+                    'name' => $entry['name'],
+                    'password' => Hash::make($entry['password']),
+                    'email_verified_at' => now(),
+                ]
             );
 
-            $user->assignRole('Admin');
+            $user->syncRoles([$entry['role']]);
         }
     }
 }

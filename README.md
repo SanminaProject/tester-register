@@ -11,6 +11,12 @@
 
 Detailed instructions can be found in [RUNNING-LOCALLY.md](./docs/RUNNING-LOCALLY.md)
 
+## API Documentation
+
+- API contract: [API_DESIGN.md](./docs/API_DESIGN.md)
+- Implementation handbook: [API_IMPLEMENTATION_GUIDE.md](./docs/API_IMPLEMENTATION_GUIDE.md)
+- Postman collection: [Tester_Register_API.postman_collection.json](./Tester_Register_API.postman_collection.json)
+
 ## Third-Party Licenses
 
 This project uses third-party libraries licensed under the MIT License.  
