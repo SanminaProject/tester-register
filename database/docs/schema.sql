@@ -82,8 +82,8 @@ CREATE TABLE tester_spare_part_suppliers (
 
 -- holds all essential information about spare parts associated with testers
 CREATE TABLE tester_spare_parts (
-    part_id INT PRIMARY KEY AUTO_INCREMENT,
-    part_name VARCHAR(255) NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL, -- name of the spare part
     manufacturer_part_number VARCHAR(255),
     quantity_in_stock INT NOT NULL DEFAULT 0,
     reorder_level INT NOT NULL, -- alarm level of when to reorder (check can be done in laravel when quantity_in_stock goes below this level)
@@ -99,8 +99,8 @@ CREATE TABLE tester_spare_parts (
     tester_id INT NOT NULL,
     supplier_id INT, -- supplier of the spare part
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id), -- testers, users, alarm levels and roles are linked and can be called together with queries 
-    FOREIGN KEY (supplier_id) REFERENCES tester_spare_part_suppliers(supplier_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id), -- testers, users, alarm levels and roles are linked and can be called together with queries 
+    FOREIGN KEY (supplier_id) REFERENCES tester_spare_part_suppliers(id)
 );
 
 -- holds all essential information about fixtures associated with testers
