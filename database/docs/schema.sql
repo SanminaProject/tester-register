@@ -245,9 +245,9 @@ CREATE TABLE tester_calibration_schedules (
 
 -- holds all information about physical events related to testers
 CREATE TABLE tester_event_logs (
-    event_id INT PRIMARY KEY AUTO_INCREMENT,
-    event_date DATETIME NOT NULL, -- when the event occurred
-    event_description TEXT NOT NULL, -- detailed description of the event
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    date DATETIME NOT NULL, -- when the event occurred
+    description TEXT NOT NULL, -- detailed description of the event
 
     -- only for issue/fault/problem events
     resolved_date DATETIME, -- date when the issue was resolved
@@ -265,13 +265,13 @@ CREATE TABLE tester_event_logs (
     maintenance_schedule_id INT, -- reference to the maintenance schedule used
     calibration_schedule_id INT, -- reference to the calibration schedule used
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (event_type) REFERENCES event_types(event_type_id),
-    FOREIGN KEY (created_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (resolved_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (issue_status) REFERENCES issue_statuses(issue_status_id),
-    FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(maintenance_schedule_id),
-    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(calibration_schedule_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (event_type) REFERENCES event_types(id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (resolved_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (issue_status) REFERENCES issue_statuses(id),
+    FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(id),
+    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(id)
 );
 
 -- links users to testers they are responsible for
