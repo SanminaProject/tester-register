@@ -2,13 +2,13 @@
 -- so no need to store documents in the database. If we want to store documents, we can add a table for that and link it to testers or maintenance/calibration schedules.
 
 CREATE TABLE tester_customers (
-    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     customer_name VARCHAR(100) NOT NULL
 );
 
 -- holds information about locations that can be used for both testers and fixtures
 CREATE TABLE tester_and_fixture_locations (
-    location_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     location_name VARCHAR(100) NOT NULL,
     description TEXT,
     address VARCHAR(255) -- should we delete this column?

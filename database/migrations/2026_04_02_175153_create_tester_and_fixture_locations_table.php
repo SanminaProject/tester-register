@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tester_customers', function (Blueprint $table) {
+        Schema::create('tester_and_fixture_locations', function (Blueprint $table) {
             $table->id();
-            $table->string('customer_name', 100);
+            $table->string('location_name', 100);
+            $table->text('description')->nullable();
+            $table->string('address', 255)->nullable();
         });
     }
 
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tester_customers');
+        Schema::dropIfExists('tester_and_fixture_locations');
     }
 };
