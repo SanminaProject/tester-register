@@ -158,7 +158,7 @@ CREATE TABLE issue_statuses (
 );
 
 CREATE TABLE procedure_interval_units (
-    interval_unit_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE -- unit of time (Days, Weeks, Months or Years)
 );
 
