@@ -197,7 +197,7 @@ CREATE TABLE schedule_statuses (
 
 -- links testers to maintenance procedures
 CREATE TABLE tester_maintenance_schedules (
-    maintenance_schedule_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     schedule_created_date DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP), -- when the maintenance schedule was created
     last_maintenance_date DATETIME, -- date when maintenance was last performed
     next_maintenance_due DATETIME, -- calculated next maintenance date (USING EVENT!)
@@ -212,11 +212,11 @@ CREATE TABLE tester_maintenance_schedules (
     last_maintenance_by_user_id INT, -- who performed the last maintenance
     next_maintenance_by_user_id INT, -- who is scheduled to perform the next maintenance
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (maintenance_id) REFERENCES tester_maintenance_procedures(maintenance_id),
-    FOREIGN KEY (maintenance_status) REFERENCES schedule_statuses(schedule_status_id),
-    FOREIGN KEY (last_maintenance_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (next_maintenance_by_user_id) REFERENCES users(user_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(tester_id) ON DELETE CASCADE,
+    FOREIGN KEY (maintenance_id) REFERENCES tester_maintenance_procedures(maintenance_id) ON DELETE CASCADE,
+    FOREIGN KEY (maintenance_status) REFERENCES schedule_statuses(schedule_status_id) ON DELETE SET NULL,
+    FOREIGN KEY (last_maintenance_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (next_maintenance_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 -- links testers to calibration procedures
