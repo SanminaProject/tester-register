@@ -32,7 +32,7 @@ CREATE TABLE users (
 -- holds statuses for testers and fixtures
 -- includes active, inactive, and maintenance
 CREATE TABLE asset_statuses (
-    status_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
