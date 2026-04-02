@@ -221,7 +221,7 @@ CREATE TABLE tester_maintenance_schedules (
 
 -- links testers to calibration procedures
 CREATE TABLE tester_calibration_schedules (
-    calibration_schedule_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     schedule_created_date DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP), -- when this schedule was created
     last_calibration_date DATETIME, -- date when calibration was last performed
     next_calibration_due DATETIME, -- calculated next calibration date (USING EVENT!)
