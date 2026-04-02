@@ -177,15 +177,15 @@ CREATE TABLE tester_maintenance_procedures (
 
 -- holds definitions of calibration procedures for testers
 CREATE TABLE tester_calibration_procedures (
-    calibration_id INT PRIMARY KEY AUTO_INCREMENT,
-    calibration_type VARCHAR(100) NOT NULL, -- e.g., Standard Calibration, Full Calibration
-    calibration_interval_value INT NOT NULL, -- numerical value of the calibration interval
-    calibration_description TEXT, -- detailed description of the calibration procedures
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    type VARCHAR(100) NOT NULL, -- e.g., Standard Calibration, Full Calibration
+    interval_value INT NOT NULL, -- numerical value of the calibration interval
+    description TEXT, -- detailed description of the calibration procedures
 
     -- references
-    calibration_interval_unit INT NOT NULL, -- unit of time for the calibration interval (Days, Weeks, Months or Years)
+    interval_unit INT NOT NULL, -- unit of time for the calibration interval (Days, Weeks, Months or Years)
 
-    FOREIGN KEY (calibration_interval_unit) REFERENCES procedure_interval_units(interval_unit_id)
+    FOREIGN KEY (interval_unit) REFERENCES procedure_interval_units(id) ON DELETE CASCADE
 );
 
 -- holds definitions of different statuses for maintenance and calibration schedules
