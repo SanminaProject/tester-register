@@ -55,6 +55,13 @@ class RoleSeeder extends Seeder
                 'phone' => '123-456-7893',
                 'role' => 'Guest',
             ],
+            [
+                'email' => 'test@example.com',
+                'name' => 'Test User',
+                'password' => 'password123',
+                'phone' => '123-456-7899',
+                'role' => 'Guest',
+            ],
         ];
 
         foreach ($defaultUsers as $entry) {

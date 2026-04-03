@@ -14,8 +14,8 @@ class AssetStatusesSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('asset_statuses')->updateOrInsert(['name' => 'Active']);
-        DB::table('asset_statuses')->updateOrInsert(['name' => 'Inactive']);
-        DB::table('asset_statuses')->updateOrInsert(['name' => 'Maintenance']);
+        DB::table('asset_statuses')->updateOrInsert(['name' => 'active']);
+        DB::table('asset_statuses')->updateOrInsert(['name' => 'inactive']);
+        DB::table('asset_statuses')->updateOrInsert(['name' => 'maintenance']);
     }
 }

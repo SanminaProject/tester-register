@@ -189,7 +189,7 @@ CREATE TABLE tester_calibration_procedures (
 );
 
 -- holds definitions of different statuses for maintenance and calibration schedules
--- includes ENUM('Scheduled', 'Overdue')
+-- includes ENUM('scheduled', 'overdue')
 CREATE TABLE schedule_statuses (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
