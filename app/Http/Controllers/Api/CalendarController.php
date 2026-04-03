@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\CalendarEvent;
 use App\Models\TesterMaintenanceSchedule;
 use App\Models\TesterCalibrationSchedule;
