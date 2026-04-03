@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tester_and_fixture_locations', function (Blueprint $table) {
             $table->id();
-            $table->string('location_name', 100);
+            $table->string('name', 100);
             $table->text('description')->nullable();
             $table->string('address', 255)->nullable();
         });

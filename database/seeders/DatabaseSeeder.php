@@ -14,7 +14,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RoleSeeder::class);
+        $this->call([
+            RoleSeeder::class,
+            AssetStatusesSeeder::class,
+            TesterCustomersSeeder::class,
+            TesterAndFixtureLocationsSeeder::class,
+            TesterSeeder::class, 
+        ]);
 
         $testUser = User::firstOrCreate([
             'email' => 'test@example.com',

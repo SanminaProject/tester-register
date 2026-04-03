@@ -3,13 +3,13 @@
 
 CREATE TABLE tester_customers (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    customer_name VARCHAR(100) NOT NULL
+    name VARCHAR(100) NOT NULL
 );
 
 -- holds information about locations that can be used for both testers and fixtures
 CREATE TABLE tester_and_fixture_locations (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    location_name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL,
     description TEXT,
     address VARCHAR(255) -- should we delete this column?
 );

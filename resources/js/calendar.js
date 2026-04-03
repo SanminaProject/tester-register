@@ -6,7 +6,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 // Initialize the calendar used in dashboard
 document.addEventListener('calendar-ready', function () {
     const calendarEl = document.getElementById('calendar')
-    const events = JSON.parse(calendarEl.dataset.events)
+    // const events = JSON.parse(calendarEl.dataset.events)
 
     const calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -25,7 +25,7 @@ document.addEventListener('calendar-ready', function () {
             meridiem: false
         },
 
-        events: events,
+        events: '/calendar-events',
 
         eventClassNames: function(arg) {
             return [arg.event.extendedProps.type];
