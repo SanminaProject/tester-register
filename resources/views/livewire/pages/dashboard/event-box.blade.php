@@ -11,7 +11,7 @@
                             {{ $item['tester'] }}
                         </div>
 
-                        <div class="text-sm px-2 py-1 rounded {{ $this->typeClasses($item['type']) }}">
+                        <div class="text-sm px-2 py-1 rounded {{ $this->getTypeClasses($item['type']) }}">
                             {{ ucfirst($item['type']) }}
                         </div>
 

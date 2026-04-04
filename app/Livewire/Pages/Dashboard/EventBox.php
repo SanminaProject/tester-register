@@ -95,7 +95,7 @@ class EventBox extends Component
         $this->items = array_slice($this->items, 0, $this->limit);
     }
 
-    public function typeClasses($type) {
+    public function getTypeClasses($type) {
         return match($type) {
             'issue' => 'bg-red-100 text-red-700',
             'maintenance' => 'bg-yellow-100 text-yellow-700',
