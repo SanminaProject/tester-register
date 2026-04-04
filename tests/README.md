@@ -28,6 +28,11 @@ Run only feature tests:
 php artisan test tests/Feature
 ```
 
+Run only E2E tests
+```bash
+php artisan test tests/Browser
+```
+
 Run only unit tests:
 ```bash
 php artisan test tests/Unit
@@ -36,4 +41,13 @@ php artisan test tests/Unit
 Run a specific test file:
 ```bash
 php artisan test tests/Feature/ProfileTest.php
+```
+
+## E2E tests
+
+Chrome version used by dusk must match version installed on current device.
+
+To download the correct ChromDriver to be used by code based on what your current device has, run:
+```bash
+php artisan dusk:chrome-driver --version
 ```

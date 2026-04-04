@@ -23,20 +23,6 @@ yarn-error.log
 /.zed
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Local development audit - keep locally only
 /docs/API_DEVELOPMENT_AUDIT.md
 /docs/CQL-LearningNotes.md

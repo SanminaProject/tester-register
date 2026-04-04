@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
+// TODO: is this file needed since the auth controllers are already created elsewhere?
+// should we delete this file?
+
 class AuthController extends ApiController
 {
     public function register(RegisterRequest $request): JsonResponse
