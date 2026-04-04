@@ -22,7 +22,7 @@ class TesterEventLogsSeeder extends Seeder
 
                 'tester_name' => 'TAKAYA FLYING PROBE APT 8400CE',
                 'event_type' => 'maintenance',
-                'user_name' => 'Test User',
+                'user_email' => 'test@example.com',
                 'maintenance_type' => 'Standard Maintenance',
             ],
             [
@@ -31,7 +31,7 @@ class TesterEventLogsSeeder extends Seeder
 
                 'tester_name' => 'DIT1',
                 'event_type' => 'calibration',
-                'user_name' => 'Test User',
+                'user_email' => 'test@example.com',
                 'calibration_type' => 'Full Calibration',
             ],
         ];
@@ -46,7 +46,7 @@ class TesterEventLogsSeeder extends Seeder
                 ->value('id');
 
             $userId = DB::table('users')
-                ->where('name', $log['user_name'])
+                ->where('email', $log['user_email'])
                 ->value('id');
 
             $maintenanceScheduleId = null;

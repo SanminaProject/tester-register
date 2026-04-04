@@ -23,8 +23,8 @@ class TesterMaintenanceSchedulesSeeder extends Seeder
                 'tester_name' => 'TAKAYA FLYING PROBE APT 8400CE',
                 'maintenance_type' => 'Standard Maintenance',
                 'status' => 'Scheduled',
-                'last_user' => 'Test User',
-                'next_user' => 'Test User',
+                'last_user_email' => 'test@example.com',
+                'next_user_email' => 'test@example.com',
             ],
             [
                 'tester_name' => 'DIT1',
@@ -32,8 +32,8 @@ class TesterMaintenanceSchedulesSeeder extends Seeder
                 'status' => 'Scheduled',
                 'last_maintenance_date' => Carbon::now()->subYear(),
                 'next_maintenance_due' => Carbon::now()->addYear(),
-                'last_user' => 'Test User',
-                'next_user' => 'Test User',
+                'last_user_email' => 'test@example.com',
+                'next_user_email' => 'test@example.com',
             ],
         ];
 
@@ -51,11 +51,11 @@ class TesterMaintenanceSchedulesSeeder extends Seeder
                 ->value('id');
 
             $lastUserId = DB::table('users')
-                ->where('name', $schedule['last_user'])
+                ->where('email', $schedule['last_user_email'])
                 ->value('id');
 
             $nextUserId = DB::table('users')
-                ->where('name', $schedule['next_user'])
+                ->where('email', $schedule['next_user_email'])
                 ->value('id');
 
             DB::table('tester_maintenance_schedules')->insert([

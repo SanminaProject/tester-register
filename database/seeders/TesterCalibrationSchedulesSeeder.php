@@ -23,8 +23,8 @@ class TesterCalibrationSchedulesSeeder extends Seeder
                 'tester_name' => 'TAKAYA FLYING PROBE APT 8400CE',
                 'calibration_type' => 'Standard Calibration',
                 'status' => 'Scheduled',
-                'last_user' => 'Test User',
-                'next_user' => 'Test User',
+                'last_user_email' => 'test@example.com',
+                'next_user_email' => 'test@example.com',
             ],
             [
                 'tester_name' => 'DIT1',
@@ -32,8 +32,8 @@ class TesterCalibrationSchedulesSeeder extends Seeder
                 'status' => 'Scheduled',
                 'last_calibration_date' => Carbon::now()->subYear(),
                 'next_calibration_due' => Carbon::now()->addYear(),
-                'last_user' => 'Test User',
-                'next_user' => 'Test User',
+                'last_user_email' => 'test@example.com',
+                'next_user_email' => 'test@example.com',
             ],
         ];
 
@@ -51,11 +51,11 @@ class TesterCalibrationSchedulesSeeder extends Seeder
                 ->value('id');
 
             $lastUserId = DB::table('users')
-                ->where('name', $schedule['last_user'])
+                ->where('email', $schedule['last_user_email'])
                 ->value('id');
 
             $nextUserId = DB::table('users')
-                ->where('name', $schedule['next_user'])
+                ->where('email', $schedule['next_user_email'])
                 ->value('id');
 
             DB::table('tester_calibration_schedules')->insert([
