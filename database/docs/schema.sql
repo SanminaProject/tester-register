@@ -17,7 +17,8 @@ CREATE TABLE tester_and_fixture_locations (
 -- holds information about users responsible for tester maintenance/calibration or HR/administration work
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     email_verified_at TIMESTAMP NULL, 
     phone VARCHAR(50) NOT NULL,
