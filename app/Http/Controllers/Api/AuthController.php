@@ -20,7 +20,9 @@ class AuthController extends ApiController
         $validated = $request->validated();
 
         $user = User::create([
-            'name' => $validated['name'],
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'phone' => $validated['phone'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'email_verified_at' => now(),

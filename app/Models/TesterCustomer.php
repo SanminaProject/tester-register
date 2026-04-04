@@ -16,11 +16,7 @@ class TesterCustomer extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'company_name',
-        'address',
-        'contact_person',
-        'phone',
-        'email',
+        'name',
     ];
 
     public function testers(): HasMany

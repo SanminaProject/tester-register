@@ -23,7 +23,7 @@ app/Models/
 
 ### `TesterCustomer.php`
 - Represents the customer owning one or more testers.
-- Fillable: `company_name`, `address`, `contact_person`, `phone`, `email`.
+- Fillable: `name`.
 - Relation: `testers()` hasMany `Tester`.
 
 ### `Tester.php`

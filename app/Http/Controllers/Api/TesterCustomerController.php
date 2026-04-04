@@ -20,16 +20,11 @@ class TesterCustomerController extends ApiController
         if (! empty($validated['search'])) {
             $search = $validated['search'];
 
-            $query->where(function ($subQuery) use ($search) {
-                $subQuery
-                    ->where('company_name', 'like', "%{$search}%")
-                    ->orWhere('contact_person', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
+            $query->where('name', 'like', "%{$search}%");
         }
 
         $customers = $query
-            ->orderBy('company_name')
+            ->orderBy('name')
             ->paginate(
                 $validated['per_page'] ?? 15,
                 ['*'],
