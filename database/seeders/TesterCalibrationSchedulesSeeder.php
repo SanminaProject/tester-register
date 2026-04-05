@@ -20,14 +20,14 @@ class TesterCalibrationSchedulesSeeder extends Seeder
                 'last_calibration_date' => Carbon::now()->subMonths(6),
                 'next_calibration_due' => Carbon::now()->addMonths(6),
 
-                'tester_name' => 'TAKAYA FLYING PROBE APT 8400CE',
+                'name' => 'TAKAYA FLYING PROBE APT 8400CE',
                 'calibration_type' => 'Standard Calibration',
                 'status' => 'Scheduled',
                 'last_user_email' => 'test@example.com',
                 'next_user_email' => 'test@example.com',
             ],
             [
-                'tester_name' => 'DIT1',
+                'name' => 'DIT1',
                 'calibration_type' => 'Full Calibration',
                 'status' => 'Scheduled',
                 'last_calibration_date' => Carbon::now()->subYear(),
@@ -39,7 +39,7 @@ class TesterCalibrationSchedulesSeeder extends Seeder
 
         foreach ($testerCalibrationSchedules as $schedule) {
             $testerId = DB::table('testers')
-                ->where('tester_name', $schedule['tester_name'])
+                ->where('name', $schedule['name'])
                 ->value('id');
 
             $calibrationId = DB::table('tester_calibration_procedures')

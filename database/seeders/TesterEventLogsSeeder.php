@@ -20,7 +20,7 @@ class TesterEventLogsSeeder extends Seeder
                 'date' => Carbon::now()->subDays(1),
                 'description' => 'Standard Maintenance performed on TAKAYA FLYING PROBE APT 8400CE',
 
-                'tester_name' => 'TAKAYA FLYING PROBE APT 8400CE',
+                'name' => 'TAKAYA FLYING PROBE APT 8400CE',
                 'event_type' => 'maintenance',
                 'user_email' => 'test@example.com',
                 'maintenance_type' => 'Standard Maintenance',
@@ -29,7 +29,25 @@ class TesterEventLogsSeeder extends Seeder
                 'date' => Carbon::now()->subDays(1),
                 'description' => 'Full Calibration performed on DIT1',
 
-                'tester_name' => 'DIT1',
+                'name' => 'DIT1',
+                'event_type' => 'calibration',
+                'user_email' => 'test@example.com',
+                'calibration_type' => 'Full Calibration',
+            ],
+            [
+                'date' => Carbon::now()->addDays(3),
+                'description' => 'Full Calibration performed on 9S_SWDL2',
+
+                'name' => '9S_SWDL2',
+                'event_type' => 'calibration',
+                'user_email' => 'test@example.com',
+                'calibration_type' => 'Full Calibration',
+            ],
+            [
+                'date' => Carbon::now()->addDays(4),
+                'description' => 'Full Calibration performed on EST2',
+
+                'name' => 'EST2',
                 'event_type' => 'calibration',
                 'user_email' => 'test@example.com',
                 'calibration_type' => 'Full Calibration',
@@ -38,7 +56,7 @@ class TesterEventLogsSeeder extends Seeder
 
         foreach ($testerEventLogs as $log) {
             $testerId = DB::table('testers')
-                ->where('tester_name', $log['tester_name'])
+                ->where('name', $log['name'])
                 ->value('id');
 
             $eventTypeId = DB::table('event_types')

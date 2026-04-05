@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('testers', function (Blueprint $table) {
             $table->id();
-            $table->string('tester_name', 100);
-            $table->text('tester_description')->nullable();
+            $table->string('name', 100);
+            $table->text('description')->nullable();
             $table->string('id_number_by_customer', 50)->nullable();
             $table->string('operating_system', 50)->nullable();
-            $table->string('tester_type', 50)->nullable();
+            $table->string('type', 50)->nullable();
             $table->string('product_family', 100)->nullable();
             $table->string('manufacturer', 100)->nullable();
             $table->date('implementation_date')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             // Foreign keys
             $table->unsignedBigInteger('location_id')->nullable();
             $table->unsignedBigInteger('owner_id')->nullable();
-            $table->unsignedBigInteger('tester_status')->nullable();
+            $table->unsignedBigInteger('status')->nullable();
 
             // Foreign key constraints
             $table->foreign('location_id')
@@ -37,7 +37,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('tester_customers');
 
-            $table->foreign('tester_status')
+            $table->foreign('status')
                 ->references('id')
                 ->on('asset_statuses');
         });
