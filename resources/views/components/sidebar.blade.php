@@ -10,16 +10,15 @@
     </h2>
     @if (trim($slot))
     {{ $slot }}
-    @else
+    @elseif (!empty($items))
     <ul>
         @foreach ($items as $item)
-        <li class="mb-2">
+        <li class="border-b border-gray-300 last:border-b-0">
             <a href="{{ $item['href'] ?? '#' }}"
-                class="block px-4 py-3 font-normal text-base rounded-none hover:bg-red-50 flex flex-col items-center"
+                class="block w-full px-4 py-3 font-normal text-base rounded-none text-center hover:bg-red-50 transition"
                 style="color: #111;">
                 {{ $item['label'] }}
             </a>
-            <div class="w-4/5 mx-auto border-b border-gray-300"></div>
         </li>
         @endforeach
     </ul>
