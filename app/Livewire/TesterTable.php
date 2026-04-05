@@ -13,14 +13,14 @@ class TesterTable extends Component
         'Name',
         'Description',
         'Type',
-        'Operatying System',
+        'Operating System',
         'ID by Customer',
         'Status'
     ];
 
     public function render()
     {
-        $testers = Tester::all();
+        $testers = Tester::paginate(10); // Fetch testers with pagination
         return view('livewire.tester-table', [
             'testers' => $testers,
             'headers' => $this->headers,
