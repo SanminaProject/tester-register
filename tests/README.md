@@ -30,7 +30,7 @@ php artisan test tests/Feature
 
 Run only E2E tests
 ```bash
-php artisan test tests/Browser
+php artisan dusk
 ```
 
 Run only unit tests:
@@ -50,4 +50,14 @@ Chrome version used by dusk must match version installed on current device.
 To download the correct ChromDriver to be used by code based on what your current device has, run:
 ```bash
 php artisan dusk:chrome-driver --version
+```
+
+### Setting up E2E tests
+
+Set up your environment file
+- Create a .env.dusk.local file to root and add the contents of .env.dusk.local.example there
+- Update the .env.dusk.local file with your database settings
+- For the APP_KEY, generate a key using
+```bash
+php artisan key:generate --env=dusk.local
 ```
