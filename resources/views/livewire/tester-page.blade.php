@@ -7,13 +7,15 @@
             ['label' => 'Audit Logs', 'tab' => 'logs'],
             ['label' => 'Add New Log', 'tab' => 'addlog']
             ] as $item)
-            <li class="mb-2">
+            <li>
                 <button wire:click="setTab('{{ $item['tab'] }}')"
-                    class="block w-full px-4 py-3 font-normal text-base rounded-none flex flex-col items-center {{ $activeTab === $item['tab'] ? 'bg-red-100 font-bold' : '' }}"
-                    style="color: #111; text-align:left;">
+                    class="block w-full px-4 py-3 font-normal text-base rounded-none text-center hover:bg-red-50 transition {{ $activeTab === $item['tab'] ? 'bg-red-100 font-bold' : '' }}"
+                    style="color: #111;">
                     {{ $item['label'] }}
                 </button>
-                <div class="w-4/5 mx-auto border-b border-gray-300"></div>
+                @if (!$loop->last)
+                <div class="mx-auto w-4/5 border-b border-gray-300"></div>
+                @endif
             </li>
             @endforeach
         </ul>
