@@ -8,6 +8,8 @@ use App\Models\Tester;
 
 class TesterTable extends Component
 {
+    public $search = '';
+
     public $headers = [
         'ID',
         'Name',
@@ -20,7 +22,13 @@ class TesterTable extends Component
 
     public function render()
     {
-        $testers = Tester::paginate(10); // Fetch testers with pagination
+        $query = Tester::query();
+        if ($this->search) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        }
+
+        $testers = $query->paginate(10);
+
         return view('livewire.tester-table', [
             'testers' => $testers,
             'headers' => $this->headers,

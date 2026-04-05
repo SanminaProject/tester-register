@@ -5,10 +5,10 @@
             <div class="relative">
                 <input
                     type="text"
+                    wire:model="search"
                     class="pl-10 pr-4 py-2 w-70 bg-[#dddddd] rounded-full focus:outline-none focus:ring-2 focus:ring-pink-200 border-0 shadow-none"
-                    placeholder=" "
-                    style="box-shadow:none;"
-                    disabled>
+                    placeholder="Search testers..."
+                    style="box-shadow:none;">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#2C3E50]">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +33,10 @@
                 <span>Filter</span>
             </button>
 
-            <button class="ml-2 px-4 py-2 rounded-full bg-[#B10530] text-white font-semibold hover:bg-pink-700 transition text-sm">
+            <button
+                class="ml-2 px-4 py-2 rounded-full bg-[#B10530] text-white font-semibold hover:bg-pink-700 transition text-sm"
+                wire:click="$dispatch('switchTab', { tab: 'add' })"
+                type="button">
                 Add Tester
             </button>
         </div>
