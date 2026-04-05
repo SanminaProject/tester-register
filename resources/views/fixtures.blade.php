@@ -1,6 +1,13 @@
 <x-app-layout>
     <div class="flex">
-        <x-sidebar />
+        <x-sidebar
+            title="Fixtures"
+            :items="[
+            ['label'=> 'All Fixtures', 'href' => '#'],
+            ['label' => 'Add New Fixture', 'href' => '#'],
+            ['label' => 'Audit Logs', 'href' => '#'],
+            ['label' => 'Add New Log', 'href' => '#']
+            ]" />
         <div class="flex-1 p-8">
             {{-- Fixture List Card component --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

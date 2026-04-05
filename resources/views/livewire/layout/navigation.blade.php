@@ -34,12 +34,20 @@ new class extends Component
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    <x-nav-link :href="route('tester')" :active="request()->routeIs('tester')" wire:navigate>
+                    <x-nav-link :href="route('testers')" :active="request()->routeIs('testers')" wire:navigate>
                         {{ __('Tester') }}
                     </x-nav-link>
 
-                    <x-nav-link :href="route('fixture')" :active="request()->routeIs('fixture')" wire:navigate>
+                    <x-nav-link :href="route('fixtures')" :active="request()->routeIs('fixtures')" wire:navigate>
                         {{ __('Fixture') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('issues')" :active="request()->routeIs('issues')" wire:navigate>
+                        {{ __('Issues') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('services')" :active="request()->routeIs('services')" wire:navigate>
+                        {{ __('Services') }}
                     </x-nav-link>
 
                     @role('Admin')
@@ -99,9 +107,23 @@ new class extends Component
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('tester')" :active="request()->routeIs('tester')" wire:navigate>
+            <x-responsive-nav-link :href="route('testers')" :active="request()->routeIs('tester')" wire:navigate>
                 {{ __('Tester') }}
             </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('fixtures')" :active="request()->routeIs('fixture')" wire:navigate>
+                {{ __('Fixture') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('issues')" :active="request()->routeIs('issue')" wire:navigate>
+                {{ __('Issues') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('services')" :active="request()->routeIs('service')" wire:navigate>
+                {{ __('Services') }}
+            </x-responsive-nav-link>
+
+
 
             @role('Admin')
             <x-responsive-nav-link :href="route('user-roles')" :active="request()->routeIs('user-roles')" wire:navigate>

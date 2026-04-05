@@ -14,5 +14,7 @@ Route::view('profile', 'profile')
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/userRoles.php';
-require __DIR__ . '/tester.php';
-require __DIR__ . '/fixture.php';
+require __DIR__ . '/testers.php';
+require __DIR__ . '/fixtures.php';
+require __DIR__ . '/issues.php';
+require __DIR__ . '/services.php';
