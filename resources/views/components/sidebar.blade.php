@@ -13,12 +13,12 @@
     @elseif (!empty($items))
     <ul>
         @foreach ($items as $item)
-        <li>
-            <a href="{{ $item['href'] ?? '#' }}"
-                class="block w-full px-4 py-3 font-normal text-base rounded-none text-center hover:bg-red-50 transition"
-                style="color: #111;">
+        <li class="mb-2 {{ isset($item['tab']) && $activeTab === $item['tab'] ? 'bg-red-100 font-bold' : '' }}" style="border-radius: 0;"> <button
+                wire:click="..."
+                class="block w-full px-4 py-3 font-normal text-base rounded-none flex flex-col items-center"
+                style="color: #111; text-align:left; background: transparent; border: none;">
                 {{ $item['label'] }}
-            </a>
+            </button>
             <div class="w-4/5 mx-auto border-b border-gray-300"></div>
         </li>
         @endforeach
