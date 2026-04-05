@@ -8,6 +8,9 @@
         style="background-color: #E18BA1; color: #111;">
         {{ $title }}
     </h2>
+    @if (trim($slot))
+    {{ $slot }}
+    @else
     <ul>
         @foreach ($items as $item)
         <li class="mb-2">
@@ -20,4 +23,5 @@
         </li>
         @endforeach
     </ul>
+    @endif
 </div>
