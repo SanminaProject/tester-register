@@ -13,12 +13,13 @@
     @elseif (!empty($items))
     <ul>
         @foreach ($items as $item)
-        <li class="border-b border-gray-300 last:border-b-0">
+        <li>
             <a href="{{ $item['href'] ?? '#' }}"
                 class="block w-full px-4 py-3 font-normal text-base rounded-none text-center hover:bg-red-50 transition"
                 style="color: #111;">
                 {{ $item['label'] }}
             </a>
+            <div class="w-4/5 mx-auto border-b border-gray-300"></div>
         </li>
         @endforeach
     </ul>
