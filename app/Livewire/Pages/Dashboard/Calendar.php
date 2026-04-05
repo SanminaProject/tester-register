@@ -11,7 +11,9 @@ class Calendar extends Component
 
     public function mount()
     {
-        $this->dispatch('calendar-ready');
+        $this->events = CalendarEvent::getCalendarEvents();
+
+        $this->dispatch('calendar-ready', events: $this->events);
     }
 
     public function render()

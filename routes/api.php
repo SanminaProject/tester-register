@@ -41,8 +41,6 @@ Route::prefix('v1')->group(function () {
             ->only(['index', 'store', 'show'])
             ->parameters(['event-logs' => 'eventLog']);
 
-        Route::get('calendar-events', [CalendarController::class, 'index']);
-
         Route::apiResource('spare-parts', SparePartController::class)
             ->parameters(['spare-parts' => 'sparePart']);
     });

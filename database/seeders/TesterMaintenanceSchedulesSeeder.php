@@ -20,14 +20,14 @@ class TesterMaintenanceSchedulesSeeder extends Seeder
                 'last_maintenance_date' => Carbon::now()->subMonths(6),
                 'next_maintenance_due' => Carbon::now()->addMonths(6),
 
-                'tester_name' => 'TAKAYA FLYING PROBE APT 8400CE',
+                'name' => 'TAKAYA FLYING PROBE APT 8400CE',
                 'maintenance_type' => 'Standard Maintenance',
                 'status' => 'Scheduled',
                 'last_user_email' => 'test@example.com',
                 'next_user_email' => 'test@example.com',
             ],
             [
-                'tester_name' => 'DIT1',
+                'name' => 'DIT1',
                 'maintenance_type' => 'Full Maintenance',
                 'status' => 'Scheduled',
                 'last_maintenance_date' => Carbon::now()->subYear(),
@@ -39,7 +39,7 @@ class TesterMaintenanceSchedulesSeeder extends Seeder
 
         foreach ($testerMaintenanceSchedules as $schedule) {
             $testerId = DB::table('testers')
-                ->where('tester_name', $schedule['tester_name'])
+                ->where('name', $schedule['name'])
                 ->value('id');
 
             $maintenanceId = DB::table('tester_maintenance_procedures')
