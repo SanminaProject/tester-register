@@ -6,35 +6,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CalibrationSchedule extends Model
+class TesterCalibrationSchedule extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    public $timestamps = false;
+
     protected $fillable = [
+        'schedule_created_date',
+        'last_calibration_date',
+        'next_calibration_due',
         'tester_id',
-        'scheduled_date',
-        'status',
-        'procedure',
-        'completed_date',
-        'performed_by',
-        'notes',
+        'calibration_id',
+        'calibration_status',
+        'last_calibration_by_user_id',
+        'next_calibration_by_user_id',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'scheduled_date' => 'date',
-            'completed_date' => 'date',
+            'schedule_created_date' => 'date',
+            'last_calibration_date' => 'date',
+            'next_calibration_due' => 'date',
         ];
     }
 

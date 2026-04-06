@@ -11,33 +11,65 @@ class Tester extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    public $timestamps = false;
+
     protected $fillable = [
-        'customer_id',
-        'model',
-        'serial_number',
-        'purchase_date',
+        'name',
+        'description',
+        'id_number_by_customer',
+        'operating_system',
+        'type',
+        'product_family',
+        'manufacturer',
+        'implementation_date',
+        'location_id',
+        'owner_id',
         'status',
-        'location',
-        'notes',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'purchase_date' => 'date',
+            'implementation_date' => 'date',
         ];
     }
 
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(TesterAndFixtureLocation::class, 'location_id');
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(TesterCustomer::class, 'owner_id');
+    }
+
+    public function statusRelation(): BelongsTo
+    {
+        return $this->belongsTo(AssetStatus::class, 'status');
+    }
+
+    public function maintenanceSchedules(): HasMany
+    {
+        return $this->hasMany(MaintenanceSchedule::class);
+    }
+
+    public function calibrationSchedules(): HasMany
+    {
+        return $this->hasMany(CalibrationSchedule::class);
+    }
+
+    public function eventLogs(): HasMany
+    {
+        return $this->hasMany(EventLog::class);
+    }
+
+
+
+
+    // -- Below values not needed for now, but should be taken into use if needed in the future --
+
+    /* 
     public function customer(): BelongsTo
     {
         return $this->belongsTo(TesterCustomer::class, 'customer_id');
@@ -61,5 +93,5 @@ class Tester extends Model
     public function eventLogs(): HasMany
     {
         return $this->hasMany(EventLog::class);
-    }
+    } */
 }
