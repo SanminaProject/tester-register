@@ -41,11 +41,8 @@ class CalendarTest extends DuskTestCase
         // get tester associated with the event log
         $tester = Tester::find($eventLog->tester_id);
 
-        $eventTypeName = \DB::table('event_types')
-            ->where('id', $eventLog->event_type)
-            ->value('name');
-
-        $expectedTitle = $eventTypeName . ' - ' . $tester->name;
+        // since event log for calibration was called
+        $expectedTitle = 'calibration - ' . $tester->name;
 
         $this->browse(function (Browser $browser) use ($expectedTitle) {
             $browser->loginAs($this->user)

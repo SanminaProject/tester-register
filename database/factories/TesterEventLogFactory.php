@@ -29,7 +29,7 @@ class TesterEventLogFactory extends Factory
             'description' => fake()->sentence(),
 
             'tester_id' => Tester::factory(),
-            'event_type' => EventType::factory(),
+            'event_type' => EventType::query()->inRandomOrder()->value('id'),
             'created_by_user_id' => User::factory(),
 
             'maintenance_schedule_id' => null, 
@@ -50,11 +50,12 @@ class TesterEventLogFactory extends Factory
                 'tester_id' => $attributes['tester_id'] ?? Tester::factory(),
             ]);
 
-            return [
-                'event_type' => DB::table('event_types')
-                    ->where('name', 'maintenance')
-                    ->value('id'),
+            $eventTypeId = EventType::firstOrCreate([
+                'name' => 'maintenance'
+            ])->id;
 
+            return [
+                'event_type' => $eventTypeId,
                 'tester_id' => $schedule->tester_id,
                 'maintenance_schedule_id' => $schedule->id,
             ];
@@ -69,11 +70,12 @@ class TesterEventLogFactory extends Factory
                 'tester_id' => $attributes['tester_id'] ?? Tester::factory(),
             ]);
 
-            return [
-                'event_type' => DB::table('event_types')
-                    ->where('name', 'calibration')
-                    ->value('id'),
+            $eventTypeId = EventType::firstOrCreate([
+                'name' => 'calibration'
+            ])->id;
 
+            return [
+                'event_type' => $eventTypeId,
                 'tester_id' => $schedule->tester_id,
                 'calibration_schedule_id' => $schedule->id,
             ];
