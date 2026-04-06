@@ -18,7 +18,7 @@ tests/
 
 ## Running Tests
 
-Run all tests:
+Run all tests excluding E2E:
 ```bash
 php artisan test
 ```
@@ -54,10 +54,11 @@ php artisan dusk:chrome-driver --version
 
 ### Setting up E2E tests
 
-Set up your environment file
+1. Set up your environment file
 - Create a .env.dusk.local file to root and add the contents of .env.dusk.local.example there
 - Update the .env.dusk.local file with your database settings
 - For the APP_KEY, generate a key using
 ```bash
 php artisan key:generate --env=dusk.local
 ```
+2. Run migrations and seeders for the database used for tests.

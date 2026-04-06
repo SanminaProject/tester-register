@@ -8,6 +8,8 @@ use Tests\DuskTestCase;
 use App\Models\User;
 use App\Models\EventLog;
 use App\Livewire\Pages\Dashboard\Calendar;
+use App\Models\TesterEventLog;
+use App\Models\Tester;
 
 class CalendarTest extends DuskTestCase
 {
@@ -31,20 +33,27 @@ class CalendarTest extends DuskTestCase
 
     public function test_events_are_visible_on_calendar()
     {
-        $event = EventLog::factory()->create([
-            'title' => 'Dusk Test Event',
-            'type' => 'calibration',
-            'start' => '2026-03-25T10:00:00',
-            'end' => '2026-03-25T11:00:00',
-        ]);
+        // create calibration event using factory
+        $eventLog = TesterEventLog::factory()
+            ->calibration()
+            ->create();
 
-        $this->browse(function (Browser $browser) {
+        // get tester associated with the event log
+        $tester = Tester::find($eventLog->tester_id);
+
+        $eventTypeName = \DB::table('event_types')
+            ->where('id', $eventLog->event_type)
+            ->value('name');
+
+        $expectedTitle = $eventTypeName . ' - ' . $tester->name;
+
+        $this->browse(function (Browser $browser) use ($expectedTitle) {
             $browser->loginAs($this->user)
                 ->visit('/dashboard')
                 ->waitFor('#calendar')
                 ->waitFor('.fc-event', 5)
 
-                ->assertSeeIn('#calendar', 'Dusk Test Event');
+                ->assertSeeIn('#calendar', $expectedTitle);
         });
     }
 } 

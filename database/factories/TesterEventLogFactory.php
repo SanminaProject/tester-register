@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Models\TesterCalibrationSchedule;
 use App\Models\TesterMaintenanceSchedule;
 use App\Models\TesterEventLog;
+use App\Models\EventType;
 
 /**
  * @extends Factory<Model>
@@ -28,7 +29,7 @@ class TesterEventLogFactory extends Factory
             'description' => fake()->sentence(),
 
             'tester_id' => Tester::factory(),
-            'event_type' => DB::table('event_types')->inRandomOrder()->value('id'),
+            'event_type' => EventType::factory(),
             'created_by_user_id' => User::factory(),
 
             'maintenance_schedule_id' => null, 
