@@ -3,11 +3,14 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 
 use App\Models\Tester;
 
 class TesterTable extends Component
 {
+    use WithPagination;
+
     public $search = '';
 
     public $headers = [
@@ -20,11 +23,23 @@ class TesterTable extends Component
         'Status'
     ];
 
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = Tester::query();
-        if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+
+        $keyword = trim($this->search);
+
+        if ($keyword !== '') {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', '%' . $keyword . '%')
+                    ->orWhere('description', 'like', '%' . $keyword . '%')
+                    ->orWhere('operating_system', 'like', '%' . $keyword . '%');
+            });
         }
 
         $testers = $query->paginate(10);

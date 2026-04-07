@@ -1,1 +1,3 @@
-<livewire:tester-table />
+<div>
+    <livewire:tester-table :key="'tester-table'" />
+</div>
