@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('procedure_interval_units', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id'); // auto-incrementing primary key
             $table->string('name', 50)->unique()->notNullable(); // unit of time (Days, Weeks, Months or Years)
         });
     }
