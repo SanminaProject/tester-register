@@ -14,16 +14,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RoleSeeder::class);
-
-        $testUser = User::firstOrCreate([
-            'email' => 'test@example.com',
-        ], [
-            'name' => 'Test User',
-            'password' => Hash::make('password123'),
-            'email_verified_at' => now(),
+        $this->call([
+            // in this order
+            RoleSeeder::class,
+            AssetStatusesSeeder::class,
+            ScheduleStatusesSeeder::class,
+            TesterCustomersSeeder::class,
+            TesterAndFixtureLocationsSeeder::class,
+            TesterSeeder::class,
+            ProcedureIntervalUnitsSeeder::class,
+            TesterMaintenanceProceduresSeeder::class,
+            TesterCalibrationProceduresSeeder::class,
+            TesterMaintenanceSchedulesSeeder::class,
+            TesterCalibrationSchedulesSeeder::class,
+            EventTypesSeeder::class,
+            IssueStatusesSeeder::class,
+            TesterEventLogsSeeder::class,
         ]);
-
-        $testUser->syncRoles(['Guest']);
     }
 }

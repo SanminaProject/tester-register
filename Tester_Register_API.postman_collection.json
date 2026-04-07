@@ -177,7 +177,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"company_name\": \"Nokia Test Lab\",\n  \"address\": \"Helsinki\",\n  \"contact_person\": \"Jane Doe\",\n  \"phone\": \"+358401234567\",\n  \"email\": \"nokia.lab@example.com\"\n}"
+              "raw": "{\n  \"name\": \"Nokia Test Lab\",\n  \"address\": \"Helsinki\",\n  \"contact_person\": \"Jane Doe\",\n  \"phone\": \"+358401234567\",\n  \"email\": \"nokia.lab@example.com\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/customers",

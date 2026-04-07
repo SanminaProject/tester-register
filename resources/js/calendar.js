@@ -37,14 +37,6 @@ document.addEventListener('calendar-ready', function () {
         eventClick: function(info) {
             console.log('Event clicked:', info.event);
         },
-
-        eventMouseEnter: function(info) {
-            console.log('Hover start:', info.event);
-        },
-
-        eventMouseLeave: function(info) {
-            console.log('Hover end:', info.event);
-        }
     })
 
     calendar.render()

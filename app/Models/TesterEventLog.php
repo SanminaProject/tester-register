@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class MaintenanceSchedule extends Model
+class TesterEventLog extends Model
 {
     use HasFactory;
 
@@ -15,14 +15,21 @@ class MaintenanceSchedule extends Model
      *
      * @var list<string>
      */
+
+    public $timestamps = false;
+
     protected $fillable = [
+        'date',
+        'description',
         'tester_id',
-        'scheduled_date',
-        'status',
-        'procedure',
-        'completed_date',
-        'performed_by',
-        'notes',
+        'event_type',
+        'created_by_user_id',
+        'maintenance_schedule_id',
+        'calibration_schedule_id',
+        'resolved_date',
+        'resolution_description',
+        'resolved_by_user_id',
+        'issue_status',
     ];
 
     /**
@@ -33,8 +40,8 @@ class MaintenanceSchedule extends Model
     protected function casts(): array
     {
         return [
-            'scheduled_date' => 'date',
-            'completed_date' => 'date',
+            'date' => 'datetime',
+            'resolved_date' => 'datetime',
         ];
     }
 
