@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('type', 100);
             $table->integer('interval_value');
             $table->text('description')->nullable();
-            $table->integer('interval_unit');
+            $table->unsignedInteger('interval_unit');
 
             // Foreign key constraint
             $table->foreign('interval_unit')
