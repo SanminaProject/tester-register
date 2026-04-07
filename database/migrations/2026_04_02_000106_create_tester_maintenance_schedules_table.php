@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tester_maintenance_schedules', function (Blueprint $table) {
-            $table->id();
+            $table->integer('id', true);
             $table->dateTime('schedule_created_date')->default(DB::raw('CURRENT_TIMESTAMP')); // maybe change this line?
             $table->dateTime('last_maintenance_date')->nullable();
             $table->dateTime('next_maintenance_due')->nullable();

@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('schedule_statuses', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name', 50)->unique()->notNullable(); // e.g., 'Scheduled', 'Overdue'
+            $table->integer('id', true);
+            $table->string('name', 50)->unique(); // e.g., 'Scheduled', 'Overdue'
         });
     }
 
