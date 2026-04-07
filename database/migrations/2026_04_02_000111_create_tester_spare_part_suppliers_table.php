@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tester_spare_part_suppliers', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('supplier_name');
             $table->string('contact_person')->nullable();
             $table->string('contact_email')->nullable();

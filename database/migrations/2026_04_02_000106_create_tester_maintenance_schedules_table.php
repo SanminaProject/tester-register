@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('tester_maintenance_schedules', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->dateTime('schedule_created_date')->default(DB::raw('CURRENT_TIMESTAMP')); // maybe change this line?
+            $table->dateTime('schedule_created_date')->useCurrent();
             $table->dateTime('last_maintenance_date')->nullable();
             $table->dateTime('next_maintenance_due')->nullable();
 
-            $table->unsignedBigInteger('tester_id');
-            $table->unsignedBigInteger('maintenance_id');
-            $table->unsignedBigInteger('maintenance_status')->nullable();
-            $table->unsignedBigInteger('last_maintenance_by_user_id')->nullable();
-            $table->unsignedBigInteger('next_maintenance_by_user_id')->nullable();
+            $table->unsignedInteger('tester_id');
+            $table->unsignedInteger('maintenance_id');
+            $table->unsignedInteger('maintenance_status')->nullable();
+            $table->unsignedInteger('last_maintenance_by_user_id')->nullable();
+            $table->unsignedInteger('next_maintenance_by_user_id')->nullable();
 
             // Index for faster lookups
             $table->index('tester_id', 'idx_tester_maintenance_schedules_tester');
