@@ -2,14 +2,10 @@
 
 namespace Tests\Browser;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 use App\Models\User;
-use App\Models\EventLog;
-use App\Livewire\Pages\Dashboard\Calendar;
 use App\Models\TesterEventLog;
-use App\Models\Tester;
 
 class CalendarTest extends DuskTestCase
 {
@@ -31,26 +27,44 @@ class CalendarTest extends DuskTestCase
         });
     }
 
+    public function test_calendar_displays_current_month_by_default() {
+        $currentMonthYear = now()->format('F Y'); 
+
+        $this->browse(function (Browser $browser) use ($currentMonthYear) {
+            $browser->loginAs($this->user)
+                ->visit('/dashboard')
+                ->waitFor('#calendar') 
+                ->assertSeeIn('.fc-toolbar .fc-toolbar-chunk:nth-child(2)', $currentMonthYear);
+        });
+    }
+
     public function test_events_are_visible_on_calendar()
     {
-        // create calibration event using factory
         $eventLog = TesterEventLog::factory()
             ->calibration()
             ->create();
+       
+        $tester = $eventLog->tester; 
+        $eventType = $eventLog->eventType; 
 
-        // get tester associated with the event log
-        $tester = Tester::find($eventLog->tester_id);
-
-        // since event log for calibration was called
-        $expectedTitle = 'calibration - ' . $tester->name;
+        $expectedTitle = $eventType->name . ' - ' . $tester->name; 
 
         $this->browse(function (Browser $browser) use ($expectedTitle) {
             $browser->loginAs($this->user)
                 ->visit('/dashboard')
                 ->waitFor('#calendar')
-                ->waitFor('.fc-event', 5)
+                ->pause(3000);
 
-                ->assertSeeIn('#calendar', $expectedTitle);
+            $texts = $browser->script("
+                return Array.from(document.querySelectorAll('.fc-event-title'))
+                    .map(el => el.innerText);
+            ");
+
+            dump($texts); // all backend events are shown properly
+
+            // this will give an error, the event title can't be found properly
+            $browser->waitFor('.fc-event-title', 5)
+                ->assertPresent("//div[contains(@class, 'fc-event-title') and contains(., '{$expectedTitle}')]");
         });
     }
 } 
