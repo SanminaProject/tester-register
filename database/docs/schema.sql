@@ -282,8 +282,8 @@ CREATE TABLE user_tester_assignments (
 
     PRIMARY KEY (user_id, tester_id),
 
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE
 );
 
 -- BELOW TABLES BASED ON SPATIE LARAVEL PERMISSION LIBRARY

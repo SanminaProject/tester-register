@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('fixtures', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->string('manufacturer', 100)->nullable();
             $table->timestamp('created_at')->useCurrent();
 
             // Foreign keys
-            $table->unsignedBigInteger('tester_id');
-            $table->unsignedBigInteger('location_id')->nullable();
-            $table->unsignedBigInteger('fixture_status')->nullable();
+            $table->unsignedInteger('tester_id');
+            $table->unsignedInteger('location_id')->nullable();
+            $table->unsignedInteger('fixture_status')->nullable();
 
             // index for faster lookups of fixtures by tester
             $table->index('tester_id', 'idx_fixtures_tester');

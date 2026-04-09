@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tester_and_fixture_locations', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->string('address', 255)->nullable();

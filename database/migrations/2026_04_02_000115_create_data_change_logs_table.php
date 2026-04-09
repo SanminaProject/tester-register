@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('data_change_logs', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->dateTime('changed_at');
             $table->text('explanation');
 
             // foreign keys
-            $table->unsignedBigInteger('tester_id')->nullable();
-            $table->unsignedBigInteger('fixture_id')->nullable();
-            $table->unsignedBigInteger('spare_part_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedInteger('tester_id')->nullable();
+            $table->unsignedInteger('fixture_id')->nullable();
+            $table->unsignedInteger('spare_part_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
 
             // foreign key constraints
             $table->foreign('tester_id')->references('id')->on('testers')->nullOnDelete();

@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tester_calibration_schedules', function (Blueprint $table) {
-            $table->id();
-            $table->dateTime('schedule_created_date')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->increments('id');
+            $table->dateTime('schedule_created_date')->useCurrent();
             $table->dateTime('last_calibration_date')->nullable();
             $table->dateTime('next_calibration_due')->nullable();
 
-            $table->unsignedBigInteger('tester_id');
-            $table->unsignedBigInteger('calibration_id');
-            $table->unsignedBigInteger('calibration_status')->nullable();
-            $table->unsignedBigInteger('last_calibration_by_user_id')->nullable();
-            $table->unsignedBigInteger('next_calibration_by_user_id')->nullable();
+            $table->unsignedInteger('tester_id');
+            $table->unsignedInteger('calibration_id');
+            $table->unsignedInteger('calibration_status')->nullable();
+            $table->unsignedInteger('last_calibration_by_user_id')->nullable();
+            $table->unsignedInteger('next_calibration_by_user_id')->nullable();
 
             // Index for faster lookups
             $table->index('tester_id', 'idx_tester_calibration_schedules_tester');

@@ -12,17 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tester_maintenance_procedures', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('type', 100);
-            $table->unsignedInteger('interval_value');
+            $table->integer('interval_value');
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('interval_unit');
+            $table->unsignedInteger('interval_unit');
 
             // Foreign key constraint
             $table->foreign('interval_unit')
-                  ->references('id')
-                  ->on('procedure_interval_units')
-                  ->cascadeOnDelete();
+                ->references('id')
+                ->on('procedure_interval_units')
+                ->cascadeOnDelete();
         });
     }
 

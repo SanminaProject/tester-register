@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tester_spare_parts', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('name');
             $table->string('manufacturer_part_number')->nullable();
             $table->unsignedInteger('quantity_in_stock')->default(0);
@@ -22,19 +22,20 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->timestamp('created_at')->useCurrent();
 
-            $table->unsignedBigInteger('tester_id');
-            $table->unsignedBigInteger('supplier_id')->nullable();
+            $table->index('tester_id', 'idx_tester_spare_parts_tester');
+
+            $table->unsignedInteger('tester_id');
+            $table->unsignedInteger('supplier_id')->nullable();
 
             // Foreign key constraints
             $table->foreign('tester_id')
-                  ->references('id')
-                  ->on('testers')
-                  ->cascadeOnDelete();
+                ->references('id')
+                ->on('testers');
 
             $table->foreign('supplier_id')
-                  ->references('id')
-                  ->on('tester_spare_part_suppliers')
-                  ->nullOnDelete();
+                ->references('id')
+                ->on('tester_spare_part_suppliers')
+                ->noActionOnDelete();
         });
     }
 

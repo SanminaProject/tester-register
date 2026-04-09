@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('testers', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id'); // INT AUTO_INCREMENT
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->string('id_number_by_customer', 50)->nullable();
@@ -24,9 +24,9 @@ return new class extends Migration
             $table->text('additional_info')->nullable();
 
             // Foreign keys
-            $table->unsignedBigInteger('location_id')->nullable();
-            $table->unsignedBigInteger('owner_id')->nullable();
-            $table->unsignedBigInteger('status')->nullable();
+            $table->unsignedInteger('location_id')->nullable();
+            $table->unsignedInteger('owner_id')->nullable();
+            $table->unsignedInteger('status')->nullable();
 
             // Foreign key constraints
             $table->foreign('location_id')
