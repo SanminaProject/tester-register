@@ -1,29 +1,31 @@
 @props([
-'title' => 'Sidebar',
-'items' => [],
+    'title' => 'Sidebar',
+    'items' => [],
+    'activeTab' => null, 
 ])
 
-<div class="w-60 min-h-screen p-0 bg-white">
-    <h2 class="text-xl font-bold px-2 py-4 flex flex-col items-center"
-        style="background-color: #E18BA1; color: #111;">
+<div class="w-1/6 min-h-screen p-0 bg-white">
+    <h2 class="text-xl font-bold px-2 py-4 flex flex-col items-center bg-secondary text-black">
         {{ $title }}
     </h2>
+    
     @if (trim($slot))
-    {{ $slot }}
+        {{ $slot }}
     @elseif (!empty($items))
-    <ul>
-        @foreach ($items as $item)
-        <li class="mb-2 {{ isset($item['tab']) && $activeTab === $item['tab'] ? 'bg-red-100 font-bold' : '' }}"
-            style="border-radius: 0;">
-            <button
-                wire:click="..."
-                class="block w-full px-4 py-3 font-normal text-base rounded-none flex flex-col items-center"
-                style="color: #111; text-align:left; background: transparent; border: none;">
-                {{ $item['label'] }}
-            </button>
-            <div class="w-4/5 mx-auto border-b border-gray-300"></div>
-        </li>
-        @endforeach
-    </ul>
+        <ul class="flex flex-col">
+            @foreach ($items as $item)
+            @php
+                $isActive = isset($item['tab']) && $activeTab === $item['tab'];
+            @endphp
+            
+            <li class="{{ $isActive ? 'bg-thirdly font-bold' : 'border-b border-gray-100' }}">
+                <button
+                    wire:click="$set('activeTab', '{{ $item['tab'] }}')"
+                    class="block w-full px-4 py-4 font-normal text-base-medium text-canter text-black bg-transparent border-none outline-none cursor-pointer">
+                    {{ $item['label'] }}
+                </button>
+            </li>
+            @endforeach
+        </ul>
     @endif
 </div>
