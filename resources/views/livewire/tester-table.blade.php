@@ -20,18 +20,38 @@
                     </svg>
                 </span>
             </div>
-            <button
-                class="flex items-center gap-2 text-[#2C3E50] text-lg font-normal bg-transparent border-0 shadow-none hover:text-[#B10530] focus:outline-none"
-                type="button"
-                @click="alert('Filter functionality coming soon!')">
 
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <line x1="4" y1="6" x2="20" y2="6" stroke-width="2" stroke="currentColor" />
-                    <line x1="8" y1="12" x2="16" y2="12" stroke-width="2" stroke="currentColor" />
-                    <line x1="10" y1="18" x2="14" y2="18" stroke-width="2" stroke="currentColor" />
-                </svg>
-                <span>Filter</span>
-            </button>
+            <div x-data="{ open: false }" class="relative">
+                <button
+                    class="flex items-center gap-2 text-[#2C3E50] text-lg font-normal bg-transparent border-0 shadow-none hover:text-[#B10530] focus:outline-none"
+                    type="button"
+                    @click="open = !open">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <line x1="4" y1="6" x2="20" y2="6" stroke-width="2" stroke="currentColor" />
+                        <line x1="8" y1="12" x2="16" y2="12" stroke-width="2" stroke="currentColor" />
+                        <line x1="10" y1="18" x2="14" y2="18" stroke-width="2" stroke="currentColor" />
+                    </svg>
+                    <span>Filter</span>
+                </button>
+                <div
+                    x-show="open"
+                    @click.away="open = false"
+                    class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                    style="min-width: 180px;">
+                    <div class="px-4 py-2 font-semibold border-b">Filter</div>
+                    <ul>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">ID</li>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Name</li>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Description</li>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Prod family</li>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Owner</li>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Customer ID</li>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Status</li>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Location</li>
+                    </ul>
+                </div>
+            </div>
 
             <button
                 class="ml-2 px-4 py-2 rounded-full bg-[#B10530] text-white font-semibold hover:bg-pink-700 transition text-sm"
