@@ -20,7 +20,9 @@ class ApiSmokeTest extends TestCase
         Role::findOrCreate('Guest', 'web');
 
         $response = $this->postJson('/api/v1/auth/register', [
-            'name' => 'API User',
+            'first_name' => 'API',
+            'last_name' => 'User',
+            'phone' => '+358401234567',
             'email' => 'api-user@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
@@ -63,11 +65,7 @@ class ApiSmokeTest extends TestCase
         Sanctum::actingAs($admin);
 
         $createResponse = $this->postJson('/api/v1/customers', [
-            'company_name' => 'Acme Labs',
-            'address' => 'Helsinki',
-            'contact_person' => 'Jane Doe',
-            'phone' => '+358401234567',
-            'email' => 'contact@acme-labs.example',
+            'name' => 'Acme Labs',
         ]);
 
         $customerId = $createResponse->json('data.id');
@@ -79,13 +77,13 @@ class ApiSmokeTest extends TestCase
 
         $this->getJson('/api/v1/customers/'.$customerId)
             ->assertOk()
-            ->assertJsonPath('data.company_name', 'Acme Labs');
+            ->assertJsonPath('data.name', 'Acme Labs');
 
         $this->patchJson('/api/v1/customers/'.$customerId, [
-            'contact_person' => 'Jane Ops',
+            'name' => 'Acme Labs Updated',
         ])
             ->assertOk()
-            ->assertJsonPath('data.contact_person', 'Jane Ops');
+            ->assertJsonPath('data.name', 'Acme Labs Updated');
 
         $this->deleteJson('/api/v1/customers/'.$customerId)
             ->assertOk()
@@ -101,11 +99,7 @@ class ApiSmokeTest extends TestCase
         Sanctum::actingAs($guest);
 
         $this->postJson('/api/v1/customers', [
-            'company_name' => 'Blocked Customer',
-            'address' => 'City',
-            'contact_person' => 'Blocked User',
-            'phone' => '+358401234568',
-            'email' => 'blocked@example.com',
+            'name' => 'Blocked Customer',
         ])
             ->assertForbidden()
             ->assertJsonPath('success', false)
@@ -121,11 +115,7 @@ class ApiSmokeTest extends TestCase
         Sanctum::actingAs($manager);
 
         $customer = TesterCustomer::create([
-            'company_name' => 'Nokia Labs',
-            'address' => 'Espoo',
-            'contact_person' => 'Nina',
-            'phone' => '+358401000000',
-            'email' => 'nina@nokia-labs.example',
+            'name' => 'Nokia Labs',
         ]);
 
         $tester = Tester::create([

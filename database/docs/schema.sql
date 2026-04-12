@@ -2,21 +2,21 @@
 -- so no need to store documents in the database. If we want to store documents, we can add a table for that and link it to testers or maintenance/calibration schedules.
 
 CREATE TABLE tester_customers (
-    customer_id INT PRIMARY KEY AUTO_INCREMENT,
-    customer_name VARCHAR(100) NOT NULL
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL
 );
 
 -- holds information about locations that can be used for both testers and fixtures
 CREATE TABLE tester_and_fixture_locations (
-    location_id INT PRIMARY KEY AUTO_INCREMENT,
-    location_name VARCHAR(100) NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
     description TEXT,
     address VARCHAR(255) -- should we delete this column?
 );
 
 -- holds information about users responsible for tester maintenance/calibration or HR/administration work
 CREATE TABLE users (
-    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -33,18 +33,18 @@ CREATE TABLE users (
 -- holds statuses for testers and fixtures
 -- includes active, inactive, and maintenance
 CREATE TABLE asset_statuses (
-    status_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
 -- holds all essential information about testers
 CREATE TABLE testers (
-    tester_id INT PRIMARY KEY AUTO_INCREMENT,
-    tester_name VARCHAR(100) NOT NULL, -- name of the tester
-    tester_description TEXT, -- detailed description of the tester
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL, -- name of the tester
+    description TEXT, -- detailed description of the tester
     id_number_by_customer VARCHAR(50), -- the ID number given to the tester by the customer
     operating_system VARCHAR(50), -- operating system used by the tester pc or test system
-    tester_type VARCHAR(50), -- type of tester
+    type VARCHAR(50), -- type of tester
     product_family VARCHAR(100), -- product family associated with the tester
     manufacturer VARCHAR(100), -- manufacturer of the tester
     implementation_date DATE, -- date when the tester was implemented
@@ -53,26 +53,26 @@ CREATE TABLE testers (
     -- references
     location_id INT, -- physicallocation of the tester
     owner_id INT, -- owner of the tester, which is usually the customer (NOKIA, HALTIAN etc.)
-    tester_status INT, -- status of the tester (active, inactive or maintenance) 
+    status INT, -- status of the tester (active, inactive or maintenance) 
 
     -- the information on who is responsible for each tester will be stored in the user_tester_assignments table, which links users to testers
 
-    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id),
-    FOREIGN KEY (owner_id) REFERENCES tester_customers(customer_id),
-    FOREIGN KEY (tester_status) REFERENCES asset_statuses(status_id)
+    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(id),
+    FOREIGN KEY (owner_id) REFERENCES tester_customers(id),
+    FOREIGN KEY (status) REFERENCES asset_statuses(id)
 );
 
 CREATE TABLE tester_assets (
-    asset_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     asset_no VARCHAR(100) NOT NULL,
     tester_id INT NOT NULL,
     
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id)
 );
 
 -- holds all essential information about suppliers of spare parts for testers
 CREATE TABLE tester_spare_part_suppliers (
-    supplier_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     supplier_name VARCHAR(255) NOT NULL,
     contact_person VARCHAR(255),
     contact_email VARCHAR(255),
@@ -83,8 +83,8 @@ CREATE TABLE tester_spare_part_suppliers (
 
 -- holds all essential information about spare parts associated with testers
 CREATE TABLE tester_spare_parts (
-    part_id INT PRIMARY KEY AUTO_INCREMENT,
-    part_name VARCHAR(255) NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL, -- name of the spare part
     manufacturer_part_number VARCHAR(255),
     quantity_in_stock INT NOT NULL DEFAULT 0,
     reorder_level INT NOT NULL, -- alarm level of when to reorder (check can be done in laravel when quantity_in_stock goes below this level)
@@ -100,16 +100,16 @@ CREATE TABLE tester_spare_parts (
     tester_id INT NOT NULL,
     supplier_id INT, -- supplier of the spare part
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id), -- testers, users, alarm levels and roles are linked and can be called together with queries 
-    FOREIGN KEY (supplier_id) REFERENCES tester_spare_part_suppliers(supplier_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id), -- testers, users, alarm levels and roles are linked and can be called together with queries 
+    FOREIGN KEY (supplier_id) REFERENCES tester_spare_part_suppliers(id)
 );
 
 -- holds all essential information about fixtures associated with testers
 CREATE TABLE fixtures (
-    fixture_id INT PRIMARY KEY AUTO_INCREMENT,
-    fixture_name VARCHAR(100) NOT NULL, -- name of the fixture
-    fixture_description TEXT, -- detailed description of the fixture
-    fixture_manufacturer VARCHAR(100), -- manufacturer of the fixture
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL, -- name of the fixture
+    description TEXT, -- detailed description of the fixture
+    manufacturer VARCHAR(100), -- manufacturer of the fixture
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- index for faster lookups of fixtures by tester
@@ -117,19 +117,19 @@ CREATE TABLE fixtures (
 
     -- references
     tester_id INT NOT NULL, -- reference to the tester this fixture is associated with
-    location_id INT, -- physical location of the fixture
+    location_id INT, -- physical location of the fixture    
     fixture_status INT, -- current status of the fixture (active, inactive or maintenance)
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(location_id),
-    FOREIGN KEY (fixture_status) REFERENCES asset_statuses(status_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (location_id) REFERENCES tester_and_fixture_locations(id) ON DELETE SET NULL,
+    FOREIGN KEY (fixture_status) REFERENCES asset_statuses(id) ON DELETE SET NULL
 );
 
 -- holds all information on data changes made to testers, fixtures, and spare parts
 -- like adding a tester, changing tester information in the tester table, activating a spare part etc. 
 CREATE TABLE data_change_logs (
-    change_id INT PRIMARY KEY AUTO_INCREMENT,
-    change_date DATETIME NOT NULL, -- when the change was made
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    changed_at DATETIME NOT NULL, -- when the change was made
     explanation TEXT NOT NULL, -- explanation of the change
 
     -- references
@@ -138,67 +138,67 @@ CREATE TABLE data_change_logs (
     spare_part_id INT, -- spare part ID if the change is related to a spare part
     user_id INT, -- who made the change
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (fixture_id) REFERENCES fixtures(fixture_id),
-    FOREIGN KEY (spare_part_id) REFERENCES tester_spare_parts(part_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE SET NULL,
+    FOREIGN KEY (fixture_id) REFERENCES fixtures(id) ON DELETE SET NULL,
+    FOREIGN KEY (spare_part_id) REFERENCES tester_spare_parts(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- holds definitions of different types of events that can be logged into tester_event_logs
 -- includes ENUM('issue', 'maintenance', 'calibration', 'software_update', 'hardware_change')
 CREATE TABLE event_types (
-    event_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
 -- holds definitions of different statuses for issues logged into tester_event_logs
 -- includes ENUM('open', 'closed')
 CREATE TABLE issue_statuses (
-    issue_status_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE procedure_interval_units (
-    interval_unit_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE -- unit of time (Days, Weeks, Months or Years)
 );
 
 -- holds definitions of maintenance procedures for testers
 CREATE TABLE tester_maintenance_procedures (
-    maintenance_id INT PRIMARY KEY AUTO_INCREMENT,
-    maintenance_type VARCHAR(100) NOT NULL, -- e.g., Preventive Maintenance, Routine Check
-    maintenance_interval_value INT NOT NULL, -- numerical value of the maintenance interval
-    maintenance_description TEXT, -- detailed description of the maintenance activities
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    type VARCHAR(100) NOT NULL, -- e.g., Preventive Maintenance, Routine Check
+    interval_value INT NOT NULL, -- numerical value of the maintenance interval
+    description TEXT, -- detailed description of the maintenance activities
 
     -- references
-    maintenance_interval_unit INT NOT NULL, -- unit of time for the maintenance interval (Days, Weeks, Months or Years)
+    interval_unit INT NOT NULL, -- unit of time for the maintenance interval (Days, Weeks, Months or Years)
 
-    FOREIGN KEY (maintenance_interval_unit) REFERENCES procedure_interval_units(interval_unit_id)
+    FOREIGN KEY (interval_unit) REFERENCES procedure_interval_units(id) ON DELETE CASCADE   
 );
 
 -- holds definitions of calibration procedures for testers
 CREATE TABLE tester_calibration_procedures (
-    calibration_id INT PRIMARY KEY AUTO_INCREMENT,
-    calibration_type VARCHAR(100) NOT NULL, -- e.g., Standard Calibration, Full Calibration
-    calibration_interval_value INT NOT NULL, -- numerical value of the calibration interval
-    calibration_description TEXT, -- detailed description of the calibration procedures
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    type VARCHAR(100) NOT NULL, -- e.g., Standard Calibration, Full Calibration
+    interval_value INT NOT NULL, -- numerical value of the calibration interval
+    description TEXT, -- detailed description of the calibration procedures
 
     -- references
-    calibration_interval_unit INT NOT NULL, -- unit of time for the calibration interval (Days, Weeks, Months or Years)
+    interval_unit INT NOT NULL, -- unit of time for the calibration interval (Days, Weeks, Months or Years)
 
-    FOREIGN KEY (calibration_interval_unit) REFERENCES procedure_interval_units(interval_unit_id)
+    FOREIGN KEY (interval_unit) REFERENCES procedure_interval_units(id) ON DELETE CASCADE
 );
 
 -- holds definitions of different statuses for maintenance and calibration schedules
--- includes ENUM('Scheduled', 'Overdue')
+-- includes ENUM('scheduled', 'overdue')
 CREATE TABLE schedule_statuses (
-    schedule_status_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
 -- links testers to maintenance procedures
 CREATE TABLE tester_maintenance_schedules (
-    maintenance_schedule_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     schedule_created_date DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP), -- when the maintenance schedule was created
     last_maintenance_date DATETIME, -- date when maintenance was last performed
     next_maintenance_due DATETIME, -- calculated next maintenance date (USING EVENT!)
@@ -213,16 +213,16 @@ CREATE TABLE tester_maintenance_schedules (
     last_maintenance_by_user_id INT, -- who performed the last maintenance
     next_maintenance_by_user_id INT, -- who is scheduled to perform the next maintenance
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (maintenance_id) REFERENCES tester_maintenance_procedures(maintenance_id),
-    FOREIGN KEY (maintenance_status) REFERENCES schedule_statuses(schedule_status_id),
-    FOREIGN KEY (last_maintenance_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (next_maintenance_by_user_id) REFERENCES users(user_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (maintenance_id) REFERENCES tester_maintenance_procedures(id) ON DELETE CASCADE,
+    FOREIGN KEY (maintenance_status) REFERENCES schedule_statuses(id) ON DELETE SET NULL,
+    FOREIGN KEY (last_maintenance_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (next_maintenance_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- links testers to calibration procedures
 CREATE TABLE tester_calibration_schedules (
-    calibration_schedule_id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     schedule_created_date DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP), -- when this schedule was created
     last_calibration_date DATETIME, -- date when calibration was last performed
     next_calibration_due DATETIME, -- calculated next calibration date (USING EVENT!)
@@ -237,18 +237,18 @@ CREATE TABLE tester_calibration_schedules (
     last_calibration_by_user_id INT, -- who performed the last calibration
     next_calibration_by_user_id INT, -- who is scheduled to perform the next calibration
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (calibration_id) REFERENCES tester_calibration_procedures(calibration_id),
-    FOREIGN KEY (calibration_status) REFERENCES schedule_statuses(schedule_status_id),
-    FOREIGN KEY (last_calibration_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (next_calibration_by_user_id) REFERENCES users(user_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (calibration_id) REFERENCES tester_calibration_procedures(id) ON DELETE CASCADE,
+    FOREIGN KEY (calibration_status) REFERENCES schedule_statuses(id) ON DELETE SET NULL,
+    FOREIGN KEY (last_calibration_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (next_calibration_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- holds all information about physical events related to testers
 CREATE TABLE tester_event_logs (
-    event_id INT PRIMARY KEY AUTO_INCREMENT,
-    event_date DATETIME NOT NULL, -- when the event occurred
-    event_description TEXT NOT NULL, -- detailed description of the event
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    date DATETIME NOT NULL, -- when the event occurred
+    description TEXT NOT NULL, -- detailed description of the event
 
     -- only for issue/fault/problem events
     resolved_date DATETIME, -- date when the issue was resolved
@@ -266,13 +266,13 @@ CREATE TABLE tester_event_logs (
     maintenance_schedule_id INT, -- reference to the maintenance schedule used
     calibration_schedule_id INT, -- reference to the calibration schedule used
 
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id),
-    FOREIGN KEY (event_type) REFERENCES event_types(event_type_id),
-    FOREIGN KEY (created_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (resolved_by_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (issue_status) REFERENCES issue_statuses(issue_status_id),
-    FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(maintenance_schedule_id),
-    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(calibration_schedule_id)
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
+    FOREIGN KEY (event_type) REFERENCES event_types(id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (resolved_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (issue_status) REFERENCES issue_statuses(id),
+    FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(id),
+    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(id)
 );
 
 -- links users to testers they are responsible for
@@ -282,8 +282,8 @@ CREATE TABLE user_tester_assignments (
 
     PRIMARY KEY (user_id, tester_id),
 
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (tester_id) REFERENCES testers(tester_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE
 );
 
 -- BELOW TABLES BASED ON SPATIE LARAVEL PERMISSION LIBRARY

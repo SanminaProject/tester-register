@@ -95,6 +95,15 @@ class EventBox extends Component
         $this->items = array_slice($this->items, 0, $this->limit);
     }
 
+    public function getTypeClasses($type) {
+        return match($type) {
+            'issue' => 'bg-red-100 text-red-700',
+            'maintenance' => 'bg-yellow-100 text-yellow-700',
+            'calibration' => 'bg-blue-100 text-blue-700',
+            default => 'bg-gray-100 text-gray-700',
+        };
+    }
+
     public function render()
     {
         return view('livewire.pages.dashboard.event-box');

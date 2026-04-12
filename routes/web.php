@@ -12,5 +12,9 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-require __DIR__.'/auth.php';
-require __DIR__.'/userRoles.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/userRoles.php';
+require __DIR__ . '/testers.php';
+require __DIR__ . '/fixtures.php';
+require __DIR__ . '/issues.php';
+require __DIR__ . '/services.php';

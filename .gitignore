@@ -8,6 +8,7 @@
 /vendor
 .env
 .env.backup
+.env.dusk.local
 .env.production
 .phpactor.json
 .phpunit.result.cache
@@ -23,6 +24,7 @@ yarn-error.log
 /.zed
 
 
+<<<<<<< HEAD
 
 
 
@@ -32,8 +34,6 @@ yarn-error.log
 
 
 
-
-
-
-
+# Local development audit - keep locally only
+/docs/CQL-LearningNotes.md
 

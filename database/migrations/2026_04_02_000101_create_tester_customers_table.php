@@ -12,16 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tester_customers', function (Blueprint $table) {
-            $table->id();
-            $table->string('company_name')->unique();
-            $table->string('address');
-            $table->string('contact_person');
-            $table->string('phone', 50);
-            $table->string('email');
-            $table->timestamps();
-
-            $table->index('company_name');
-            $table->index('email');
+            $table->increments('id');
+            $table->string('name', 100);
         });
     }
 

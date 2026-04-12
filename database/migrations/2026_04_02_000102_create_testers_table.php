@@ -12,18 +12,34 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('testers', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('customer_id')->constrained('tester_customers')->restrictOnDelete();
-            $table->string('model', 100);
-            $table->string('serial_number', 100)->unique();
-            $table->date('purchase_date')->nullable();
-            $table->enum('status', ['active', 'inactive', 'maintenance'])->default('active');
-            $table->string('location')->nullable();
-            $table->text('notes')->nullable();
-            $table->timestamps();
+            $table->increments('id'); // INT AUTO_INCREMENT
+            $table->string('name', 100);
+            $table->text('description')->nullable();
+            $table->string('id_number_by_customer', 50)->nullable();
+            $table->string('operating_system', 50)->nullable();
+            $table->string('type', 50)->nullable();
+            $table->string('product_family', 100)->nullable();
+            $table->string('manufacturer', 100)->nullable();
+            $table->date('implementation_date')->nullable();
+            $table->text('additional_info')->nullable();
 
-            $table->index(['customer_id', 'status']);
-            $table->index('model');
+            // Foreign keys
+            $table->unsignedInteger('location_id')->nullable();
+            $table->unsignedInteger('owner_id')->nullable();
+            $table->unsignedInteger('status')->nullable();
+
+            // Foreign key constraints
+            $table->foreign('location_id')
+                ->references('id')
+                ->on('tester_and_fixture_locations');
+
+            $table->foreign('owner_id')
+                ->references('id')
+                ->on('tester_customers');
+
+            $table->foreign('status')
+                ->references('id')
+                ->on('asset_statuses');
         });
     }
 

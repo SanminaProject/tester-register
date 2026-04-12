@@ -16,7 +16,7 @@ class TesterController extends ApiController
         $this->authorize('viewAny', Tester::class);
 
         $validated = $request->validated();
-        $query = Tester::query()->with('customer:id,company_name');
+        $query = Tester::query()->with('customer:id,name');
 
         if (! empty($validated['status'])) {
             $query->where('status', $validated['status']);
@@ -55,14 +55,14 @@ class TesterController extends ApiController
 
         $tester = Tester::create($request->validated());
 
-        return $this->success('Tester created successfully', $tester->load('customer:id,company_name'), 201);
+        return $this->success('Tester created successfully', $tester->load('customer:id,name'), 201);
     }
 
     public function show(Tester $tester): JsonResponse
     {
         $this->authorize('view', $tester);
 
-        return $this->success('Tester retrieved successfully', $tester->load('customer:id,company_name'));
+        return $this->success('Tester retrieved successfully', $tester->load('customer:id,name'));
     }
 
     public function update(UpdateTesterRequest $request, Tester $tester): JsonResponse
@@ -71,7 +71,7 @@ class TesterController extends ApiController
 
         $tester->update($request->validated());
 
-        return $this->success('Tester updated successfully', $tester->fresh()->load('customer:id,company_name'));
+        return $this->success('Tester updated successfully', $tester->fresh()->load('customer:id,name'));
     }
 
     public function destroy(Tester $tester): JsonResponse
@@ -91,6 +91,6 @@ class TesterController extends ApiController
             'status' => $request->validated()['status'],
         ]);
 
-        return $this->success('Tester status updated successfully', $tester->fresh()->load('customer:id,company_name'));
+        return $this->success('Tester status updated successfully', $tester->fresh()->load('customer:id,name'));
     }
 }

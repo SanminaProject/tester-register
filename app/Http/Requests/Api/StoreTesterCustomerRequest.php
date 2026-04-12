@@ -22,11 +22,8 @@ class StoreTesterCustomerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company_name' => ['required', 'string', 'max:255', 'unique:tester_customers,company_name'],
-            'address' => ['required', 'string', 'max:255'],
-            'contact_person' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:50', 'regex:/^[0-9\-\+\(\)\ ]+$/'],
-            'email' => ['required', 'email', 'max:255'],
+            'name' => ['required', 'string', 'max:100', 'unique:tester_customers,name'],
         ];
     }
 }
+
