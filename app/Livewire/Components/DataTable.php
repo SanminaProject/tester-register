@@ -33,7 +33,7 @@ class DataTable extends Component
     {
         return match ($this->type) {
             'testers' => ['name', 'description', 'operating_system'],
-            'fixtures' => ['name', 'location'],
+            'fixtures' => ['name', 'description','manufacturer'],
             default => [],
         };
     }
