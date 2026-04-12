@@ -11,6 +11,8 @@ new class extends Component
     public string $first_name = '';
     public string $last_name = '';
     public string $email = '';
+    public string $phone = ''; 
+    public string $role = ''; 
 
     /**
      * Mount the component.
@@ -20,6 +22,9 @@ new class extends Component
         $this->first_name = Auth::user()->first_name ?? '';
         $this->last_name = Auth::user()->last_name ?? '';
         $this->email = Auth::user()->email;
+        $this->phone = Auth::user()->phone ?? ''; 
+        
+        $this->role = Auth::user()->getRoleNames()->first() ?? '-'; 
     }
 
     /**
@@ -33,6 +38,7 @@ new class extends Component
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:20'], 
         ]);
 
         $user->fill($validated);
@@ -74,6 +80,10 @@ new class extends Component
         <p class="mt-1 text-sm text-gray-600">
             {{ __("Update your account's profile information and email address.") }}
         </p>
+
+        <p class="mt-2 text-sm font-medium text-gray-600">
+            {{ __('Role') }} : <span class="capitalize text-gray-600">{{ $role }}</span>
+        </p>
     </header>
 
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
@@ -113,8 +123,14 @@ new class extends Component
             @endif
         </div>
 
+        <div>
+            <x-input-label for="phone" :value="__('Phone')" />
+            <x-text-input wire:model="phone" id="phone" name="phone" type="tel" class="mt-1 block w-full" autocomplete="tel" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+        </div>
+
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <x-primary-button class="w-1/6">{{ __('Save') }}</x-primary-button>
 
             <x-action-message class="me-3" on="profile-updated">
                 {{ __('Saved.') }}
