@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages\Fixtures;
 
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class FixturePage extends Component
