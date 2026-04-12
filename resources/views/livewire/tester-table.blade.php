@@ -1,4 +1,4 @@
-<div class="bg-white shadow-sm rounded-lg p-4">
+<div class="bg-white shadow-sm rounded-lg p-4 w-full min-w-0">
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold">Tester List</h3>
         <div class="flex items-center gap-4">
@@ -41,7 +41,7 @@
             </button>
         </div>
     </div>
-    <div class="overflow-x-auto">
+    <div class="w-full overflow-x-auto">
         <table class="min-w-[1600px]">
             <thead>
                 <tr class="border-b">
