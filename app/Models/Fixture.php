@@ -10,32 +10,21 @@ class Fixture extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'tester_id',
         'name',
-        'serial_number',
-        'purchase_date',
-        'status',
-        'location',
-        'notes',
+        'description',
+        'manufacturer',
+        'tester_id',
+        'location_id',
+        'fixture_status',
     ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'purchase_date' => 'date',
-        ];
-    }
 
     public function tester(): BelongsTo
     {
