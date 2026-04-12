@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Pages\Testers;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -44,7 +44,7 @@ class TesterTable extends Component
 
         $testers = $query->paginate(10);
 
-        return view('livewire.tester-table', [
+        return view('livewire.pages.testers.tester-table', [
             'testers' => $testers,
             'headers' => $this->headers,
         ]);

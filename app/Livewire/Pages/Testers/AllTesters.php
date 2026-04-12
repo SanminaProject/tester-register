@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Pages\Testers;
 
 use Livewire\Component;
 
@@ -8,6 +8,6 @@ class AllTesters extends Component
 {
     public function render()
     {
-        return view('livewire.all-testers');
+        return view('livewire.pages.testers.all-testers');
     }
 }

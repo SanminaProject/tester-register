@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Pages\Testers;
 
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -22,6 +22,6 @@ class TesterPage extends Component
 
     public function render()
     {
-        return view('livewire.tester-page');
+        return view('livewire.pages.testers.tester-page');
     }
 }
