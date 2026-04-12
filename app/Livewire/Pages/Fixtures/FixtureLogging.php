@@ -13,8 +13,7 @@ class FixtureLogging extends Component
     {
         $this->form->save();
 
-        session()->flash('success', 'Fixture created!');
-
+        $this->dispatch('saved');
         $this->dispatch('switchTab', tab: 'all');
     }
 }

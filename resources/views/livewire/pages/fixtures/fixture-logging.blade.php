@@ -5,17 +5,14 @@
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold">Add New Fixture</h3>
 
+                <x-action-message on="saved" class="me-3">
+                    Saved.
+                </x-action-message>
+
                 <x-primary-button type="submit">
                     Save
                 </x-primary-button>
             </div>
-
-            {{-- Success message --}}
-            @if (session()->has('success'))
-                <div class="mb-4 text-green-600 font-medium">
-                    {{ session('success') }}
-                </div>
-            @endif
 
             <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
