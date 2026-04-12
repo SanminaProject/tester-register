@@ -42,24 +42,31 @@
         </div>
     </div>
     <div class="overflow-x-auto">
-        <table class="min-w-full">
+        <table class="min-w-[1600px]">
             <thead>
                 <tr class="border-b">
                     @foreach ($headers as $header)
-                    <th class="px-4 py-2 text-left text-sm text-gray-700">{{ $header }}</th>
+                    <th class="px-4 py-2 text-left text-sm text-gray-700 whitespace-nowrap">{{ $header }}</th>
                     @endforeach
                 </tr>
             </thead>
             <tbody>
                 @forelse ($testers as $tester)
                 <tr class="border-b last:border-0">
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->id }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->name ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->description ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->type ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->operating_system ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->customer_id ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->status ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->id }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->name ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->description ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->product_family ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->owner_id ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->id_number_by_customer ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->status ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->location_id ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->type ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->operating_system ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $tester->manufacturer ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">
+                        {{ $tester->implementation_date ? \Carbon\Carbon::parse($tester->implementation_date)->format('Y-m-d') : '-' }}
+                    </td>
                 </tr>
                 @empty
                 <tr>

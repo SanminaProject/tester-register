@@ -17,10 +17,15 @@ class TesterTable extends Component
         'ID',
         'Name',
         'Description',
+        'Prod family',
+        'Owner',
+        'Customer ID',
+        'Status',
+        'Location',
         'Type',
         'Operating System',
-        'ID by Customer',
-        'Status'
+        'Manufacturer',
+        'Implementation Date',
     ];
 
     public function updatingSearch(): void
