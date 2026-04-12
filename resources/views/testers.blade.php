@@ -1,3 +1,3 @@
 <x-app-layout>
-    <livewire:tester-page />
+    <livewire:pages.testers.tester-page />
 </x-app-layout>

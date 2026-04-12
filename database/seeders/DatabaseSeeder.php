@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             TesterCustomersSeeder::class,
             TesterAndFixtureLocationsSeeder::class,
             TesterSeeder::class,
+            FixtureSeeder::class,
             ProcedureIntervalUnitsSeeder::class,
             TesterMaintenanceProceduresSeeder::class,
             TesterCalibrationProceduresSeeder::class,

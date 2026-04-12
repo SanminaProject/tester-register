@@ -1,13 +1,13 @@
 <div class="bg-white shadow-sm rounded-lg p-4">
     <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold">Tester List</h3>
+        <h3 class="text-xl font-bold">{{ $title }}</h3>
         <div class="flex items-center gap-4">
             <div class="relative">
                 <input
                     type="text"
                     wire:model.live.debounce.300ms="search"
                     class="pl-10 pr-4 py-2 w-70 bg-[#dddddd] rounded-full focus:outline-none focus:ring-2 focus:ring-pink-200 border-0 shadow-none"
-                    placeholder="Search testers..."
+                    placeholder="{{ $searchPlaceholder ?? 'Search...' }}"
                     style="box-shadow:none;">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#2C3E50]">
                     <svg
@@ -37,7 +37,7 @@
                 class="ml-2 px-4 py-2 rounded-full bg-[#B10530] text-white font-semibold hover:bg-pink-700 transition text-sm"
                 wire:click="$dispatch('switchTab', { tab: 'add' })"
                 type="button">
-                Add Tester
+                {{ $addButtonLabel ?? 'Add' }}
             </button>
         </div>
     </div>
@@ -45,31 +45,29 @@
         <table class="min-w-full">
             <thead>
                 <tr class="border-b">
-                    @foreach ($headers as $header)
-                    <th class="px-4 py-2 text-left text-sm text-gray-700">{{ $header }}</th>
+                    @foreach ($headers as $key => $label)
+                    <th class="px-4 py-2 text-left text-sm text-gray-700">{{ $label }}</th>
                     @endforeach
                 </tr>
             </thead>
             <tbody>
-                @forelse ($testers as $tester)
+                @forelse ($data as $row)
                 <tr class="border-b last:border-0">
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->id }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->name ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->description ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->type ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->operating_system ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->customer_id ?? '-' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $tester->status ?? '-' }}</td>
+                    @foreach ($headers as $key => $label)
+                        <td class="px-4 py-3 text-sm text-gray-800">
+                            {{ $row->$key ?? '-' }}
+                        </td>
+                    @endforeach
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="{{ count($headers) }}" class="px-4 py-6 text-center text-gray-400">No testers found.</td>
+                    <td colspan="{{ count($headers) }}" class="px-4 py-6 text-center text-gray-400">No data found.</td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
         <div class="mt-4">
-            {{ $testers->links() }}
+            {{ $data->links() }}
         </div>
     </div>
 </div>

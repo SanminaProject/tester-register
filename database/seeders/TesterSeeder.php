@@ -113,6 +113,79 @@ class TesterSeeder extends Seeder
                 'location' => 'Tesu',
                 'owner' => 'SANMINA',
             ],
+
+            // adding new examples that have not been provided by Sanmina below!
+            [
+                'name' => 'EST3',
+                'description' => 'Electrical Safety Tester',
+                'id_number_by_customer' => null,
+                'operating_system' => 'Win7',
+                'type' => 'HIPOT',
+                'product_family' => 'ALL',
+                'manufacturer' => 'Haukipudas',
+                'implementation_date' => '2019-12-02',
+
+                'status' => 'Active',
+                'location' => 'Tesu',
+                'owner' => 'SANMINA',
+            ],
+            [
+                'name' => 'EST4',
+                'description' => 'Electrical Safety Tester',
+                'id_number_by_customer' => null,
+                'operating_system' => 'Win7',
+                'type' => 'HIPOT',
+                'product_family' => 'ALL',
+                'manufacturer' => 'Haukipudas',
+                'implementation_date' => '2019-12-02',
+
+                'status' => 'Active',
+                'location' => 'Tesu',
+                'owner' => 'SANMINA',
+            ],
+            [
+                'name' => 'EST5',
+                'description' => 'Electrical Safety Tester',
+                'id_number_by_customer' => null,
+                'operating_system' => 'Win7',
+                'type' => 'HIPOT',
+                'product_family' => 'ALL',
+                'manufacturer' => 'Haukipudas',
+                'implementation_date' => '2019-12-02',
+
+                'status' => 'Active',
+                'location' => 'Tesu',
+                'owner' => 'SANMINA',
+            ],
+            [
+                'name' => 'EST6',
+                'description' => 'Electrical Safety Tester',
+                'id_number_by_customer' => null,
+                'operating_system' => 'Win7',
+                'type' => 'HIPOT',
+                'product_family' => 'ALL',
+                'manufacturer' => 'Haukipudas',
+                'implementation_date' => '2019-12-02',
+
+                'status' => 'Active',
+                'location' => 'Tesu',
+                'owner' => 'SANMINA',
+            ],
+            [
+                'name' => 'EST7',
+                'description' => 'Electrical Safety Tester',
+                'id_number_by_customer' => null,
+                'operating_system' => 'Win7',
+                'type' => 'HIPOT',
+                'product_family' => 'ALL',
+                'manufacturer' => 'Haukipudas',
+                'implementation_date' => '2019-12-02',
+
+                'status' => 'Active',
+                'location' => 'Tesu',
+                'owner' => 'SANMINA',
+            ],
+            
         ];
 
         foreach ($testers as $tester) {
