@@ -3,15 +3,40 @@
     gap: 0.5rem;
 }
 
-/* following style of other tailwind buttons */
+.fc .fc-toolbar-title {
+    font-size: 1.5rem !important;        
+    font-weight: 900 !important;        
+    color: theme('colors.black') !important; 
+    letter-spacing: 0.025em !important; 
+}
+
+.fc .fc-header-toolbar {
+    position: relative; 
+}
+
+.fc .fc-header-toolbar .fc-toolbar-chunk:nth-child(2) {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); 
+    pointer-events: none; 
+    white-space: nowrap;  
+}
+
+@media (max-width: 768px) {
+    .fc .fc-header-toolbar .fc-toolbar-chunk:nth-child(2) {
+        position: static;
+        transform: none;
+    }
+}
+
 .fc .fc-button {
-    background-color: #1f2937; 
+    background-color:theme('colors.secondary') ; 
     color: white;
     border: none;
     padding: 0.4rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase;
+    text-transform: capitalize;
     letter-spacing: 0.05em;
     transition: all 150ms ease-in-out;
 }
@@ -30,11 +55,36 @@
 .fc .fc-button:focus,
 .fc .fc-button:focus-visible,
 .fc .fc-button:active {
-    box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px white !important; /* indigo 500 */
+    box-shadow: 0 0 0 2px theme('colors.white'), 0 0 0 4px theme('colors.primary') !important; 
 }
 
 .fc .fc-button:hover {
-    background-color: #374151; /* gray-700 */
+    background-color: theme('colors.primary');
+}
+
+.fc .fc-day-today {
+    background-color: theme('colors.thirdly') !important; 
+}
+
+.fc .fc-button-active {
+    background-color: theme('colors.primary') !important;
+    color: theme('colors.white') !important;
+}
+
+.fc .fc-button-active:hover {
+    background-color: theme('colors.primary') !important;
+}
+
+.fc .fc-button:disabled {
+    background-color: theme('colors.grey') !important; 
+    color: theme('colors.white') !important;
+    opacity: 0.6; 
+    cursor: not-allowed; 
+}
+
+.fc .fc-prev-button,
+.fc .fc-next-button {
+    background-color: theme('colors.primary') !important;
 }
 
 /* show events as clickable */

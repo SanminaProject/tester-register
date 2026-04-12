@@ -1,4 +1,4 @@
-<div class="bg-white overflow-hidden shadow-sm sm:rounded-lg {{ $type }} flex flex-col h-full">
+<div class="bg-white overflow-hidden shadow-sm sm:rounded-xl {{ $type }} flex flex-col h-full">
     
     <div class="px-6 pt-4 text-gray-900 flex-1">
         <h3 class="text-base font-semibold mb-1">{{ $title }}</h3>
