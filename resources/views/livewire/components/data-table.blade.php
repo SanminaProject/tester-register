@@ -75,7 +75,7 @@
                 <tr class="border-b last:border-0">
                     @foreach ($headers as $key => $label)
                     <td class="px-4 py-3 text-sm text-gray-800">
-                        {{ $row->$key ?? '-' }}
+                        {{ data_get($row, $key) ?? '-' }}
                     </td>
                     @endforeach
                 </tr>

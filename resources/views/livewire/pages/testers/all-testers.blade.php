@@ -1,5 +1,5 @@
 <div>
-   <livewire:components.data-table
+    <livewire:components.data-table
         type="testers"
         title="Tester List"
         searchPlaceholder="Search testers..."
@@ -8,10 +8,14 @@
             'id' => 'ID',
             'name' => 'Name',
             'description' => 'Description',
+            'product_family' => 'Prod Family',
+            'owner.name' => 'Owner', 
+            'id_number_by_customer' => 'Customer ID',
+            'statusRelation.name' => 'Status', 
+            'location.name' => 'Location',
             'type' => 'Type',
-            'operating_system' => 'Operating System',
-            'id_number_by_customer' => 'ID by Customer',
-            'status' => 'Status'
-        ]"
-    />
+            'manufacturer' => 'Manufacturer',
+            'operating_system' => 'OS',
+            'implementation_date' => 'Implementation Date',
+        ]" />
 </div>

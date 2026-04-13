@@ -33,7 +33,7 @@ class DataTable extends Component
     {
         return match ($this->type) {
             'testers' => ['name', 'description', 'operating_system'],
-            'fixtures' => ['name', 'description','manufacturer'],
+            'fixtures' => ['name', 'description', 'manufacturer'],
             default => [],
         };
     }
@@ -46,7 +46,12 @@ class DataTable extends Component
     public function render()
     {
         $model = $this->getModelClass();
-        $query = $model::query();
+
+
+        $query = $model::with([
+            'owner',
+            'statusRelation'
+        ]);
 
         $keyword = trim($this->search);
 
