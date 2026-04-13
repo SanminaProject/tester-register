@@ -11,9 +11,9 @@
 
     <div class="flex-1  min-w-0 p-8">
         @if ($activeTab === 'all')
-        <livewire:all-testers />
+        <livewire:pages.testers.all-testers />
         @elseif ($activeTab === 'add')
-        <livewire:add-new-tester />
+        <livewire:pages.testers.add-new-tester />
         @elseif ($activeTab === 'logs')
         <livewire:audit-logs />
         @elseif ($activeTab === 'addlog')

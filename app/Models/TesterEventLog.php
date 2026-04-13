@@ -49,4 +49,9 @@ class TesterEventLog extends Model
     {
         return $this->belongsTo(Tester::class);
     }
+
+    public function eventType()
+    {
+        return $this->belongsTo(EventType::class, 'event_type');
+    }
 }
