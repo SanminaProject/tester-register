@@ -9,7 +9,7 @@
             ['label' => 'Add New Log', 'tab' => 'addlog']
         ]" />
 
-    <div class="flex-1  min-w-0 p-8">
+    <div class="flex-1  min-w-0 px-6 py-3">
         @if ($activeTab === 'all')
         <livewire:pages.testers.all-testers />
         @elseif ($activeTab === 'add')

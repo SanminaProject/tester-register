@@ -11,7 +11,7 @@
         ]" 
     />
         
-    <div class="flex-1 p-8">
+    <div class="flex-1 px-6 py-3">
         @if ($activeTab === 'all')
         <livewire:pages.fixtures.fixture-table />
         @elseif ($activeTab === 'add')

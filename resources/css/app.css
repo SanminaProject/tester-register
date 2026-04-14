@@ -3,3 +3,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* data-table scroll bar */
+:root {
+  --color-light-grey: theme('colors.light-grey');
+  --color-grey: theme('colors.grey');
+  --color-dark-grey: theme('colors.dark-grey');
+}
+
+.data-table-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: var(--color-grey) transparent;
+}
+
+.data-table-scroll::-webkit-scrollbar {
+  height: 18px;
+}
+
+.data-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.data-table-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-grey);
+  border-radius: 9999px;
+}
+
+.data-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-dark-grey);
+}
