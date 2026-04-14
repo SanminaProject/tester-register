@@ -20,6 +20,13 @@ class DataTable extends Component
     public $searchPlaceholder = 'Search...';
     public $addButtonLabel = 'Add';
 
+    public function getHasDetailsProperty()
+    {
+        $plural = \Illuminate\Support\Str::plural($this->type);
+        $singular = \Illuminate\Support\Str::singular($this->type);
+        return view()->exists("livewire.pages.{$plural}.{$singular}-details");
+    }
+
     protected function getModelClass()
     {
         return match ($this->type) {

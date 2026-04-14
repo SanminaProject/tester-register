@@ -8,6 +8,7 @@ use Livewire\Component;
 class TesterPage extends Component
 {
     public string $activeTab = 'all';
+    public ?int $selectedTesterId = null;
 
     public function setTab($tab)
     {
@@ -15,9 +16,15 @@ class TesterPage extends Component
     }
 
     #[On('switchTab')]
-    public function switchTab($tab)
+    public function switchTab($tab = 'all', $id = null)
     {
-        $this->activeTab = $tab;
+        if (is_array($tab)) {
+            $this->activeTab = $tab['tab'] ?? 'all';
+            $this->selectedTesterId = $tab['id'] ?? null;
+        } else {
+            $this->activeTab = $tab ?: 'all';
+            $this->selectedTesterId = $id;
+        }
     }
 
     public function render()

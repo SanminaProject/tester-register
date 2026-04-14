@@ -18,6 +18,8 @@
         <livewire:audit-logs />
         @elseif ($activeTab === 'addlog')
         <livewire:add-new-log />
+        @elseif ($activeTab === 'details')
+        <livewire:pages.testers.tester-details :testerId="$selectedTesterId" wire:key="tester-details-{{ $selectedTesterId }}" />
         @endif
     </div>
 </div>

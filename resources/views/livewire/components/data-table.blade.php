@@ -89,7 +89,9 @@
                 @endphp
 
                 @forelse ($data as $row)
-                <tr class="border-b">
+                <tr class="border-b @if($this->hasDetails) hover:bg-thirdly cursor-pointer transition-colors duration-150 @endif"
+                    @if($this->hasDetails) wire:click="$dispatch('switchTab', { tab: 'details', id: {{ $row->id }} })" @endif
+                >
                     @foreach ($headers as $key => $label)
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
                         {{ data_get($row, $key) ?? '-' }}
