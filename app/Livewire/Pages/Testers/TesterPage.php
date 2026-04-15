@@ -3,11 +3,15 @@
 namespace App\Livewire\Pages\Testers;
 
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class TesterPage extends Component
 {
+    #[Url]
     public string $activeTab = 'all';
+
+    #[Url(as: 'id')]
     public ?int $selectedTesterId = null;
 
     public function setTab($tab)
