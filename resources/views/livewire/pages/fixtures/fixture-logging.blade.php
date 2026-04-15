@@ -43,29 +43,26 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <x-input-label for="tester_id" value="Tester ID" />
-                        <x-text-input
-                            label="Tester ID"
-                            type="number"
+                        <x-select-field
+                            label="Tester"
                             wire:model="form.tester_id"
+                            :options="$testers"
                         />
                     </div>
 
                     <div>
-                        <x-input-label for="location_id" value="Location ID" />
-                        <x-text-input
-                            label="Location ID"
-                            type="number"
+                        <x-select-field
+                            label="Location"
                             wire:model="form.location_id"
+                            :options="$locations"
                         />
                     </div>
 
                     <div>
-                        <x-input-label for="fixture_status" value="Fixture Status" />
-                        <x-text-input
-                            label="Status ID"
-                            type="number"
+                        <x-select-field
+                            label="Status"
                             wire:model="form.fixture_status"
+                            :options="$statuses"
                         />
                     </div>
                 </div>

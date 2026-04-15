@@ -10,8 +10,9 @@
             'description' => 'Description',
             'manufacturer' => 'Manufacturer',
             'tester_id' => 'Tester ID',
-            'location_id' => 'Location',
-            'fixture_status' => 'Status'
+            'tester.name' => 'Tester Name',
+            'location.name' => 'Location',
+            'status.name' => 'Status'
         ]"
     />
 </div>

@@ -41,14 +41,15 @@
                     style="min-width: 180px;">
                     <div class="px-4 py-2 font-semibold border-b">Filter</div>
                     <ul>
-                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">ID</li>
-                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Name</li>
-                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Description</li>
-                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Prod family</li>
-                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Owner</li>
-                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Customer ID</li>
-                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Status</li>
-                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Location</li>
+                        @foreach ($filters as $key => $label)
+                            <li wire:click="toggleFilter('{{ $key }}')" class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center">
+                                <span>{{ $label }}</span>
+
+                                @if(in_array($key, $activeFilters))
+                                    <span>✓</span>
+                                @endif
+                            </li>
+                        @endforeach
                     </ul>
                 </div>
             </div>
