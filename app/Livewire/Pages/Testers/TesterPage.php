@@ -7,6 +7,10 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Tester;
 
+/**
+ * This Livewire component manages the tester page, allowing users to view, search, and copy tester information.
+ * It includes functionality for switching between tabs, searching testers, and copying existing tester data into a form.
+ */
 class TesterPage extends Component
 {
     public string $activeTab = 'all';
@@ -28,6 +32,7 @@ class TesterPage extends Component
         $this->activeTab = $tab;
     }
 
+    // Listen for the 'switchTab' event to update the active tab and selected tester ID
     #[On('switchTab')]
     public function switchTab($tab = 'all', $id = null)
     {
@@ -40,6 +45,7 @@ class TesterPage extends Component
         }
     }
 
+    // Initialize dropdown options for the form
     public function mount()
     {
         $this->owners = ['Admin', 'Engineering', 'Production'];
@@ -51,6 +57,7 @@ class TesterPage extends Component
         $this->os_versions = ['Windows 10', 'Windows 11', 'Linux'];
     }
 
+    // Update search results when the search query changes
     public function updatedSearchQuery()
     {
         if (strlen($this->search_query) < 2) {
@@ -65,7 +72,7 @@ class TesterPage extends Component
             ->get(['id', 'name', 'id_number_by_customer'])
             ->toArray();
     }
-
+    // Copy data from an existing tester to the form fields
     public function selectAndCopyTester($id)
     {
         $existingTester = Tester::find($id);
@@ -85,7 +92,7 @@ class TesterPage extends Component
             session()->flash('message', 'Data filled from: ' . $existingTester->name);
         }
     }
-
+    // Render the Livewire component view
     public function render()
     {
         return view('livewire.pages.testers.tester-page');
