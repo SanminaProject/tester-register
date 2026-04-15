@@ -5,6 +5,7 @@ namespace App\Livewire\Pages\Testers;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use App\Models\Tester;
 
 class TesterPage extends Component
 {
@@ -17,7 +18,8 @@ class TesterPage extends Component
 
     public $documents = [];
 
-    public $search_existing_id;
+    public $search_query = '';
+    public $search_results = [];
 
     public $owners = [], $locations = [], $statuses = [], $families = [], $types = [], $manufacturers = [], $os_versions = [];
 
@@ -47,6 +49,41 @@ class TesterPage extends Component
         $this->types = ['In-Circuit', 'Functional'];
         $this->manufacturers = ['Agilent', 'Teradyne', 'Custom'];
         $this->os_versions = ['Windows 10', 'Windows 11', 'Linux'];
+    }
+
+    public function updatedSearchQuery()
+    {
+        if (strlen($this->search_query) < 2) {
+            $this->search_results = [];
+            return;
+        }
+
+        $this->search_results = Tester::where('name', 'like', '%' . $this->search_query . '%')
+            ->orWhere('id_number_by_customer', 'like', '%' . $this->search_query . '%')
+            ->orWhere('description', 'like', '%' . $this->search_query . '%')
+            ->limit(5)
+            ->get(['id', 'name', 'id_number_by_customer'])
+            ->toArray();
+    }
+
+    public function selectAndCopyTester($id)
+    {
+        $existingTester = Tester::find($id);
+
+        if ($existingTester) {
+            $this->owner            = $existingTester->owner_id;
+            $this->location         = $existingTester->location_id;
+            $this->status           = $existingTester->status;
+            $this->product_family   = $existingTester->product_family;
+            $this->type             = $existingTester->type;
+            $this->manufacturer     = $existingTester->manufacturer;
+            $this->operating_system = $existingTester->operating_system;
+
+            $this->search_query = '';
+            $this->search_results = [];
+
+            session()->flash('message', 'Data filled from: ' . $existingTester->name);
+        }
     }
 
     public function render()
