@@ -34,24 +34,31 @@
                 </div>
             </div>
 
-            <div class="space-y-6 bg-gray-50 p-6 rounded-xl border border-gray-100 text-left">
-                <h4 class="text-lg font-semibold text-gray-700 border-l-4 border-blue-500 pl-3">Advanced Configuration</h4>
+            <div class="p-4 bg-blue-50 rounded-lg border border-blue-100 relative">
+                <label class="block text-sm font-medium text-blue-800 mb-2">Search to Copy</label>
 
-                <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <label class="block text-sm font-medium text-blue-800 mb-2">Copy from Existing</label>
-                    <div class="flex gap-2">
-                        <input type="text" wire:model="search_existing_id" placeholder="Search by ID..."
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                        <button type="button" wire:click="copyTesterData"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition">
+                <input type="text"
+                    wire:model.live.debounce.300ms="search_query"
+                    placeholder="Type name, ID or description..."
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+
+                @if(!empty($search_results))
+                <div class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                    @foreach($search_results as $result)
+                    <div class="px-4 py-3 hover:bg-gray-50 border-b last:border-b-0 flex justify-between items-center cursor-default">
+                        <div>
+                            <div class="text-sm font-bold text-gray-900">{{ $result['name'] }}</div>
+                            <div class="text-xs text-gray-500">ID: {{ $result['id_number_by_customer'] ?? 'N/A' }}</div>
+                        </div>
+                        <button type="button"
+                            wire:click="selectAndCopyTester({{ $result['id'] }})"
+                            class="ml-2 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition">
                             Copy
                         </button>
                     </div>
+                    @endforeach
                 </div>
-
-                <div id="dropdown-area" class="space-y-4">
-                    <p class="text-xs text-gray-400 italic text-center">Dropdowns will be added here in the next step.</p>
-                </div>
+                @endif
             </div>
         </div>
     </div>
