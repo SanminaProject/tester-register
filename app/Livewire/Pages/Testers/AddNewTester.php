@@ -18,15 +18,28 @@ class AddNewTester extends Component
     public $type;
     public $product_family;
     public $manufacturer;
+    public $owner_id;
+    public $location_id;
+    public $status_id;
+    public $additional_info;
+    public $implementation_date;
+    public $documents = [];
 
     public $search_query = '';
     public $search_results = [];
 
     public $owners = [], $locations = [], $statuses = [];
+    public $families = [], $os_versions = [], $manufacturers = [];
 
     public function mount()
     {
-        $this->owners = ['Admin', 'Engineering'];
+        $this->owners = \App\Models\TesterCustomer::all();
+        $this->locations = \App\Models\TesterAndFixtureLocation::all();
+        $this->statuses = \App\Models\AssetStatus::all();
+        // These could be dynamic in a real application, but for now we'll hardcode some options
+        $this->families = ['Series X', 'Series Y', 'Z-Platform'];
+        $this->manufacturers = ['Agilent', 'Teradyne', 'Custom'];
+        $this->os_versions = ['Windows 10', 'Windows 11', 'Linux'];
     }
 
     public function updatedSearchQuery()
