@@ -29,5 +29,25 @@
             <span class="text-sm text-gray-500 font-medium">Manufacturer</span>
             <span class="text-base text-[#2C3E50]">{{ $fixture->manufacturer ?? '-' }}</span>
         </div>
+
+        <div class="flex flex-col gap-1">
+            <span class="text-sm text-gray-500 font-medium">Tester ID</span>
+            <span class="text-base text-[#2C3E50]">{{ $fixture->tester_id ?? '-' }}</span>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <span class="text-sm text-gray-500 font-medium">Tester</span>
+            <span class="text-base text-[#2C3E50]">{{ $fixture->tester->name ?? '-' }}</span>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <span class="text-sm text-gray-500 font-medium">Location</span>
+            <span class="text-base text-[#2C3E50]">{{ $fixture->location->name ?? '-' }}</span>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <span class="text-sm text-gray-500 font-medium">Status</span>
+            <span class="text-base text-[#2C3E50]">{{ $fixture->status->name ?? '-' }}</span>
+        </div>
     </div>
 </div>
