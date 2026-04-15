@@ -60,13 +60,24 @@ class AddNewTester extends Component
     {
         $existing = Tester::find($id);
         if ($existing) {
-            $this->operating_system = $existing->operating_system;
-            $this->type = $existing->type;
-            $this->product_family = $existing->product_family;
-            $this->manufacturer = $existing->manufacturer;
+            // Copy relevant fields from the existing tester to the form fields
+            $this->description         = $existing->description;
+            $this->id_number_by_customer = $existing->id_number_by_customer;
+            $this->product_family      = $existing->product_family;
+            $this->owner_id            = $existing->owner_id;
+            $this->status_id           = $existing->status; // Matching migration field
+            $this->location_id         = $existing->location_id;
+            $this->type                = $existing->type;
+            $this->manufacturer        = $existing->manufacturer;
+            $this->operating_system    = $existing->operating_system;
+            $this->implementation_date = $existing->implementation_date;
+            $this->additional_info     = $existing->additional_info;
 
+            // Clear search state
             $this->search_query = '';
             $this->search_results = [];
+
+            session()->flash('message', 'Data copied successfully! ');
         }
     }
 

@@ -17,7 +17,6 @@
 
     <div class="flex flex-col min-h-[calc(100vh-8rem)] w-full min-w-0 rounded-xl bg-white px-8 pt-6 pb-8 shadow-sm">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
-
             <div class="space-y-6 text-left">
                 <h4 class="text-lg font-semibold text-gray-700 border-l-4 border-[#2C3E50] pl-3">Basic Information</h4>
                 <div class="space-y-4">
@@ -32,6 +31,14 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Description</label>
                         <textarea wire:model="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 text-left">Customer ID</label>
+                            <input type="text" wire:model="id_number_by_customer" placeholder="Enter Customer ID..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 text-left">Implementation Date</label>
+                            <input type="date" wire:model="implementation_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -54,7 +61,40 @@
                     @endif
                 </div>
 
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 text-left">Product Family</label>
+                        <select wire:model="product_family" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">Select Family...</option>
+                            @foreach($families as $family)
+                            <option value="{{ $family }}">{{ $family }}</option>
+                            @endforeach
+                            <option value="new" class="text-blue-600 font-bold">+ Add New Family...</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 text-left">Manufacturer</label>
+                        <select wire:model="manufacturer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">Select Manufacturer...</option>
+                            @foreach($manufacturers as $m)
+                            <option value="{{ $m }}">{{ $m }}</option>
+                            @endforeach
+                            <option value="new" class="text-blue-600 font-bold">+ Add New Manufacturer...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 text-left">Operating System</label>
+                        <select wire:model="operating_system" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">Select OS...</option>
+                            @foreach($os_versions as $os)
+                            <option value="{{ $os }}">{{ $os }}</option>
+                            @endforeach
+                            <option value="new" class="text-blue-600 font-bold">+ Add New OS...</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="mt-6 grid grid-cols-1 gap-y-4">
