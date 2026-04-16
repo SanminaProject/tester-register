@@ -30,7 +30,7 @@
                     <x-testers.textarea-field
                         label="Description"
                         wire:model="description"
-                        rows="3" />
+                        rows="1" />
 
                     <div>
                         <x-testers.input-field
@@ -42,7 +42,8 @@
                     <div>
                         <x-testers.input-field
                             label="Type"
-                            wire:model="type" />
+                            wire:model="type"
+                            placeholder="Enter Tester Type..." />
                     </div>
 
                     <div>
