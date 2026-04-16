@@ -1,5 +1,6 @@
 <div class="flex w-full">
     <x-sidebar
+        class="{{ $activeTab === 'details' ? 'hidden md:block' : '' }}"
         title="Testers"
         :active-tab="$activeTab"
         :items="[

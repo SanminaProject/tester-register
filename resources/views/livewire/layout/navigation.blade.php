@@ -28,6 +28,8 @@ new class extends Component
                         Dashboard
                     @elseif(request()->routeIs('scan'))
                         Scan
+                    @elseif(request()->routeIs('testers'))
+                        Tester Details
                     @endif
                 </span>
             </div>

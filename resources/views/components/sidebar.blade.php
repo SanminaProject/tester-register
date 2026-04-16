@@ -2,10 +2,11 @@
 'title' => 'Sidebar',
 'items' => [],
 'activeTab' => null,
+'class' => '',
 ])
 
-<div class="w-1/5 shrink-0">
-    <div class="fixed top-16 left-0 w-1/5 h-[calc(100vh-4rem)] overflow-y-auto p-0 bg-white">
+<div class="w-1/5 shrink-0 {{ $class }}">
+    <div class="fixed top-16 left-0 w-1/5 h-[calc(100vh-4rem)] overflow-y-auto p-0 bg-white {{ $class }}">
         <h2 class="text-xl font-bold px-2 py-4 flex flex-col items-center bg-secondary text-black">
             {{ $title }}
         </h2>
