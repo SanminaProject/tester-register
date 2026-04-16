@@ -110,8 +110,8 @@
     </div>
 
     <!-- 4. Bottom Block (Issues) -->
-    <div class="mt-12 bg-light-grey rounded-xl p-8">
-        <h3 class="text-[13px] text-dark-grey border-b border-gray-200 pb-4 mb-6">Issues</h3>
+    <div class="mt-16 px-12 pb-12 w-full lg:max-w-5xl">
+        <h3 class="text-lg font-extrabold text-dark-grey border-b border-gray-200 pb-4 mb-6">Issues</h3>
         
         @php
             $issues = \App\Models\TesterEventLog::where('tester_id', $tester->id)->orderBy('date', 'desc')->get();
@@ -119,42 +119,40 @@
 
         <div class="flex flex-col gap-y-10">
             @forelse($issues as $issue)
-            <div class="flex flex-col gap-y-3.5 {{ !$loop->last ? 'border-b border-gray-200 pb-8' : '' }}">
-                <div class="grid grid-cols-[100px_1fr_100px_1fr] items-center gap-x-4">
-                    <span class="text-dark-grey text-[13px]">Log ID</span>
-                    <span class="text-black text-[13px] font-extrabold max-w-[100px]">{{ $issue->id }}</span>
-                    <span class="text-dark-grey text-[13px]">Detector</span>
-                    <span class="text-black text-[13px] font-extrabold">{{ \App\Models\User::find($issue->created_by_user_id)?->name ?? 'Unknown' }}</span>
+            <div class="flex flex-col gap-y-3 {{ !$loop->last ? 'border-b border-gray-200 pb-8' : '' }}">
+                <div class="grid grid-cols-[140px_1fr_100px_1fr] items-center gap-x-4 border-b border-gray-100 pb-3">
+                    <span class="text-dark-grey text-[15px]">Log ID</span>
+                    <span class="text-black text-[16px] font-medium">{{ $issue->id }}</span>
+                    <span class="text-dark-grey text-[15px]">Detector</span>
+                    <span class="text-black text-[16px] font-medium">{{ \App\Models\User::find($issue->created_by_user_id)?->name ?? 'Unknown' }}</span>
                 </div>
 
-                <div class="grid grid-cols-[100px_1fr] items-center gap-x-4 mt-2">
-                    <span class="text-dark-grey text-[13px]">Entry Date</span>
-                    <span class="text-black text-[13px] font-extrabold">{{ $issue->date ? $issue->date->format('j.n.Y H:i') : '-' }}</span>
-                </div>
-
-                <div class="flex flex-col gap-1.5 mt-2">
-                    <div class="grid grid-cols-[100px_1fr] items-center gap-x-4">
-                        <span class="text-dark-grey text-[13px]">Indication</span>
-                        <span class="text-black text-[13px] font-extrabold">{{ $issue->description ?? '-' }}</span>
+                <div class="flex flex-col {{ ($issue->resolved_date || $issue->resolution_description) ? 'border-b border-gray-100 pb-3' : '' }}">
+                    <div class="grid grid-cols-[140px_1fr] items-center gap-x-4 mb-2.5">
+                        <span class="text-dark-grey text-[15px]">Entry Date</span>
+                        <span class="text-black text-[16px] font-medium">{{ $issue->date ? $issue->date->format('j.n.Y H:i') : '-' }}</span>
+                    </div>
+                    <div class="flex flex-col gap-y-2">
+                        <span class="text-dark-grey text-[15px]">Indication</span>
+                        <span class="text-black text-[16px] font-medium whitespace-pre-line leading-relaxed">{{ $issue->description ?? '-' }}</span>
                     </div>
                 </div>
 
                 @if($issue->resolved_date || $issue->resolution_description)
-                <div class="grid grid-cols-[100px_1fr] items-center gap-x-4 mt-4">
-                    <span class="text-dark-grey text-[13px]">Solved Date</span>
-                    <span class="text-black text-[13px] font-extrabold">{{ $issue->resolved_date ? $issue->resolved_date->format('j.n.Y H:i') : '-' }}</span>
-                </div>
-
-                <div class="flex flex-col gap-1.5 mt-2">
-                    <div class="grid grid-cols-[100px_1fr] items-start gap-x-4">
-                        <span class="text-dark-grey text-[13px] pt-0.5">Solution</span>
-                        <span class="text-black text-[13px] font-extrabold leading-relaxed pr-10">{{ $issue->resolution_description ?? '-' }}</span>
+                <div class="flex flex-col pt-1">
+                    <div class="grid grid-cols-[140px_1fr] items-center gap-x-4 mb-2.5">
+                        <span class="text-dark-grey text-[15px]">Solved Date</span>
+                        <span class="text-black text-[16px] font-medium">{{ $issue->resolved_date ? $issue->resolved_date->format('j.n.Y H:i') : '-' }}</span>
+                    </div>
+                    <div class="flex flex-col gap-y-2">
+                        <span class="text-dark-grey text-[15px]">Solution</span>
+                        <span class="text-black text-[16px] font-medium whitespace-pre-line leading-relaxed">{{ $issue->resolution_description ?? '-' }}</span>
                     </div>
                 </div>
                 @endif
             </div>
             @empty
-            <div class="text-[13px] text-dark-grey py-4">No issues recorded for this tester.</div>
+            <div class="text-[16px] text-dark-grey py-4">No issues recorded for this tester.</div>
             @endforelse
         </div>
     </div>
