@@ -5,14 +5,14 @@
         </h2>
     </x-slot>
 
-    <div class="py-4">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+    <div class="pt-4 pb-12 sm:py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col gap-3 sm:block">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-2.5">
                     @livewire('pages.dashboard.event-box', ['title' => 'Active Issues', 'type' => 'issues'])
                     @livewire('pages.dashboard.event-box', ['title' => 'Upcoming Events', 'type' => 'events'])
                 </div>
-                <div class="mt-4">
+                <div class="mt-0 sm:mt-4">
                     @livewire('pages.dashboard.calendar')
                 </div>
             </div>

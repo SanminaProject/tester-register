@@ -69,6 +69,7 @@ class CalendarEvent extends Model
         return DB::table('tester_event_logs')
             ->join('event_types', 'tester_event_logs.event_type', '=', 'event_types.id')
             ->join('testers', 'tester_event_logs.tester_id', '=', 'testers.id')
+            ->where('event_types.name', '!=', 'issue')
             ->selectRaw("
                 CONCAT('event-', tester_event_logs.id) as id,
                 testers.id as tester_id,
