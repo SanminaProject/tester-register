@@ -53,13 +53,14 @@
                     </ul>
                 </div>
             </div>
-
-            <button
-                class="ml-2 px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-pink-700 transition text-sm"
-                wire:click="$dispatch('switchTab', { tab: 'add' })"
-                type="button">
-                {{ $addButtonLabel ?? 'Add' }}
-            </button>
+            @if($showAddButton)
+                <button
+                    class="ml-2 px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-pink-700 transition text-sm"
+                    wire:click="$dispatch('switchTab', { tab: 'add' })"
+                    type="button">
+                    {{ $addButtonLabel ?? 'Add' }}
+                </button>
+            @endif
         </div>
     </div>
     <div class="data-table-scroll mt-3 flex-1 w-full overflow-x-auto pb-8">
@@ -70,7 +71,7 @@
                     widths = Array.from($el.querySelectorAll('th')).map(th => th.offsetWidth);
                 }
             })"
-            class="min-w-max table-auto"
+            class="min-w-full table-auto"
         >
             <thead>
                 <tr class="border-b">

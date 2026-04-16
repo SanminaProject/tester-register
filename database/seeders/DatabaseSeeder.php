@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             TesterAndFixtureLocationsSeeder::class,
             TesterSeeder::class,
             FixtureSeeder::class,
+            TesterSparePartSuppliersSeeder::class,
+            TesterSparePartsSeeder::class,
             ProcedureIntervalUnitsSeeder::class,
             TesterMaintenanceProceduresSeeder::class,
             TesterCalibrationProceduresSeeder::class,
@@ -31,6 +33,7 @@ class DatabaseSeeder extends Seeder
             EventTypesSeeder::class,
             IssueStatusesSeeder::class,
             TesterEventLogsSeeder::class,
+            DataChangeLogsSeeder::class,
         ]);
     }
 }
