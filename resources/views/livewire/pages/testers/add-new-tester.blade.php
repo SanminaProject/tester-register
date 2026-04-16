@@ -19,36 +19,36 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-1">
             <div class="space-y-6 text-left">
                 <div class="space-y-4">
-                    <x-input-field
+                    <x-testers.input-field
                         label="ID"
                         wire:model="tester_id"
                         placeholder="Enter ID..." />
-                    <x-input-field
+                    <x-testers.input-field
                         label="Name"
                         wire:model="name"
                         placeholder="Enter Name..." />
-                    <x-textarea-field
+                    <x-testers.textarea-field
                         label="Description"
                         wire:model="description"
                         rows="3" />
 
                     <div>
-                        <x-input-field
+                        <x-testers.input-field
                             label="Customer ID"
                             wire:model="id_number_by_customer"
                             placeholder="Enter Customer ID..." />
                     </div>
                     <div>
-                        <x-dropdown-field
+                        <x-testers.dropdown-field
                             label="Owner"
                             :options="$owners"
                             placeholder="Select Owner..."
                             wire:model="owner_id">
                             <option value="new" class="text-blue-600 font-bold">+ Add New Owner...</option>
-                        </x-dropdown-field>
+                            </x-dropdown-field>
                     </div>
                     <div>
-                        <x-date-field
+                        <x-testers.date-field
                             label="Implementation Date"
                             wire:model="implementation_date" />
                     </div>
@@ -73,58 +73,58 @@
 
                 <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <x-dropdown-field
+                        <x-testers.dropdown-field
                             label="Product Family"
                             :options="$families"
                             placeholder="Select Family..."
                             wire:model="product_family">
                             <option value="new" class="text-blue-600 font-bold">+ Add New Family...</option>
-                        </x-dropdown-field>
+                            </x-dropdown-field>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <x-dropdown-field
+                        <x-testers.dropdown-field
                             label="Manufacturer"
                             :options="$manufacturers"
                             placeholder="Select Manufacturer..."
                             wire:model="manufacturer">
                             <option value="new" class="text-blue-600 font-bold">+ Add New Manufacturer...</option>
-                        </x-dropdown-field>
+                            </x-dropdown-field>
                     </div>
                     <div>
-                        <x-dropdown-field
+                        <x-testers.dropdown-field
                             label="Operating System"
                             :options="$os_versions"
                             placeholder="Select OS..."
                             wire:model="operating_system">
                             <option value="new" class="text-blue-600 font-bold">+ Add New OS...</option>
-                        </x-dropdown-field>
+                            </x-dropdown-field>
                     </div>
                 </div>
 
                 <div class="mt-6 grid grid-cols-1 gap-y-4">
                     <div>
-                        <x-dropdown-field
+                        <x-testers.dropdown-field
                             label="Location"
                             :options="$locations"
                             placeholder="Select Location..."
                             wire:model="location_id">
                             <option value="new" class="text-blue-600 font-bold">+ Add New Location...</option>
-                        </x-dropdown-field>
+                            </x-dropdown-field>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <x-dropdown-field
+                            <x-testers.dropdown-field
                                 label="Status"
                                 :options="$statuses"
                                 placeholder=""
                                 wire:model="status_id" />
                         </div>
                         <div>
-                            <x-input-field
+                            <x-testers.input-field
                                 label="Type"
                                 wire:model="type" />
                         </div>
