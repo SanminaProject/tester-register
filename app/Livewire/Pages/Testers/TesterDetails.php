@@ -14,6 +14,14 @@ class TesterDetails extends Component
         $this->tester = Tester::with(['owner', 'statusRelation', 'location'])->findOrFail($testerId);
     }
 
+    public function updateInventoryDate()
+    {
+        $this->tester->update([
+            'last_inventoried_date' => now()
+        ]);
+        $this->tester->refresh();
+    }
+
     public function render()
     {
         return view('livewire.pages.testers.tester-details');

@@ -23,6 +23,7 @@ class Tester extends Model
         'product_family',
         'manufacturer',
         'implementation_date',
+        'last_inventoried_date',
         'location_id',
         'owner_id',
         'status',
@@ -32,6 +33,7 @@ class Tester extends Model
     {
         return [
             'implementation_date' => 'date',
+            'last_inventoried_date' => 'datetime',
         ];
     }
 

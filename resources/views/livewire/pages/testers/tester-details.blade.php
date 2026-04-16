@@ -14,9 +14,9 @@
             <h2 class="text-xl font-extrabold text-black tracking-tight">Tester Details</h2>
         </div>
 
-        <button type="button" class="bg-primary text-white px-8 py-2.5 rounded-full font-semibold text-[13px] hover:opacity-90 transition">
+        <x-primary-button type="button" class="w-32">
             Edit
-        </button>
+        </x-primary-button>
     </div>
 
     <!-- Main Grid Content -->
@@ -53,12 +53,14 @@
         <div class="flex flex-col gap-6">
             
             <!-- Inventory Block -->
-            <div class="bg-light-grey rounded-xl p-7">
-                <p class="text-[13px] text-dark-grey mb-1.5">Last Inventoried Date:</p>
-                <p class="text-[13px] text-dark-grey mb-7">6/4/2026 13:54</p>
-                <button type="button" class="w-full bg-primary text-white px-6 py-2.5 rounded-full font-semibold text-[13px] hover:opacity-90 transition">
+            <div class="bg-light-grey rounded-xl p-7 flex items-center justify-between">
+                <div class="flex flex-col gap-1">
+                    <span class="text-[15px] text-dark-grey">Last Inventoried Date:</span>
+                    <span class="text-[16px] text-dark-grey">{{ $tester->last_inventoried_date ? $tester->last_inventoried_date->format('j.n.Y H:i') : 'Never' }}</span>
+                </div>
+                <x-primary-button type="button" class="w-40" wire:click="updateInventoryDate">
                     Inventory
-                </button>
+                </x-primary-button>
             </div>
 
             <!-- Links & Docs Block -->
@@ -111,38 +113,49 @@
     <div class="mt-12 bg-light-grey rounded-xl p-8">
         <h3 class="text-[13px] text-dark-grey border-b border-gray-200 pb-4 mb-6">Issues</h3>
         
-        <div class="flex flex-col gap-y-3.5">
-            <div class="grid grid-cols-[100px_1fr_100px_1fr] items-center gap-x-4">
-                <span class="text-dark-grey text-[13px]">Log ID</span>
-                <span class="text-black text-[13px] font-extrabold max-w-[100px]">1876</span>
-                <span class="text-dark-grey text-[13px]">Detector</span>
-                <span class="text-black text-[13px] font-extrabold">M.Kallio</span>
-            </div>
+        @php
+            $issues = \App\Models\TesterEventLog::where('tester_id', $tester->id)->orderBy('date', 'desc')->get();
+        @endphp
 
-            <div class="grid grid-cols-[100px_1fr] items-center gap-x-4 mt-2">
-                <span class="text-dark-grey text-[13px]">Entry Date</span>
-                <span class="text-black text-[13px] font-extrabold">2.10.2025 14:54</span>
-            </div>
-
-            <div class="flex flex-col gap-1.5 mt-2">
-                <div class="grid grid-cols-[100px_1fr] items-center gap-x-4">
-                    <span class="text-dark-grey text-[13px]">Indication</span>
-                    <span class="text-black text-[13px] font-extrabold">Kalibrointi ja yllapitohuolto</span>
+        <div class="flex flex-col gap-y-10">
+            @forelse($issues as $issue)
+            <div class="flex flex-col gap-y-3.5 {{ !$loop->last ? 'border-b border-gray-200 pb-8' : '' }}">
+                <div class="grid grid-cols-[100px_1fr_100px_1fr] items-center gap-x-4">
+                    <span class="text-dark-grey text-[13px]">Log ID</span>
+                    <span class="text-black text-[13px] font-extrabold max-w-[100px]">{{ $issue->id }}</span>
+                    <span class="text-dark-grey text-[13px]">Detector</span>
+                    <span class="text-black text-[13px] font-extrabold">{{ \App\Models\User::find($issue->created_by_user_id)?->name ?? 'Unknown' }}</span>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-[100px_1fr] items-center gap-x-4 mt-4">
-                <span class="text-dark-grey text-[13px]">Solved Date</span>
-                <span class="text-black text-[13px] font-extrabold">2.10.2025 14:54</span>
-            </div>
-
-            <div class="flex flex-col gap-1.5 mt-2">
-                <div class="grid grid-cols-[100px_1fr] items-start gap-x-4">
-                    <span class="text-dark-grey text-[13px] pt-0.5">Solution</span>
-                    <span class="text-black text-[13px] font-extrabold leading-relaxed pr-10">vaihdetta probet #1 #4, Ohjelmat varmuuskopioitu verkkoasemalle: testerbackup \\143.116.232.215\TAKAYA1</span>
+                <div class="grid grid-cols-[100px_1fr] items-center gap-x-4 mt-2">
+                    <span class="text-dark-grey text-[13px]">Entry Date</span>
+                    <span class="text-black text-[13px] font-extrabold">{{ $issue->date ? $issue->date->format('j.n.Y H:i') : '-' }}</span>
                 </div>
+
+                <div class="flex flex-col gap-1.5 mt-2">
+                    <div class="grid grid-cols-[100px_1fr] items-center gap-x-4">
+                        <span class="text-dark-grey text-[13px]">Indication</span>
+                        <span class="text-black text-[13px] font-extrabold">{{ $issue->description ?? '-' }}</span>
+                    </div>
+                </div>
+
+                @if($issue->resolved_date || $issue->resolution_description)
+                <div class="grid grid-cols-[100px_1fr] items-center gap-x-4 mt-4">
+                    <span class="text-dark-grey text-[13px]">Solved Date</span>
+                    <span class="text-black text-[13px] font-extrabold">{{ $issue->resolved_date ? $issue->resolved_date->format('j.n.Y H:i') : '-' }}</span>
+                </div>
+
+                <div class="flex flex-col gap-1.5 mt-2">
+                    <div class="grid grid-cols-[100px_1fr] items-start gap-x-4">
+                        <span class="text-dark-grey text-[13px] pt-0.5">Solution</span>
+                        <span class="text-black text-[13px] font-extrabold leading-relaxed pr-10">{{ $issue->resolution_description ?? '-' }}</span>
+                    </div>
+                </div>
+                @endif
             </div>
-            
+            @empty
+            <div class="text-[13px] text-dark-grey py-4">No issues recorded for this tester.</div>
+            @endforelse
         </div>
     </div>
 
