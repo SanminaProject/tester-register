@@ -20,6 +20,8 @@
         <livewire:audit-logs />
         @elseif ($activeTab === 'addlog')
         <livewire:add-new-log />
+        @elseif ($activeTab === 'details')
+        <livewire:pages.fixtures.fixture-details :fixtureId="$selectedFixtureId" wire:key="fixture-details-{{ $selectedFixtureId }}" />
         @endif
     </div>
 </div>
