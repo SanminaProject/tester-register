@@ -1,7 +1,7 @@
 <div>
     <livewire:components.data-table
         type="testers"
-        title="Tester List"
+        title="Testers List"
         searchPlaceholder="Search testers..."
         addButtonLabel="Add Tester"
         :headers="[
