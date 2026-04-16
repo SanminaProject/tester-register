@@ -10,7 +10,7 @@
     <textarea
         rows="{{ $rows }}"
         placeholder="{{ $placeholder }}"
-        {{ $attributes->merge(['class' => 'bg-gray-100 rounded-full px-8 py-4 border-none shadow-none w-full text-black focus:ring-2 focus:ring-blue-200 focus:outline-none transition']) }}></textarea>
+        {{ $attributes->merge(['class' => 'bg-grey rounded-full px-8 py-4 border-none shadow-none w-full text-black focus:ring-2 focus:ring-blue-200 focus:outline-none transition']) }}></textarea>
 
     @if($error)
     <x-input-error :messages="$errors->get($error)" class="mt-1" />
