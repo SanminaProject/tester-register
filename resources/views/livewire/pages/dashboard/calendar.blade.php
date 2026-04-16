@@ -21,7 +21,7 @@
                 margin-bottom: 4px;
             }
             .fc .fc-toolbar-title {
-                font-size: 1.15rem !important; 
+                font-size: 1rem !important; 
             }
             /* Row 2 Left: Prev/Next/Today buttons */
             .fc .fc-toolbar-chunk:first-child {
@@ -54,13 +54,13 @@
             .fc-direction-ltr .fc-toolbar-chunk:first-child > .fc-button-group {
                 margin-right: 0.25rem !important;
             }
-            /* Stretch the grid cells vertically so events don't overlap date numbers */
+            /* Adjust the grid cell vertical height */
             .fc .fc-daygrid-day-frame {
-                min-height: 65px !important;
+                min-height: 70px !important;
             }
             /* Prevent internal calendar scrolling on mobile */
             .fc .fc-view-harness {
-                min-height: 450px !important;
+                min-height: 350px !important;
                 height: auto !important;
             }
             .fc .fc-view-harness-active > .fc-view {
@@ -82,7 +82,7 @@
             <div 
                 id="calendar" 
                 data-events='@json($events)'
-                class="form-control min-h-[450px] sm:min-h-[400px]">
+                class="form-control min-h-[350px] sm:min-h-[400px]">
             </div>
         </div>
     </div>
