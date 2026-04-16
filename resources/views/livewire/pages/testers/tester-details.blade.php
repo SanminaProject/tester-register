@@ -23,31 +23,28 @@
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_400px] gap-x-16 gap-y-10">
         
         <!-- 2. Left Block (Main Info) -->
-        <div class="flex flex-col gap-y-3.5 mt-2">
+        <div class="flex flex-col gap-y-3.5 mt-2 pl-12">
             @php
             $rows = [
-                'ID' => $tester->id ?? '160',
-                'Name' => $tester->name ?? 'TAKAYA FLYING PROBE APT 8400CE',
-                'Description' => $tester->description ?? 'FLYING PROBE TESTER',
-                'Customer ID' => $tester->id_number_by_customer ?? 'SN 9708037',
-                'Status' => strtoupper($tester->statusRelation?->name ?? 'ACTIVE'),
-                'Product Family' => $tester->product_family ?? 'ALL',
-                'Owner' => $tester->owner?->name ?? 'SANMINA',
-                'Location' => $tester->location?->name ?? 'PROTO',
-                'Type' => $tester->type ?? 'FLYING PRO',
-                'Operating System' => $tester->operating_system ?? 'XP/APT4.13',
-                'Manufacturer' => $tester->manufacturer ?? 'TAKAYA',
-                'Implementation Date' => $tester->implementation_date ? $tester->implementation_date->format('j.n.Y H:i') : '1.1.2003 0:00',
-                'Linked Measuring Devices' => '\N',
-                'Additional Info' => '\N',
-                'Asset' => "\N\n\N\n\N"
+                'ID' => $tester->id,
+                'Name' => $tester->name,
+                'Description' => $tester->description,
+                'Customer ID' => $tester->id_number_by_customer,
+                'Status' => $tester->statusRelation ? strtoupper($tester->statusRelation->name) : null,
+                'Product Family' => $tester->product_family,
+                'Owner' => $tester->owner?->name,
+                'Location' => $tester->location?->name,
+                'Type' => $tester->type,
+                'Operating System' => $tester->operating_system,
+                'Manufacturer' => $tester->manufacturer,
+                'Implementation Date' => $tester->implementation_date ? $tester->implementation_date->format('j.n.Y H:i') : null,
             ];
             @endphp
             
             @foreach($rows as $label => $value)
             <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
-                <div class="text-dark-grey text-[13px]">{{ $label }}</div>
-                <div class="text-black font-extrabold text-[13px] whitespace-pre-line leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-2.5 h-2.5 rounded-full {{ strtolower($tester->statusRelation?->name ?? '') === 'active' ? 'bg-green-500' : 'bg-red-500' }} ml-1.5 align-baseline"></span>@endif</div>
+                <div class="text-dark-grey text-[16px]">{{ $label }}</div>
+                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-2.5 h-2.5 rounded-full {{ strtolower($tester->statusRelation?->name ?? '') === 'active' ? 'bg-green-500' : 'bg-red-500' }} ml-1.5 align-baseline"></span>@endif</div>
             </div>
             @endforeach
         </div>
