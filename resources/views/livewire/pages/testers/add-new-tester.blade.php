@@ -2,13 +2,13 @@
     <div class="flex justify-between items-center mb-1 border-b pb-4">
         <h3 class="text-xl font-bold text-[#2C3E50]">Add New Tester</h3>
         <button
-            class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition text-sm"
+            class="px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-secondary transition text-sm"
             type="button">
             Edit Tester
         </button>
 
         <button
-            class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition text-sm"
+            class="px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-secondary transition text-sm"
             wire:click="$dispatch('switchTab', { tab: 'all' })"
             type="button">
             Back to List
@@ -64,7 +64,7 @@
                         @foreach($search_results as $result)
                         <div class="px-4 py-2 hover:bg-gray-50 flex justify-between items-center border-b">
                             <span class="text-sm text-gray-700">{{ $result['name'] }}</span>
-                            <button type="button" wire:click="selectAndCopyTester({{ $result['id'] }})" class="text-xs bg-blue-600 text-white px-2 py-1 rounded">Copy</button>
+                            <button type="button" wire:click="selectAndCopyTester({{ $result['id'] }})" class="text-xs bg-primary text-white px-2 py-1 rounded-full hover:bg-secondary transition">Copy</button>
                         </div>
                         @endforeach
                     </div>
