@@ -5,6 +5,7 @@ namespace App\Livewire\Pages\Testers;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Url;
 use App\Models\Tester;
 
 /**
@@ -13,6 +14,7 @@ use App\Models\Tester;
  */
 class TesterPage extends Component
 {
+    #[Url]
     public string $activeTab = 'all';
     public ?int $selectedTesterId = null;
 
