@@ -26,15 +26,17 @@ new class extends Component
                 <span class="text-[17px] font-bold text-black">
                     @if(request()->routeIs('dashboard'))
                         Dashboard
+                    @elseif(request()->routeIs('scan'))
+                        Scan
                     @endif
                 </span>
             </div>
 
             <div class="flex">
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center {{ request()->routeIs('dashboard') ? 'hidden sm:flex' : '' }}">
-                    <a href="{{ route('dashboard') }}" wire:navigate>
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                <div class="shrink-0 flex items-center">
+                    <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center">
+                        <x-application-logo class="block h-5 sm:h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
 
@@ -120,6 +122,10 @@ new class extends Component
 
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('scan')" :active="request()->routeIs('scan')" wire:navigate>
+                {{ __('Scan') }}
             </x-responsive-nav-link>
 
             <!-- Authentication -->

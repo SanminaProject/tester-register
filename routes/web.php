@@ -17,6 +17,10 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
+Route::view('scan', 'scan')
+    ->middleware(['auth'])
+    ->name('scan');
+
 require __DIR__ . '/auth.php';
 require __DIR__ . '/userRoles.php';
 require __DIR__ . '/testers.php';

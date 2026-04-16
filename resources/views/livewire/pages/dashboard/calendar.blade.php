@@ -18,10 +18,13 @@
                 order: 1;
                 width: 100%;
                 justify-content: center;
-                margin-bottom: 4px;
+                padding-bottom: 8px;
+                margin-bottom: 8px;
+                border-bottom: 1px solid #e5e7eb; /* Divider line matching event cards */
             }
             .fc .fc-toolbar-title {
-                font-size: 1rem !important; 
+                font-size: 15px !important; 
+                font-weight: 600 !important;
             }
             /* Row 2 Left: Prev/Next/Today buttons */
             .fc .fc-toolbar-chunk:first-child {
@@ -46,10 +49,14 @@
                 margin-top: 4px;
             }
             /* Compress buttons to prevent wrapping on very small screens */
+            .fc .fc-button-group {
+                gap: 6px !important; /* Adjust the space between Month/Week/Day buttons */
+            }
             .fc .fc-button {
                 font-size: 0.7rem !important;
                 padding: 0.3rem 0.5rem !important;
                 text-transform: capitalize;
+                border-radius: 0.375rem !important; /* Make each button rounded since they are now separated */
             }
             .fc-direction-ltr .fc-toolbar-chunk:first-child > .fc-button-group {
                 margin-right: 0.25rem !important;
