@@ -74,7 +74,7 @@
                 <div class="grid grid-cols-1 gap-4">
                     <div>
                         <x-testers.dropdown-field
-                            label="Product Family"
+                            label="Prod Family"
                             :options="$families"
                             placeholder="Select Family..."
                             wire:model="product_family">
@@ -95,7 +95,7 @@
                     </div>
                     <div>
                         <x-testers.dropdown-field
-                            label="Operating System"
+                            label="OS"
                             :options="$os_versions"
                             placeholder="Select OS..."
                             wire:model="operating_system">
