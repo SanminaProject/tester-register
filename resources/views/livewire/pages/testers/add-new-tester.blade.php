@@ -22,11 +22,11 @@
                     <x-testers.input-field
                         label="ID"
                         wire:model="tester_id"
-                        placeholder="Enter ID..." />
+                        placeholder="Enter Tester ID..." />
                     <x-testers.input-field
                         label="Name"
                         wire:model="name"
-                        placeholder="Enter Name..." />
+                        placeholder="Enter Tester Name..." />
                     <x-testers.textarea-field
                         label="Description"
                         wire:model="description"

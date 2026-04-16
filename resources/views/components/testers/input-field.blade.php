@@ -10,7 +10,7 @@
     <input
         type="{{ $type }}"
         placeholder="{{ $placeholder }}"
-        {{ $attributes->merge(['class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm']) }}>
+        {{ $attributes->merge(['class' => 'bg-gray-100 rounded-full px-8 py-4 border-none shadow-none w-full text-black focus:ring-2 focus:ring-blue-200 focus:outline-none transition']) }}>
 
     @if($error)
     <x-input-error :messages="$errors->get($error)" class="mt-1" />
