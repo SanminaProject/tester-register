@@ -148,18 +148,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-bold">Documents (Images/PDF)</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition cursor-pointer relative">
-                        <input type="file" wire:model="documents" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <div class="text-gray-400">
-                            <span class="text-blue-600 font-semibold">Click to upload</span> or drag and drop
-                            <p class="text-xs mt-1">PNG, JPG, PDF up to 10MB</p>
-                        </div>
-                    </div>
-                    <div wire:loading wire:target="documents" class="text-xs text-blue-600 mt-2">Uploading...</div>
-                </div>
             </div>
         </div>
     </div>
