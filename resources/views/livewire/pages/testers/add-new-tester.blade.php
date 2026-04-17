@@ -124,7 +124,7 @@
                 <div>
                     <x-testers.dropdown-field
                         label="Type"
-                        :options="$type"
+                        :options="$types"
                         placeholder="Select Tester Type..."
                         wire:model="type">
                         <option value="new" class="text-blue-600 font-bold">+ Add New Type...</option>

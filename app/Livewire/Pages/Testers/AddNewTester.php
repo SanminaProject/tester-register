@@ -31,17 +31,28 @@ class AddNewTester extends Component
     public $search_results = [];
 
     public $owners = [], $locations = [], $statuses = [];
-    public $families = [], $os_versions = [], $manufacturers = [];
+    public $families = [], $types = [], $os_versions = [], $manufacturers = [];
 
     public function mount()
     {
         $this->owners = \App\Models\TesterCustomer::all();
         $this->locations = \App\Models\TesterAndFixtureLocation::all();
         $this->statuses = \App\Models\AssetStatus::all();
-        // These could be dynamic in a real application, but for now we'll hardcode some options
-        $this->families = ['Series X', 'Series Y', 'Z-Platform'];
-        $this->manufacturers = ['Agilent', 'Teradyne', 'Custom'];
-        $this->os_versions = ['Windows 10', 'Windows 11', 'Linux'];
+        $this->families = $this->getDistinctTesterOptions('product_family');
+        $this->types = $this->getDistinctTesterOptions('type');
+        $this->manufacturers = $this->getDistinctTesterOptions('manufacturer');
+        $this->os_versions = $this->getDistinctTesterOptions('operating_system');
+    }
+
+    private function getDistinctTesterOptions(string $column): array
+    {
+        return Tester::query()
+            ->whereNotNull($column)
+            ->where($column, '!=', '')
+            ->distinct()
+            ->orderBy($column)
+            ->pluck($column)
+            ->toArray();
     }
 
     public function updatedSearchQuery()
@@ -67,7 +78,7 @@ class AddNewTester extends Component
             $this->id_number_by_customer = $existing->id_number_by_customer;
             $this->product_family      = $existing->product_family;
             $this->owner_id            = $existing->owner_id;
-            $this->status_id           = $existing->status; // Matching migration field
+            $this->status_id           = $existing->status;
             $this->location_id         = $existing->location_id;
             $this->type                = $existing->type;
             $this->manufacturer        = $existing->manufacturer;

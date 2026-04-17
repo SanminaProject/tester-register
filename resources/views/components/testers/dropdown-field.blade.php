@@ -14,7 +14,11 @@
         <option value="">{{ $placeholder }}</option>
         @endif
 
-        @foreach($options as $option)
+        @php
+        $optionItems = is_iterable($options) ? $options : [];
+        @endphp
+
+        @foreach($optionItems as $option)
         @php
         if (is_array($option)) {
         $optionValue = $option[$valueKey] ?? '';
