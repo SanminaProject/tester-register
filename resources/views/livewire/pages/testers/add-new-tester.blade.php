@@ -62,7 +62,7 @@
                         placeholder="Upload files" />
 
                     <x-testers.upload-field
-                        label="Asset Attachment"
+                        label="Asset"
                         :multiple="true"
                         model="asset_files"
                         placeholder="Add new asset" />

@@ -1,6 +1,6 @@
 <div class="mt-4">
     <label class="block text-sm font-medium text-gray-700">{{ $label ?? 'Upload' }}</label>
-    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition cursor-pointer relative bg-grey">
+    <div class="mt-1 flex justify-center px-6 pt-1 pb-1 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition cursor-pointer relative bg-grey">
         <input type="file" wire:model="{{ $model ?? 'file' }}" {{ $multiple ? 'multiple' : '' }} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
         <div class="space-y-1 text-center">
             <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
