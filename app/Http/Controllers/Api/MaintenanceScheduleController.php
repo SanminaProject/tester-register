@@ -6,8 +6,8 @@ use App\Http\Requests\Api\CompleteMaintenanceRequest;
 use App\Http\Requests\Api\ListMaintenanceScheduleRequest;
 use App\Http\Requests\Api\StoreMaintenanceScheduleRequest;
 use App\Http\Requests\Api\UpdateMaintenanceScheduleRequest;
-use App\Models\EventLog;
-use App\Models\MaintenanceSchedule;
+use App\Models\TesterEventLog as EventLog;
+use App\Models\TesterMaintenanceSchedule as MaintenanceSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 

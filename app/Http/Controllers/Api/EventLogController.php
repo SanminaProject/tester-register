@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\ListEventLogRequest;
 use App\Http\Requests\Api\StoreEventLogRequest;
-use App\Models\EventLog;
+use App\Models\TesterEventLog as EventLog;
 use Illuminate\Http\JsonResponse;
 
 class EventLogController extends ApiController

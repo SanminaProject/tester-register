@@ -6,8 +6,8 @@ use App\Http\Requests\Api\CompleteCalibrationRequest;
 use App\Http\Requests\Api\ListCalibrationScheduleRequest;
 use App\Http\Requests\Api\StoreCalibrationScheduleRequest;
 use App\Http\Requests\Api\UpdateCalibrationScheduleRequest;
-use App\Models\CalibrationSchedule;
-use App\Models\EventLog;
+use App\Models\TesterCalibrationSchedule as CalibrationSchedule;
+use App\Models\TesterEventLog as EventLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
