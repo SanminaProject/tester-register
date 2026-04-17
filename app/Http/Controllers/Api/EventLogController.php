@@ -51,7 +51,7 @@ class EventLogController extends ApiController
             );
 
         $eventLogs->getCollection()->transform(
-            fn (EventLog $eventLog): array => $this->toLegacyEventLogPayload($eventLog)
+            fn(EventLog $eventLog): array => $this->toLegacyEventLogPayload($eventLog)
         );
 
         return $this->paginated('Event logs retrieved successfully', $eventLogs);

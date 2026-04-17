@@ -60,7 +60,7 @@ class MaintenanceScheduleController extends ApiController
             );
 
         $schedules->getCollection()->transform(
-            fn (MaintenanceSchedule $schedule): array => $this->toLegacySchedulePayload($schedule)
+            fn(MaintenanceSchedule $schedule): array => $this->toLegacySchedulePayload($schedule)
         );
 
         return $this->paginated('Maintenance schedules retrieved successfully', $schedules);

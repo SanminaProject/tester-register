@@ -60,7 +60,7 @@ class CalibrationScheduleController extends ApiController
             );
 
         $schedules->getCollection()->transform(
-            fn (CalibrationSchedule $schedule): array => $this->toLegacySchedulePayload($schedule)
+            fn(CalibrationSchedule $schedule): array => $this->toLegacySchedulePayload($schedule)
         );
 
         return $this->paginated('Calibration schedules retrieved successfully', $schedules);
