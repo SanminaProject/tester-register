@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\CalibrationSchedule;
+use App\Models\TesterCalibrationSchedule as CalibrationSchedule;
 use App\Models\User;
 
 class CalibrationSchedulePolicy extends BasePolicy

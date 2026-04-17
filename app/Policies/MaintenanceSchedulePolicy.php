@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\MaintenanceSchedule;
+use App\Models\TesterMaintenanceSchedule as MaintenanceSchedule;
 use App\Models\User;
 
 class MaintenanceSchedulePolicy extends BasePolicy

@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use App\Models\CalibrationSchedule;
-use App\Models\EventLog;
 use App\Models\Fixture;
-use App\Models\MaintenanceSchedule;
 use App\Models\SparePart;
 use App\Models\Tester;
+use App\Models\TesterCalibrationSchedule as CalibrationSchedule;
 use App\Models\TesterCustomer;
+use App\Models\TesterEventLog as EventLog;
+use App\Models\TesterMaintenanceSchedule as MaintenanceSchedule;
 use App\Policies\CalibrationSchedulePolicy;
 use App\Policies\EventLogPolicy;
 use App\Policies\FixturePolicy;
