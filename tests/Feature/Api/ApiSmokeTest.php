@@ -75,17 +75,17 @@ class ApiSmokeTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('code', 201);
 
-        $this->getJson('/api/v1/customers/'.$customerId)
+        $this->getJson('/api/v1/customers/' . $customerId)
             ->assertOk()
             ->assertJsonPath('data.name', 'Acme Labs');
 
-        $this->patchJson('/api/v1/customers/'.$customerId, [
+        $this->patchJson('/api/v1/customers/' . $customerId, [
             'name' => 'Acme Labs Updated',
         ])
             ->assertOk()
             ->assertJsonPath('data.name', 'Acme Labs Updated');
 
-        $this->deleteJson('/api/v1/customers/'.$customerId)
+        $this->deleteJson('/api/v1/customers/' . $customerId)
             ->assertOk()
             ->assertJsonPath('success', true);
     }
@@ -146,7 +146,7 @@ class ApiSmokeTest extends TestCase
             'next_maintenance_due' => now()->addDay(),
         ]);
 
-        $this->postJson('/api/v1/maintenance-schedules/'.$schedule->id.'/complete', [
+        $this->postJson('/api/v1/maintenance-schedules/' . $schedule->id . '/complete', [
             'completed_date' => now()->toDateString(),
             'performed_by' => 'Tech User',
             'notes' => 'Completed successfully',
