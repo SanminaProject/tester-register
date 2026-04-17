@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\MaintenanceSchedule;
+use App\Models\TesterMaintenanceSchedule as MaintenanceSchedule;
 use App\Models\Tester;
-use App\Models\TesterCustomer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -114,23 +114,36 @@ class ApiSmokeTest extends TestCase
 
         Sanctum::actingAs($manager);
 
-        $customer = TesterCustomer::create([
+        $customerId = (int) DB::table('tester_customers')->insertGetId([
             'name' => 'Nokia Labs',
         ]);
 
+        $intervalUnitId = (int) DB::table('procedure_interval_units')->insertGetId([
+            'name' => 'months',
+        ]);
+
+        $maintenanceProcedureId = (int) DB::table('tester_maintenance_procedures')->insertGetId([
+            'type' => 'Routine maintenance',
+            'interval_value' => 6,
+            'description' => null,
+            'interval_unit' => $intervalUnitId,
+        ]);
+
+        $eventTypeId = (int) DB::table('event_types')->insertGetId([
+            'name' => 'maintenance',
+        ]);
+
         $tester = Tester::create([
-            'customer_id' => $customer->id,
-            'model' => 'AX-500',
-            'serial_number' => 'TS-5000',
-            'status' => 'active',
-            'location' => 'Lab A',
+            'owner_id' => $customerId,
+            'name' => 'AX-500',
+            'id_number_by_customer' => 'TS-5000',
         ]);
 
         $schedule = MaintenanceSchedule::create([
             'tester_id' => $tester->id,
-            'scheduled_date' => now()->toDateString(),
-            'status' => 'scheduled',
-            'procedure' => 'Routine maintenance',
+            'maintenance_id' => $maintenanceProcedureId,
+            'schedule_created_date' => now(),
+            'next_maintenance_due' => now()->addDay(),
         ]);
 
         $this->postJson('/api/v1/maintenance-schedules/'.$schedule->id.'/complete', [
@@ -141,10 +154,11 @@ class ApiSmokeTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.status', 'completed');
 
-        $this->assertDatabaseHas('event_logs', [
+        $this->assertDatabaseHas('tester_event_logs', [
             'tester_id' => $tester->id,
-            'type' => 'maintenance',
-            'performed_by' => 'Tech User',
+            'event_type' => $eventTypeId,
+            'maintenance_schedule_id' => $schedule->id,
+            'created_by_user_id' => $manager->id,
         ]);
     }
 }

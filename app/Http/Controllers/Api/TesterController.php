@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\ListTesterRequest;
-use App\Http\Requests\Api\StoreTesterRequest;
-use App\Http\Requests\Api\UpdateTesterRequest;
 use App\Http\Requests\Api\UpdateTesterStatusRequest;
 use App\Models\Tester;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TesterController extends ApiController
 {
@@ -16,14 +18,20 @@ class TesterController extends ApiController
         $this->authorize('viewAny', Tester::class);
 
         $validated = $request->validated();
-        $query = Tester::query()->with('customer:id,name');
+        $query = Tester::query()->with(['owner:id,name', 'location:id,name', 'statusRelation:id,name']);
 
         if (! empty($validated['status'])) {
-            $query->where('status', $validated['status']);
+            $statusId = $this->resolveAssetStatusId((string) $validated['status'], false);
+
+            if ($statusId === null) {
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->where('status', $statusId);
+            }
         }
 
         if (! empty($validated['customer_id'])) {
-            $query->where('customer_id', $validated['customer_id']);
+            $query->where('owner_id', $validated['customer_id']);
         }
 
         if (! empty($validated['search'])) {
@@ -31,9 +39,11 @@ class TesterController extends ApiController
 
             $query->where(function ($subQuery) use ($search) {
                 $subQuery
-                    ->where('model', 'like', "%{$search}%")
-                    ->orWhere('serial_number', 'like', "%{$search}%")
-                    ->orWhere('location', 'like', "%{$search}%");
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('id_number_by_customer', 'like', "%{$search}%")
+                    ->orWhereHas('location', function ($locationQuery) use ($search): void {
+                        $locationQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -46,32 +56,118 @@ class TesterController extends ApiController
                 $validated['page'] ?? 1,
             );
 
+        $testers->getCollection()->transform(
+            fn(Tester $tester): array => $this->toLegacyTesterPayload($tester)
+        );
+
         return $this->paginated('Testers retrieved successfully', $testers);
     }
 
-    public function store(StoreTesterRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $this->authorize('create', Tester::class);
 
-        $tester = Tester::create($request->validated());
+        $validated = $request->validate([
+            'customer_id' => ['required', 'integer', 'exists:tester_customers,id'],
+            'model' => ['required', 'string', 'max:100'],
+            'serial_number' => ['required', 'string', 'max:100'],
+            'purchase_date' => ['nullable', 'date'],
+            'status' => ['nullable', 'in:active,inactive,maintenance'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string'],
+        ]);
 
-        return $this->success('Tester created successfully', $tester->load('customer:id,name'), 201);
+        $this->ensureUniqueSerialNumber((string) $validated['serial_number']);
+
+        $tester = Tester::create([
+            'owner_id' => $validated['customer_id'],
+            'name' => $validated['model'],
+            'id_number_by_customer' => $validated['serial_number'],
+            'implementation_date' => ! empty($validated['purchase_date'])
+                ? Carbon::parse($validated['purchase_date'])->toDateString()
+                : null,
+            'status' => ! empty($validated['status'])
+                ? $this->resolveAssetStatusId((string) $validated['status'])
+                : null,
+            'location_id' => $this->resolveLocationId($validated['location'] ?? null),
+            'additional_info' => $validated['notes'] ?? null,
+        ]);
+
+        return $this->success(
+            'Tester created successfully',
+            $this->toLegacyTesterPayload($tester->load(['owner:id,name', 'location:id,name', 'statusRelation:id,name'])),
+            201
+        );
     }
 
     public function show(Tester $tester): JsonResponse
     {
         $this->authorize('view', $tester);
 
-        return $this->success('Tester retrieved successfully', $tester->load('customer:id,name'));
+        return $this->success(
+            'Tester retrieved successfully',
+            $this->toLegacyTesterPayload($tester->load(['owner:id,name', 'location:id,name', 'statusRelation:id,name']))
+        );
     }
 
-    public function update(UpdateTesterRequest $request, Tester $tester): JsonResponse
+    public function update(Request $request, Tester $tester): JsonResponse
     {
         $this->authorize('update', $tester);
 
-        $tester->update($request->validated());
+        $validated = $request->validate([
+            'customer_id' => ['sometimes', 'integer', 'exists:tester_customers,id'],
+            'model' => ['sometimes', 'string', 'max:100'],
+            'serial_number' => ['sometimes', 'string', 'max:100'],
+            'purchase_date' => ['sometimes', 'nullable', 'date'],
+            'status' => ['sometimes', 'in:active,inactive,maintenance'],
+            'location' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'notes' => ['sometimes', 'nullable', 'string'],
+        ]);
 
-        return $this->success('Tester updated successfully', $tester->fresh()->load('customer:id,name'));
+        if (array_key_exists('serial_number', $validated)) {
+            $this->ensureUniqueSerialNumber((string) $validated['serial_number'], $tester->id);
+        }
+
+        $payload = [];
+
+        if (array_key_exists('customer_id', $validated)) {
+            $payload['owner_id'] = $validated['customer_id'];
+        }
+
+        if (array_key_exists('model', $validated)) {
+            $payload['name'] = $validated['model'];
+        }
+
+        if (array_key_exists('serial_number', $validated)) {
+            $payload['id_number_by_customer'] = $validated['serial_number'];
+        }
+
+        if (array_key_exists('purchase_date', $validated)) {
+            $payload['implementation_date'] = $validated['purchase_date']
+                ? Carbon::parse($validated['purchase_date'])->toDateString()
+                : null;
+        }
+
+        if (array_key_exists('status', $validated)) {
+            $payload['status'] = $this->resolveAssetStatusId((string) $validated['status']);
+        }
+
+        if (array_key_exists('location', $validated)) {
+            $payload['location_id'] = $this->resolveLocationId($validated['location']);
+        }
+
+        if (array_key_exists('notes', $validated)) {
+            $payload['additional_info'] = $validated['notes'];
+        }
+
+        if ($payload !== []) {
+            $tester->update($payload);
+        }
+
+        return $this->success(
+            'Tester updated successfully',
+            $this->toLegacyTesterPayload($tester->fresh()->load(['owner:id,name', 'location:id,name', 'statusRelation:id,name']))
+        );
     }
 
     public function destroy(Tester $tester): JsonResponse
@@ -88,9 +184,132 @@ class TesterController extends ApiController
         $this->authorize('updateStatus', $tester);
 
         $tester->update([
-            'status' => $request->validated()['status'],
+            'status' => $this->resolveAssetStatusId($request->validated()['status']),
         ]);
 
-        return $this->success('Tester status updated successfully', $tester->fresh()->load('customer:id,name'));
+        return $this->success(
+            'Tester status updated successfully',
+            $this->toLegacyTesterPayload($tester->fresh()->load(['owner:id,name', 'location:id,name', 'statusRelation:id,name']))
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function toLegacyTesterPayload(Tester $tester): array
+    {
+        $statusName = null;
+
+        if ($tester->relationLoaded('statusRelation') && $tester->statusRelation !== null) {
+            $statusName = strtolower((string) $tester->statusRelation->name);
+        } elseif ($tester->status !== null) {
+            $status = DB::table('asset_statuses')->where('id', $tester->status)->value('name');
+            $statusName = is_string($status) ? strtolower($status) : null;
+        }
+
+        $locationName = null;
+
+        if ($tester->relationLoaded('location') && $tester->location !== null) {
+            $locationName = $tester->location->name;
+        } elseif ($tester->location_id !== null) {
+            $location = DB::table('tester_and_fixture_locations')->where('id', $tester->location_id)->value('name');
+            $locationName = is_string($location) ? $location : null;
+        }
+
+        $customer = null;
+
+        if ($tester->relationLoaded('owner') && $tester->owner !== null) {
+            $customer = [
+                'id' => $tester->owner->id,
+                'name' => $tester->owner->name,
+            ];
+        } elseif ($tester->owner_id !== null) {
+            $ownerName = DB::table('tester_customers')->where('id', $tester->owner_id)->value('name');
+
+            if (is_string($ownerName)) {
+                $customer = [
+                    'id' => $tester->owner_id,
+                    'name' => $ownerName,
+                ];
+            }
+        }
+
+        return [
+            'id' => $tester->id,
+            'customer_id' => $tester->owner_id,
+            'model' => $tester->name,
+            'serial_number' => $tester->id_number_by_customer,
+            'purchase_date' => $this->toDateString($tester->implementation_date),
+            'status' => $statusName,
+            'location' => $locationName,
+            'notes' => $tester->additional_info,
+            'customer' => $customer,
+        ];
+    }
+
+    private function resolveAssetStatusId(?string $status, bool $strict = true): ?int
+    {
+        if ($status === null || trim($status) === '') {
+            return null;
+        }
+
+        $statusId = DB::table('asset_statuses')
+            ->whereRaw('LOWER(name) = ?', [strtolower(trim($status))])
+            ->value('id');
+
+        if ($statusId === null && $strict) {
+            throw ValidationException::withMessages([
+                'status' => ['Unsupported status value.'],
+            ]);
+        }
+
+        return $statusId !== null ? (int) $statusId : null;
+    }
+
+    private function resolveLocationId(?string $location): ?int
+    {
+        if ($location === null || trim($location) === '') {
+            return null;
+        }
+
+        $normalized = trim($location);
+
+        $existingLocationId = DB::table('tester_and_fixture_locations')
+            ->whereRaw('LOWER(name) = ?', [strtolower($normalized)])
+            ->value('id');
+
+        if ($existingLocationId !== null) {
+            return (int) $existingLocationId;
+        }
+
+        return (int) DB::table('tester_and_fixture_locations')->insertGetId([
+            'name' => $normalized,
+            'description' => null,
+            'address' => null,
+        ]);
+    }
+
+    private function ensureUniqueSerialNumber(string $serialNumber, ?int $ignoreTesterId = null): void
+    {
+        $query = Tester::query()->where('id_number_by_customer', $serialNumber);
+
+        if ($ignoreTesterId !== null) {
+            $query->where('id', '!=', $ignoreTesterId);
+        }
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'serial_number' => ['The serial number has already been taken.'],
+            ]);
+        }
+    }
+
+    private function toDateString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return Carbon::parse($value)->toDateString();
     }
 }
