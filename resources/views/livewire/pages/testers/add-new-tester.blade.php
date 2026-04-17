@@ -92,7 +92,6 @@
                             :options="$owners"
                             placeholder="Select Owner..."
                             wire:model="owner_id">
-                            <option value="new" class="text-blue-600 font-bold">+ Add New Owner...</option>
                             </x-dropdown-field>
                     </div>
                     <div>
@@ -101,7 +100,6 @@
                             :options="$locations"
                             placeholder="Select Location..."
                             wire:model="location_id">
-                            <option value="new" class="text-blue-600 font-bold">+ Add New Location...</option>
                             </x-dropdown-field>
                     </div>
                     <div>
@@ -117,7 +115,6 @@
                             :options="$families"
                             placeholder="Select Family..."
                             wire:model="product_family">
-                            <option value="new" class="text-blue-600 font-bold">+ Add New Family...</option>
                             </x-dropdown-field>
                     </div>
                 </div>
@@ -127,7 +124,6 @@
                         :options="$types"
                         placeholder="Select Tester Type..."
                         wire:model="type">
-                        <option value="new" class="text-blue-600 font-bold">+ Add New Type...</option>
                         </x-dropdown-field>
                 </div>
 
@@ -137,7 +133,6 @@
                         :options="$manufacturers"
                         placeholder="Select Manufacturer..."
                         wire:model="manufacturer">
-                        <option value="new" class="text-blue-600 font-bold">+ Add New Manufacturer...</option>
                         </x-dropdown-field>
                 </div>
                 <div>
@@ -146,7 +141,6 @@
                         :options="$os_versions"
                         placeholder="Select OS..."
                         wire:model="operating_system">
-                        <option value="new" class="text-blue-600 font-bold">+ Add New OS...</option>
                         </x-dropdown-field>
                 </div>
             </div>
