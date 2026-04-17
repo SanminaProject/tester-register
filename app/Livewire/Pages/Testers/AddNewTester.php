@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Tester;
 
+
 class AddNewTester extends Component
 {
     use WithFileUploads;
@@ -24,6 +25,7 @@ class AddNewTester extends Component
     public $additional_info;
     public $implementation_date;
     public $documents = [];
+    public $asset_files = [];
 
     public $search_query = '';
     public $search_results = [];

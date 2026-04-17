@@ -38,31 +38,34 @@
                             wire:model="id_number_by_customer"
                             placeholder="Enter Customer ID..." />
                     </div>
-
-                    <div>
-                        <x-testers.input-field
-                            label="Type"
-                            wire:model="type"
-                            placeholder="Enter Tester Type..." />
-                    </div>
-
                     <div>
                         <x-testers.date-field
                             label="Implementation Date"
                             wire:model="implementation_date" />
                     </div>
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Documents (Images/PDF)</label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition cursor-pointer relative bg-grey">
-                            <input type="file" wire:model="documents" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            <div class="space-y-1 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <p class="text-sm text-gray-600">Click or Drag to upload</p>
-                            </div>
-                        </div>
+                    <div>
+                        <x-testers.input-field
+                            label="Additional Info"
+                            wire:model="additional_info"
+                            placeholder="Enter Additional Info..." />
                     </div>
+                    <div>
+                        <x-testers.input-field
+                            label="Linked Measuring Devices"
+                            wire:model="linked_measuring_devices"
+                            placeholder="Enter Linked Measuring Devices..." />
+                    </div>
+                    <x-testers.upload-field
+                        label="Documents"
+                        :multiple="true"
+                        model="documents"
+                        placeholder="Upload files" />
+
+                    <x-testers.upload-field
+                        label="Asset Attachment"
+                        :multiple="true"
+                        model="asset_files"
+                        placeholder="Add new asset" />
                 </div>
             </div>
 
@@ -85,6 +88,31 @@
                 <div class="grid grid-cols-1 gap-4">
                     <div>
                         <x-testers.dropdown-field
+                            label="Owner"
+                            :options="$owners"
+                            placeholder="Select Owner..."
+                            wire:model="owner_id">
+                            <option value="new" class="text-blue-600 font-bold">+ Add New Owner...</option>
+                            </x-dropdown-field>
+                    </div>
+                    <div>
+                        <x-testers.dropdown-field
+                            label="Location"
+                            :options="$locations"
+                            placeholder="Select Location..."
+                            wire:model="location_id">
+                            <option value="new" class="text-blue-600 font-bold">+ Add New Location...</option>
+                            </x-dropdown-field>
+                    </div>
+                    <div>
+                        <x-testers.dropdown-field
+                            label="Status"
+                            :options="$statuses"
+                            placeholder=""
+                            wire:model="status_id" />
+                    </div>
+                    <div>
+                        <x-testers.dropdown-field
                             label="Prod Family"
                             :options="$families"
                             placeholder="Select Family..."
@@ -92,6 +120,15 @@
                             <option value="new" class="text-blue-600 font-bold">+ Add New Family...</option>
                             </x-dropdown-field>
                     </div>
+                </div>
+                <div>
+                    <x-testers.dropdown-field
+                        label="Type"
+                        :options="$type"
+                        placeholder="Select Tester Type..."
+                        wire:model="type">
+                        <option value="new" class="text-blue-600 font-bold">+ Add New Type...</option>
+                        </x-dropdown-field>
                 </div>
 
                 <div>
@@ -111,37 +148,6 @@
                         wire:model="operating_system">
                         <option value="new" class="text-blue-600 font-bold">+ Add New OS...</option>
                         </x-dropdown-field>
-                </div>
-
-                <div class="mt-6 grid grid-cols-1 gap-y-4">
-                    <div>
-                        <x-testers.dropdown-field
-                            label="Location"
-                            :options="$locations"
-                            placeholder="Select Location..."
-                            wire:model="location_id">
-                            <option value="new" class="text-blue-600 font-bold">+ Add New Location...</option>
-                            </x-dropdown-field>
-                    </div>
-
-                    <div>
-                        <x-testers.dropdown-field
-                            label="Status"
-                            :options="$statuses"
-                            placeholder=""
-                            wire:model="status_id" />
-                    </div>
-
-                    <div>
-                        <x-testers.dropdown-field
-                            label="Owner"
-                            :options="$owners"
-                            placeholder="Select Owner..."
-                            wire:model="owner_id">
-                            <option value="new" class="text-blue-600 font-bold">+ Add New Owner...</option>
-                            </x-dropdown-field>
-                    </div>
-
                 </div>
             </div>
         </div>
