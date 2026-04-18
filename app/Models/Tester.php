@@ -23,6 +23,7 @@ class Tester extends Model
         'product_family',
         'manufacturer',
         'implementation_date',
+        'additional_info',
         'location_id',
         'owner_id',
         'status',
@@ -64,6 +65,11 @@ class Tester extends Model
     public function eventLogs(): HasMany
     {
         return $this->hasMany(EventLog::class);
+    }
+
+    public function assets(): HasMany
+    {
+        return $this->hasMany(TesterAsset::class, 'tester_id');
     }
 
 

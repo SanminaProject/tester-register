@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Pages\Testers;
 
+use App\Models\TesterAsset;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Tester;
+use Illuminate\Support\Facades\DB;
 
 
 class AddNewTester extends Component
@@ -23,15 +25,20 @@ class AddNewTester extends Component
     public $location_id;
     public $status_id;
     public $additional_info;
+    public $linked_measuring_devices;
     public $implementation_date;
     public $documents = [];
-    public $asset_files = [];
+    public $asset_no;
 
     public $search_query = '';
     public $search_results = [];
 
     public $owners = [], $locations = [], $statuses = [];
     public $families = [], $types = [], $os_versions = [], $manufacturers = [];
+
+    private array $documentRules = [
+        'documents.*' => ['nullable', 'file', 'mimes:txt,pdf,csv,doc,docx,xls,xlsx,ppt,pptx', 'max:10240'],
+    ];
 
     public function mount()
     {
@@ -83,8 +90,11 @@ class AddNewTester extends Component
             $this->type                = $existing->type;
             $this->manufacturer        = $existing->manufacturer;
             $this->operating_system    = $existing->operating_system;
-            $this->implementation_date = $existing->implementation_date;
+            $this->implementation_date = $existing->implementation_date
+                ? $existing->implementation_date->format('Y-m-d')
+                : null;
             $this->additional_info     = $existing->additional_info;
+            $this->asset_no            = optional(TesterAsset::where('tester_id', $existing->id)->first())->asset_no;
 
             // Clear search state
             $this->search_query = '';
@@ -92,6 +102,82 @@ class AddNewTester extends Component
 
             session()->flash('message', 'Data copied successfully! ');
         }
+    }
+
+    public function save(): void
+    {
+        $validated = $this->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'description' => ['nullable', 'string'],
+            'id_number_by_customer' => ['nullable', 'string', 'max:50'],
+            'operating_system' => ['nullable', 'string', 'max:50'],
+            'type' => ['nullable', 'string', 'max:50'],
+            'product_family' => ['nullable', 'string', 'max:100'],
+            'manufacturer' => ['nullable', 'string', 'max:100'],
+            'implementation_date' => ['nullable', 'date'],
+            'additional_info' => ['nullable', 'string'],
+            'location_id' => ['nullable', 'integer', 'exists:tester_and_fixture_locations,id'],
+            'owner_id' => ['nullable', 'integer', 'exists:tester_customers,id'],
+            'status_id' => ['nullable', 'integer', 'exists:asset_statuses,id'],
+            'asset_no' => ['nullable', 'string', 'max:100'],
+            ...$this->documentRules,
+        ]);
+
+        DB::transaction(function () use ($validated): void {
+            $tester = Tester::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+                'id_number_by_customer' => $validated['id_number_by_customer'] ?? null,
+                'operating_system' => $validated['operating_system'] ?? null,
+                'type' => $validated['type'] ?? null,
+                'product_family' => $validated['product_family'] ?? null,
+                'manufacturer' => $validated['manufacturer'] ?? null,
+                'implementation_date' => $validated['implementation_date'] ?? null,
+                'additional_info' => $validated['additional_info'] ?? null,
+                'location_id' => $validated['location_id'] ?? null,
+                'owner_id' => $validated['owner_id'] ?? null,
+                'status' => $validated['status_id'] ?? null,
+            ]);
+
+            if (!empty($validated['asset_no'])) {
+                TesterAsset::create([
+                    'asset_no' => $validated['asset_no'],
+                    'tester_id' => $tester->id,
+                ]);
+            }
+
+            if (!empty($this->documents)) {
+                foreach ($this->documents as $document) {
+                    $document->store('testers/' . $tester->id . '/documents');
+                }
+            }
+        });
+
+        session()->flash('message', 'Tester saved successfully.');
+
+        $this->reset([
+            'tester_id',
+            'name',
+            'description',
+            'id_number_by_customer',
+            'operating_system',
+            'type',
+            'product_family',
+            'manufacturer',
+            'owner_id',
+            'location_id',
+            'status_id',
+            'additional_info',
+            'linked_measuring_devices',
+            'implementation_date',
+            'documents',
+            'asset_no',
+        ]);
+    }
+
+    public function updatedDocuments(): void
+    {
+        $this->validate($this->documentRules);
     }
 
     public function render()
