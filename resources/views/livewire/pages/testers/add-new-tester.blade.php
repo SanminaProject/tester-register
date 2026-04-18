@@ -3,8 +3,9 @@
         <h3 class="text-xl font-bold text-[#2C3E50]">Add New Tester</h3>
         <button
             class="px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-secondary transition text-sm"
+            wire:click="save"
             type="button">
-            Edit Tester
+            Save
         </button>
 
         <button
@@ -59,12 +60,31 @@
                         label="Documents"
                         :multiple="true"
                         model="documents"
+                        accept=".jpg,.jpeg,.png,.gif,.txt,.pdf,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
                         placeholder="Upload files" />
 
-                    <x-testers.upload-field
+                    <div wire:loading wire:target="documents" class="text-xs text-blue-600">
+                        Uploading files...
+                    </div>
+
+                    @error('documents.*')
+                    <p class="text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+
+                    @if(!empty($documents))
+                    <div class="rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
+                        <p class="text-xs font-semibold text-gray-700 mb-1">Selected files:</p>
+                        <ul class="space-y-1">
+                            @foreach($documents as $document)
+                            <li class="text-xs text-gray-600">{{ $document->getClientOriginalName() }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
+                    <x-testers.input-field
                         label="Asset"
-                        :multiple="true"
-                        model="asset_files"
+                        wire:model="asset_no"
                         placeholder="Add new asset" />
                 </div>
             </div>
