@@ -3,7 +3,7 @@
         <form wire:submit.prevent="save">
 
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold">Add New Fixture</h3>
+                <h3 class="text-lg font-bold">{{ $isEdit ? 'Edit Fixture Details' : 'Add New Fixture' }}</h3>
 
                 <x-action-message on="saved" class="me-3">
                     Saved.
@@ -33,10 +33,10 @@
                     </div>
 
                     <div>
-                        <x-input-label for="manufacturer" value="Manufacturer" />
-                        <x-text-input
+                        <x-select-field
                             label="Manufacturer"
                             wire:model="form.manufacturer"
+                            :options="$manufacturers"
                         />
                     </div>
                 </div>

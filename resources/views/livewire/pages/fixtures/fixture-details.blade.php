@@ -14,7 +14,7 @@
             <h2 class="text-xl font-extrabold text-black tracking-tight">Fixture Details</h2>
         </div>
 
-        <x-primary-button type="button" class="w-32">
+        <x-primary-button type="button" class="w-32" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $fixture->id }} })">
             Edit
         </x-primary-button>
     </div>
@@ -62,7 +62,7 @@
 
         <!-- Mobile button for edit, as there are no right column blocks -->
         <div class="md:hidden pt-4">
-           <x-primary-button type="button" class="w-full justify-center !py-3 bg-[#1a1a1a]">
+           <x-primary-button type="button" class="w-full justify-center !py-3 bg-[#1a1a1a]" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $fixture->id }} })">
                Edit
            </x-primary-button>
         </div>
