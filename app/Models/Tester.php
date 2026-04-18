@@ -23,6 +23,7 @@ class Tester extends Model
         'product_family',
         'manufacturer',
         'implementation_date',
+        'additional_info',
         'last_inventoried_date',
         'location_id',
         'owner_id',
