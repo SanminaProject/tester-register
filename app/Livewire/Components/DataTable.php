@@ -106,9 +106,18 @@ class DataTable extends Component
     protected function applyTypeScopes($query)
     {
         return match ($this->type) {
-            'fixture-audit-logs' => $query->whereNotNull('fixture_id'),
-            'tester-audit-logs' => $query->whereNotNull('tester_id'),
-            'spare-part-audit-logs' => $query->whereNotNull('spare_part_id'),
+            'fixture-audit-logs' => $query->where(function($q) {
+                $q->whereNotNull('fixture_id')
+                  ->orWhere('explanation', 'like', '%fixture%');
+            }),
+            'tester-audit-logs' => $query->where(function($q) {
+                $q->whereNotNull('tester_id')
+                  ->orWhere('explanation', 'like', '%tester%');
+            }),
+            'spare-part-audit-logs' => $query->where(function($q) {
+                $q->whereNotNull('spare_part_id')
+                  ->orWhere('explanation', 'like', '%spare part%');
+            }),
             default => $query,
         };
     }
