@@ -81,10 +81,61 @@ class EventLogController extends ApiController
                 : null,
         ]);
 
+        if ($this->isIssueEventType($eventTypeId)) {
+            $this->writeIssueHistory(
+                testerId: (int) $eventLog->tester_id,
+                actorUserId: $actorUserId,
+                eventTypeId: $eventTypeId,
+                message: '[HISTORY] Created issue #' . $eventLog->id
+            );
+        }
+
         return $this->success(
             'Event log created successfully',
             $this->toLegacyEventLogPayload($eventLog->load('tester:id,name,id_number_by_customer')),
             201
+        );
+    }
+
+    public function update(StoreEventLogRequest $request, EventLog $eventLog): JsonResponse
+    {
+        $this->authorize('update', $eventLog);
+
+        $validated = $request->validated();
+        $metadata = isset($validated['metadata']) && is_array($validated['metadata'])
+            ? $validated['metadata']
+            : [];
+        $actorUserId = $this->resolveActorUserId($request->user()?->id, $validated['performed_by'] ?? null);
+        $eventTypeId = $this->resolveEventTypeId((string) $validated['type']);
+
+        $eventLog->fill([
+            'tester_id' => $validated['tester_id'],
+            'event_type' => $eventTypeId,
+            'date' => Carbon::parse($validated['event_date'])->endOfDay(),
+            'description' => $validated['description'],
+            'created_by_user_id' => $actorUserId,
+            'maintenance_schedule_id' => $this->extractOptionalInt($metadata, 'maintenance_schedule_id'),
+            'calibration_schedule_id' => $this->extractOptionalInt($metadata, 'calibration_schedule_id'),
+            'resolution_description' => isset($metadata['resolution_description']) && is_string($metadata['resolution_description'])
+                ? $metadata['resolution_description']
+                : null,
+        ]);
+
+        $changedKeys = array_keys($eventLog->getDirty());
+        $eventLog->save();
+
+        if ($this->isIssueEventType($eventTypeId) && $changedKeys !== []) {
+            $this->writeIssueHistory(
+                testerId: (int) $eventLog->tester_id,
+                actorUserId: $actorUserId,
+                eventTypeId: $eventTypeId,
+                message: '[HISTORY] Updated issue #' . $eventLog->id . ' | fields: ' . implode(', ', $changedKeys)
+            );
+        }
+
+        return $this->success(
+            'Event log updated successfully',
+            $this->toLegacyEventLogPayload($eventLog->fresh()->load('tester:id,name,id_number_by_customer'))
         );
     }
 
@@ -96,6 +147,26 @@ class EventLogController extends ApiController
             'Event log retrieved successfully',
             $this->toLegacyEventLogPayload($eventLog->load('tester:id,name,id_number_by_customer'))
         );
+    }
+
+    public function destroy(EventLog $eventLog): JsonResponse
+    {
+        $this->authorize('delete', $eventLog);
+
+        $actorUserId = request()->user()?->id ?? 1;
+
+        if ($eventLog->event_type !== null && $this->isIssueEventType((int) $eventLog->event_type)) {
+            $this->writeIssueHistory(
+                testerId: (int) $eventLog->tester_id,
+                actorUserId: (int) $actorUserId,
+                eventTypeId: (int) $eventLog->event_type,
+                message: '[HISTORY] Deleted issue #' . $eventLog->id
+            );
+        }
+
+        $eventLog->delete();
+
+        return $this->success('Event log deleted successfully');
     }
 
     /**
@@ -233,5 +304,27 @@ class EventLogController extends ApiController
         }
 
         return (int) $metadata[$key];
+    }
+
+    private function isIssueEventType(int $eventTypeId): bool
+    {
+        $issueTypeId = $this->resolveEventTypeId('issue', false);
+
+        return $issueTypeId !== null && $eventTypeId === $issueTypeId;
+    }
+
+    private function writeIssueHistory(int $testerId, int $actorUserId, int $eventTypeId, string $message): void
+    {
+        EventLog::create([
+            'tester_id' => $testerId,
+            'event_type' => $eventTypeId,
+            'date' => now(),
+            'description' => $message,
+            'created_by_user_id' => $actorUserId,
+            'issue_status' => null,
+            'resolution_description' => null,
+            'resolved_date' => null,
+            'resolved_by_user_id' => null,
+        ]);
     }
 }
