@@ -31,4 +31,3 @@ class IssueStatusesSeeder extends Seeder
         }
     }
 }
-
