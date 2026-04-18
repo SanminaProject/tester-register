@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Tester;
 use App\Models\Fixture;
 use App\Models\DataChangeLog;
+use App\Models\TesterEventLog;
 use Illuminate\Support\Str;
 
 class DataTable extends Component
@@ -40,6 +41,8 @@ class DataTable extends Component
             'fixtures' => Fixture::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
+            'issues' => TesterEventLog::class,
+            'issue-history' => TesterEventLog::class,
             default => throw new \Exception("Invalid data type"),
         };
     }
@@ -51,6 +54,8 @@ class DataTable extends Component
             'fixtures' => ['tester', 'location', 'status'],
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
+            'issues' => ['tester', 'createdBy', 'issueStatusRelation'],
+            'issue-history' => ['tester', 'createdBy'],
             default => [],
         };
     }
@@ -62,6 +67,8 @@ class DataTable extends Component
             'fixtures' => ['name', 'description', 'manufacturer'],
             'fixture-audit-logs' => ['explanation', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester.name', 'user.email'],
+            'issues' => ['date', 'tester_id', 'description', 'createdBy.email', 'issueStatusRelation.name'],
+            'issue-history' => ['date', 'description', 'tester_id', 'createdBy.email'],
             default => [],
         };
     }
@@ -82,6 +89,19 @@ class DataTable extends Component
                 'name' => 'Name',
                 'description' => 'Description',
                 'manufacturer' => 'Manufacturer',
+            ],
+            'issues' => [
+                'date' => 'Date',
+                'tester_id' => 'Test ID',
+                'description' => 'Problem',
+                'createdBy.email' => 'User',
+                'issueStatusRelation.name' => 'Status',
+            ],
+            'issue-history' => [
+                'date' => 'Date',
+                'description' => 'Action',
+                'tester_id' => 'Test ID',
+                'createdBy.email' => 'User',
             ],
             default => [],
         };
@@ -114,6 +134,13 @@ class DataTable extends Component
                 $q->whereNotNull('tester_id')
                   ->orWhere('explanation', 'like', '%tester%');
             }),
+            'issues' => $query
+                ->activeIssueRows()
+                ->orderByDesc('date'),
+            'issue-history' => $query
+                ->issues()
+                ->where('description', 'like', '[HISTORY]%')
+                ->orderByDesc('date'),
             'spare-part-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('spare_part_id')
                   ->orWhere('explanation', 'like', '%spare part%');
@@ -131,10 +158,18 @@ class DataTable extends Component
         $query = $this->applyTypeScopes($query);
 
         $keyword = trim($this->search);
+        $searchColumns = $this->getSearchColumns();
+
+        if (! empty($this->activeFilters)) {
+            $filteredColumns = array_values(array_intersect($searchColumns, $this->activeFilters));
+            if (! empty($filteredColumns)) {
+                $searchColumns = $filteredColumns;
+            }
+        }
 
         if ($keyword !== '') {
-            $query->where(function ($q) use ($keyword) {
-                foreach ($this->getSearchColumns() as $column) {
+            $query->where(function ($q) use ($keyword, $searchColumns) {
+                foreach ($searchColumns as $column) {
                     if (str_contains($column, '.')) {
                         [$relation, $relColumn] = explode('.', $column, 2);
                         $q->orWhereHas($relation, function ($relQuery) use ($relColumn, $keyword) {

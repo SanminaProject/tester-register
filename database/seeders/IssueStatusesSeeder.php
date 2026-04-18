@@ -15,9 +15,12 @@ class IssueStatusesSeeder extends Seeder
     public function run(): void
     {
         $issueStatuses = [
-            ['name' => 'open'],
-            ['name' => 'closed'],
-            ['name' => 'reopened'],
+            ['name' => 'Active'],
+            ['name' => 'spare'],
+            ['name' => 'stored'],
+            ['name' => 'transferred'],
+            ['name' => 'disassembled'],
+            ['name' => 'scrapped'],
         ];
 
         foreach ($issueStatuses as $status) {
