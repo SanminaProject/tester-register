@@ -1,37 +1,38 @@
-<div class="bg-white overflow-hidden shadow-sm sm:rounded-xl {{ $type }} flex flex-col h-full">
-    
-    <div class="px-6 pt-4 text-gray-900 flex-1">
-        <h3 class="text-base font-semibold mb-1">{{ $title }}</h3>
-        <hr class="mt-3 mb-0 border-gray-200">
+<div class="bg-white overflow-hidden shadow-sm rounded-xl {{ $type }} flex flex-col h-full border border-gray-100 sm:border-0">
+    <div class="px-4 sm:px-6 pt-3 sm:pt-4 pb-2 sm:pb-0 text-gray-900 flex-1">
+        <!-- Unified Title -->
+        <h3 class="text-[15px] sm:text-base font-semibold mb-0 sm:mb-1">{{ $title }}</h3>
+        <hr class="mt-2 sm:mt-3 mb-1 sm:mb-0 border-gray-100 sm:border-gray-200">
 
         <ul class="flex flex-col">
             @forelse($items as $item)
-                <li class="px-2 py-2 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition">
-                    <div class="flex items-center gap-4">
+                <li class="py-3 sm:px-2 sm:py-2 border-b border-gray-50 sm:border-gray-100 last:border-b-0 hover:bg-gray-50 transition">
+                    <div class="flex items-center gap-2 sm:gap-4">
                         
-                        <div class="text-xs font-semibold px-2 py-1 rounded flex items-center justify-center {{ $item['type'] === 'issue' ? 'w-16' : 'w-1/6' }} {{ $this->getTypeClasses($item['type']) }}">
+                        <div class="text-[10px] sm:text-xs font-bold sm:font-semibold px-1 sm:px-2 py-0.5 sm:py-1 rounded flex items-center justify-center flex-shrink-0 min-w-[50px] sm:min-w-0 {{ $item['type'] === 'issue' ? 'w-12 sm:w-16' : 'w-20 sm:w-auto sm:min-w-[80px]' }} {{ $this->getTypeClasses($item['type']) }}">
                                 {{ ucfirst($item['type']) }}
                         </div>
 
-                        <div class="font-medium text-gray-800">
+                        <div class="font-medium text-[13px] sm:text-base text-gray-800 truncate max-w-[120px] sm:max-w-none">
                             {{ $item['tester'] }}
                         </div>
 
-                        <div class="ml-auto text-sm text-gray-500">
-                            {{ $item['date']->format('Y-m-d H:i') }}
+                        <div class="ml-auto text-[11px] sm:text-sm text-gray-500 whitespace-nowrap flex-shrink-0">
+                            <span class="block sm:hidden">{{ $item['date']->format('m-d H:i') }}</span>
+                            <span class="hidden sm:block">{{ $item['date']->format('Y-m-d H:i') }}</span>
                         </div>
                     </div>
                 </li>
             @empty
-                <li class="text-gray-500 px-2 py-2">No data available</li>
+                <li class="text-gray-500 py-3 sm:px-2 sm:py-2 text-[13px] sm:text-base">No data available</li>
             @endforelse
         </ul>
     </div>
 
-    <div class="mt-auto">
-        <div class="mx-6 border-t border-gray-100"></div>
+    <div class="mt-auto hidden sm:block">
+        <div class="mx-4 sm:mx-6 border-t border-gray-100"></div>
 
-        <div class="px-6 pt-3 pb-4 flex justify-end">
+        <div class="px-4 sm:px-6 pt-3 pb-4 flex justify-end">
             <a href="#" class="text-sm font-medium text-gray-500 hover:text-indigo-900 transition">
                 View All &rarr;
             </a>

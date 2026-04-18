@@ -14,10 +14,10 @@ use App\Models\Tester;
  */
 class TesterPage extends Component
 {
-    #[Url(as: 'tab')]
+    #[Url]
     public string $activeTab = 'all';
 
-    #[Url(as: 'tester')]
+    #[Url(except: null)]
     public ?int $selectedTesterId = null;
 
     use WithFileUploads;

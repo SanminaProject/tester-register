@@ -2,7 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
+});
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -11,6 +16,10 @@ Route::view('dashboard', 'dashboard')
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
+
+Route::view('scan', 'scan')
+    ->middleware(['auth'])
+    ->name('scan');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/userRoles.php';
