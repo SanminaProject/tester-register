@@ -55,10 +55,46 @@ class FixtureLogging extends Component
         if ($this->isEdit && $this->fixtureId) {
             $fixture = \App\Models\Fixture::find($this->fixtureId);
             if ($fixture) {
+                $original = clone $fixture;
                 $this->form->update($fixture);
+
+                $changes = $fixture->getChanges();
+                if (count($changes) > 0) {
+                    // Exclude 'updated_at' from the list of changed fields if it exists
+                    unset($changes['updated_at']);
+                    
+                    if (count($changes) > 0) {
+                        $details = [];
+                        foreach ($changes as $key => $newValue) {
+                            $oldValue = $original->getOriginal($key);
+                            $oldStr = is_null($oldValue) ? 'empty' : $oldValue;
+                            $newStr = is_null($newValue) ? 'empty' : $newValue;
+                            $details[] = "- {$key}: [{$oldStr}] -> [{$newStr}]";
+                        }
+                        
+                        $explanation = "Edited fixture details:\n" . implode("\n", $details);
+                        
+                        \App\Models\DataChangeLog::create([
+                            'changed_at' => now(),
+                            'explanation' => $explanation,
+                            'fixture_id' => $fixture->id,
+                            'user_id' => auth()->id() ?? 1,
+                        ]);
+                    }
+                }
             }
         } else {
             $this->form->save();
+            
+            $fixture = \App\Models\Fixture::latest('id')->first();
+            if ($fixture) {
+                \App\Models\DataChangeLog::create([
+                    'changed_at' => now(),
+                    'explanation' => "Added new fixture: {$fixture->name}",
+                    'fixture_id' => $fixture->id,
+                    'user_id' => auth()->id() ?? 1,
+                ]);
+            }
         }
 
         $this->dispatch('saved');
