@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Tester;
 use App\Models\Fixture;
+use App\Models\User;
 use App\Models\DataChangeLog;
 use Illuminate\Support\Str;
 
@@ -38,6 +39,7 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => Tester::class,
             'fixtures' => Fixture::class,
+            'personnel' => User::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
             default => throw new \Exception("Invalid data type"),
@@ -49,6 +51,7 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => ['owner', 'statusRelation'],
             'fixtures' => ['tester', 'location', 'status'],
+            'personnel' => ['roles', 'testers'], 
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
             default => [],
@@ -60,6 +63,7 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => ['name', 'description', 'operating_system'],
             'fixtures' => ['name', 'description', 'manufacturer'],
+            'personnel' => ['first_name', 'last_name', 'email'],
             'fixture-audit-logs' => ['explanation', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester.name', 'user.email'],
             default => [],
