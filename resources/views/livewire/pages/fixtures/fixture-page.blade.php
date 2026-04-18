@@ -6,8 +6,7 @@
         :items="[
             ['label' => 'All Fixtures', 'tab' => 'all'],
             ['label' => 'Add New Fixture', 'tab' => 'add'],
-            ['label' => 'Audit Logs', 'tab' => 'logs'],
-            ['label' => 'Add New Log', 'tab' => 'addlog']
+            ['label' => 'Audit Logs', 'tab' => 'logs']
         ]" 
     />
         
@@ -17,9 +16,9 @@
         @elseif ($activeTab === 'add')
         <livewire:pages.fixtures.fixture-logging />
         @elseif ($activeTab === 'logs')
-        <livewire:audit-logs />
-        @elseif ($activeTab === 'addlog')
-        <livewire:add-new-log />
+        <livewire:pages.fixtures.fixture-audit-logs />
+        @elseif ($activeTab === 'details')
+        <livewire:pages.fixtures.fixture-details :fixtureId="$selectedFixtureId" wire:key="fixture-details-{{ $selectedFixtureId }}" />
         @endif
     </div>
 </div>

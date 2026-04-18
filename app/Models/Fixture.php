@@ -30,4 +30,14 @@ class Fixture extends Model
     {
         return $this->belongsTo(Tester::class);
     }
+
+    public function location()
+    {
+        return $this->belongsTo(TesterAndFixtureLocation::class, 'location_id');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(AssetStatus::class, 'fixture_status');
+    }
 }

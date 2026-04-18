@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\EventLog;
+use App\Models\TesterEventLog as EventLog;
 use App\Models\User;
 
 class EventLogPolicy extends BasePolicy
