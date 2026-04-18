@@ -126,13 +126,13 @@ class DataTable extends Component
     protected function applyTypeScopes($query)
     {
         return match ($this->type) {
-            'fixture-audit-logs' => $query->where(function($q) {
+            'fixture-audit-logs' => $query->where(function ($q) {
                 $q->whereNotNull('fixture_id')
-                  ->orWhere('explanation', 'like', '%fixture%');
+                    ->orWhere('explanation', 'like', '%fixture%');
             }),
-            'tester-audit-logs' => $query->where(function($q) {
+            'tester-audit-logs' => $query->where(function ($q) {
                 $q->whereNotNull('tester_id')
-                  ->orWhere('explanation', 'like', '%tester%');
+                    ->orWhere('explanation', 'like', '%tester%');
             }),
             'issues' => $query
                 ->activeIssueRows()
@@ -141,9 +141,9 @@ class DataTable extends Component
                 ->issues()
                 ->where('description', 'like', '[HISTORY]%')
                 ->orderByDesc('date'),
-            'spare-part-audit-logs' => $query->where(function($q) {
+            'spare-part-audit-logs' => $query->where(function ($q) {
                 $q->whereNotNull('spare_part_id')
-                  ->orWhere('explanation', 'like', '%spare part%');
+                    ->orWhere('explanation', 'like', '%spare part%');
             }),
             default => $query,
         };

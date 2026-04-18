@@ -38,7 +38,7 @@ Route::prefix('v1')->group(function () {
         Route::post('calibration-schedules/{calibrationSchedule}/complete', [CalibrationScheduleController::class, 'complete']);
 
         Route::apiResource('event-logs', EventLogController::class)
-            ->only(['index', 'store', 'show'])
+            ->only(['index', 'store', 'show', 'update', 'destroy'])
             ->parameters(['event-logs' => 'eventLog']);
 
         Route::apiResource('spare-parts', SparePartController::class)
