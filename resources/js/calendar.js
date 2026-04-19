@@ -5,13 +5,22 @@ import interactionPlugin from '@fullcalendar/interaction'
 
 // Initialize the calendar used in dashboard
 document.addEventListener('calendar-ready', function () {
-    const calendarEl = document.getElementById('calendar')
-    const events = JSON.parse(calendarEl.dataset.events)
+    const calendarEl = document.getElementById('calendar');
+    
+    if (!calendarEl) return;
+    calendarEl.innerHTML = '';
+    
+    let events = [];
+    try {
+        events = JSON.parse(calendarEl.dataset.events || '[]');
+    } catch(e) {
+        console.error('Failed to parse calendar events', e);
+    }
 
     const calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
 
-        initialView: 'dayGridMonth', // monthly view by default
+        initialView: calendarEl.dataset.view || 'dayGridMonth', // monthly view by default
 
         headerToolbar: {
             left: 'prev,next,today',
@@ -41,9 +50,10 @@ document.addEventListener('calendar-ready', function () {
 
    calendar.render()
 
-   const rightContainer = document.querySelector('.fc-header-toolbar .fc-toolbar-chunk:last-child');
+   const rightContainer = calendarEl.querySelector('.fc-header-toolbar .fc-toolbar-chunk:last-child');
    
    if (rightContainer) {
+       if (rightContainer.querySelector('.calendar-filter-cb')) return;
        rightContainer.style.display = 'flex';
        rightContainer.style.alignItems = 'center';
        rightContainer.style.gap = '1.5rem'; 
@@ -65,13 +75,13 @@ document.addEventListener('calendar-ready', function () {
        rightContainer.insertAdjacentHTML('afterbegin', filterHTML);
    }
 
-   const checkboxes = document.querySelectorAll('.calendar-filter-cb');
+   const checkboxes = calendarEl.querySelectorAll('.calendar-filter-cb');
    
    if (checkboxes.length > 0) {
        checkboxes.forEach(cb => {
            cb.addEventListener('change', function(e) {
                
-               const checkedBoxes = document.querySelectorAll('.calendar-filter-cb:checked');
+               const checkedBoxes = calendarEl.querySelectorAll('.calendar-filter-cb:checked');
                
 
                if (checkedBoxes.length === 0) {
@@ -88,7 +98,7 @@ document.addEventListener('calendar-ready', function () {
    }
 
    function updateCalendarView() {
-       const checkedValues = Array.from(document.querySelectorAll('.calendar-filter-cb:checked')).map(cb => cb.value);
+       const checkedValues = Array.from(calendarEl.querySelectorAll('.calendar-filter-cb:checked')).map(cb => cb.value);
        const allCalendarEvents = calendar.getEvents();
 
        allCalendarEvents.forEach(function(event) {
