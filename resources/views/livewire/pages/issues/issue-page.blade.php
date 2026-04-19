@@ -1,6 +1,6 @@
 <div class="flex w-full">
     <x-sidebar
-        class="{{ $activeTab === 'details' || $activeTab === 'edit' ? 'hidden md:block' : '' }}"
+        class="{{ $activeTab === 'solution' || $activeTab === 'edit' ? 'hidden md:block' : '' }}"
         title="Issues"
         :active-tab="$activeTab"
         :items="[
@@ -16,8 +16,8 @@
         <livewire:pages.issues.add-new-issue />
         @elseif ($activeTab === 'logs')
         <livewire:pages.issues.issue-history />
-        @elseif ($activeTab === 'details')
-        <livewire:pages.issues.issue-details :issueId="$selectedIssueId" wire:key="issue-details-{{ $selectedIssueId }}" />
+        @elseif ($activeTab === 'solution')
+        <livewire:pages.issues.add-solution :issueId="$selectedIssueId" wire:key="issue-solution-{{ $selectedIssueId }}" />
         @elseif ($activeTab === 'edit')
         <livewire:pages.issues.add-new-issue :issueId="$selectedIssueId" wire:key="issue-edit-{{ $selectedIssueId }}" />
         @endif
