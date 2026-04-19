@@ -21,6 +21,7 @@ document.addEventListener('calendar-ready', function () {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
 
         initialView: calendarEl.dataset.view || 'dayGridMonth', // monthly view by default
+        firstDay: 1, // Start week on Monday
 
         headerToolbar: {
             left: 'prev,next,today',
