@@ -15,6 +15,8 @@ class EventTypesSeeder extends Seeder
     public function run(): void
     {
         $eventTypes = [
+            ['name' => 'problem'],
+            ['name' => 'solution'],
             ['name' => 'issue'],
             ['name' => 'maintenance'],
             ['name' => 'calibration'],
