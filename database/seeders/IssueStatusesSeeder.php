@@ -16,11 +16,7 @@ class IssueStatusesSeeder extends Seeder
     {
         $issueStatuses = [
             ['name' => 'Active'],
-            ['name' => 'spare'],
-            ['name' => 'stored'],
-            ['name' => 'transferred'],
-            ['name' => 'disassembled'],
-            ['name' => 'scrapped'],
+            ['name' => 'Solved'],
         ];
 
         foreach ($issueStatuses as $status) {
