@@ -32,7 +32,25 @@ class RoleDetails extends Component
 
         $this->role->delete();
         session()->flash('message', 'Role deleted successfully.');
-        $this->dispatch('switchTab', tab: 'all');
+        $this->dispatch('switchTab', tab: 'roles');
+    }
+
+    public function updateUser()
+    {
+        if ($this->isEdit) {
+            $role = Role::findOrFail($this->roleId);
+
+            $this->form->update($role);
+
+            session()->flash('success', 'Role updated successfully!');
+        } else {
+            $this->form->save();
+
+            session()->flash('success', 'Role created successfully!');
+        }
+
+        $this->dispatch('saved');
+        $this->dispatch('switchTab', tab: 'roles');
     }
 
     public function render()

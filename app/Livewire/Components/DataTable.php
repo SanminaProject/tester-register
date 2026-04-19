@@ -33,9 +33,9 @@ class DataTable extends Component
         $plural = Str::plural($this->type);
         $singular = Str::singular($this->type);
         
-        if (view()->exists("livewire.pages.admin.{$plural}.{$singular}-details")) {
+        if (view()->exists("livewire.pages.admin.{$plural}.{$singular}-details") || view()->exists("livewire.pages.admin.{$singular}.{$singular}-details")) {
             return true;
-        }
+        } 
         
         return view()->exists("livewire.pages.{$plural}.{$singular}-details");
     }
