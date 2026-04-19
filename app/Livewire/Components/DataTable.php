@@ -6,6 +6,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Tester;
 use App\Models\Fixture;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
 use App\Models\DataChangeLog;
 use Illuminate\Support\Str;
 
@@ -30,6 +32,11 @@ class DataTable extends Component
     {
         $plural = Str::plural($this->type);
         $singular = Str::singular($this->type);
+        
+        if (view()->exists("livewire.pages.admin.{$plural}.{$singular}-details") || view()->exists("livewire.pages.admin.{$singular}.{$singular}-details")) {
+            return true;
+        } 
+        
         return view()->exists("livewire.pages.{$plural}.{$singular}-details");
     }
 
@@ -38,6 +45,8 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => Tester::class,
             'fixtures' => Fixture::class,
+            'personnel' => User::class,
+            'roles' => Role::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
             default => throw new \Exception("Invalid data type"),
@@ -49,6 +58,7 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => ['owner', 'statusRelation'],
             'fixtures' => ['tester', 'location', 'status'],
+            'personnel' => ['roles', 'testers'], 
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
             default => [],
@@ -60,6 +70,8 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => ['name', 'description', 'operating_system'],
             'fixtures' => ['name', 'description', 'manufacturer'],
+            'personnel' => ['first_name', 'last_name', 'email'],
+            'roles' => ['name', 'guard_name'],
             'fixture-audit-logs' => ['explanation', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester.name', 'user.email'],
             default => [],
@@ -127,7 +139,21 @@ class DataTable extends Component
         $model = $this->getModelClass();
         $this->filters = $this->getFiltersConfig();
 
-        $query = $model::with($this->getRelations());
+        // base query
+        $query = $model::query();
+
+        // relations if needed
+        $relations = $this->getRelations();
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+
+        // count users for roles table
+        if ($this->type === 'roles') {
+            $query->withCount('users');
+        }
+
+        // type-specific scopes
         $query = $this->applyTypeScopes($query);
 
         $keyword = trim($this->search);

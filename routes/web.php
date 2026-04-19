@@ -22,7 +22,7 @@ Route::view('scan', 'scan')
     ->name('scan');
 
 require __DIR__ . '/auth.php';
-require __DIR__ . '/userRoles.php';
+require __DIR__ . '/admin.php';
 require __DIR__ . '/testers.php';
 require __DIR__ . '/fixtures.php';
 require __DIR__ . '/issues.php';

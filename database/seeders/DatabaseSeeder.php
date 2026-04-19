@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             IssueStatusesSeeder::class,
             TesterEventLogsSeeder::class,
             DataChangeLogsSeeder::class,
+            UserTesterAssignmentsSeeder::class,
         ]);
     }
 }
