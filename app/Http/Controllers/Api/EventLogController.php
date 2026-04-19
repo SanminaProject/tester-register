@@ -308,9 +308,16 @@ class EventLogController extends ApiController
 
     private function isIssueEventType(int $eventTypeId): bool
     {
-        $issueTypeId = $this->resolveEventTypeId('issue', false);
+        $issueTypeIds = array_filter([
+            $this->resolveEventTypeId('issue', false),
+            $this->resolveEventTypeId('problem', false),
+        ]);
 
-        return $issueTypeId !== null && $eventTypeId === $issueTypeId;
+        if ($issueTypeIds === []) {
+            return false;
+        }
+
+        return in_array($eventTypeId, $issueTypeIds, true);
     }
 
     private function writeIssueHistory(int $testerId, int $actorUserId, int $eventTypeId, string $message): void
