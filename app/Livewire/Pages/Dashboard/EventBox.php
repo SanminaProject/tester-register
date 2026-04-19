@@ -75,9 +75,9 @@ class EventBox extends Component
 
     public function getTypeClasses($type) {
         return match($type) {
-            'issue' => 'bg-red-100 text-red-700',
-            'maintenance' => 'bg-yellow-100 text-yellow-700',
-            'calibration' => 'bg-blue-100 text-blue-700',
+            'issue' => 'bg-issue-bg text-issue-text',
+            'maintenance' => 'bg-maintenance-bg text-maintenance-text',
+            'calibration' => 'bg-calibration-bg text-calibration-text',
             default => 'bg-gray-100 text-gray-700',
         };
     }

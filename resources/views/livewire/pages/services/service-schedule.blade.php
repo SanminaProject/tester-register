@@ -50,9 +50,9 @@
                             <td class="px-4 py-3">{{ data_get($evt, 'tester_name') }}</td>
                             <td class="px-4 py-3">
                                 @if(data_get($evt, 'maintenance_calibration') === 'Maintenance')
-                                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Maintenance</span>
+                                    <span class="inline-flex items-center rounded-md bg-maintenance-bg px-2 py-1 text-xs font-medium text-maintenance-text ring-1 ring-inset ring-maintenance-text/20">Maintenance</span>
                                 @else
-                                    <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10">Calibration</span>
+                                    <span class="inline-flex items-center rounded-md bg-calibration-bg px-2 py-1 text-xs font-medium text-calibration-text ring-1 ring-inset ring-calibration-text/20">Calibration</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3">{{ trim(data_get($evt, 'user', '')) ? data_get($evt, 'user') : 'Unassigned' }}</td>
