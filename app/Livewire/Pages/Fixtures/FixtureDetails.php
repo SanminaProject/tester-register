@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\Fixtures;
 
 use App\Models\Fixture;
 use Livewire\Component;
+use App\Models\DataChangeLog;
 
 class FixtureDetails extends Component
 {
@@ -23,7 +24,7 @@ class FixtureDetails extends Component
         $fixtureId = $this->fixture->id;
         $fixtureName = $this->fixture->name;
 
-        \App\Models\DataChangeLog::create([
+        DataChangeLog::create([
             'changed_at' => now(),
             'explanation' => "Deleted fixture [ID: {$fixtureId}] - Name: {$fixtureName}",
             'fixture_id' => $fixtureId,
