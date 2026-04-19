@@ -92,11 +92,40 @@
 
                 @forelse ($data as $row)
                 <tr class="border-b @if($this->hasDetails) hover:bg-thirdly cursor-pointer transition-colors duration-150 @endif"
-                    @if($this->hasDetails) wire:click="$dispatch('switchTab', { tab: 'details', id: {{ $row->id }} })" @endif
+                    @if($this->hasDetails)
+                        @if($type === 'issues')
+                            wire:click="$dispatch('switchTab', { tab: 'solution', id: {{ $row->id }} })"
+                        @else
+                            wire:click="$dispatch('switchTab', { tab: 'details', id: {{ $row->id }} })"
+                        @endif
+                    @endif
                 >
                     @foreach ($headers as $key => $label)
-                    <td class="px-5 py-3 text-sm text-gray-800 align-top {{ $key === 'explanation' ? '' : 'whitespace-nowrap' }}">
-                        @if($key === 'explanation')
+                    <td class="px-5 py-3 text-sm text-gray-800 align-top {{ ($key === 'explanation' || ($type === 'issues' && $key === 'description') || ($type === 'issue-history' && $key === 'description')) ? '' : 'whitespace-nowrap' }}">
+                        @if($type === 'issues' && $key === 'description')
+                            <div class="max-w-[340px]">
+                                <div x-data="{ expanded: false, showButton: false }"
+                                     x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
+                                     class="relative pr-2">
+                                    <div x-ref="text"
+                                         :class="expanded ? '' : 'line-clamp-2'"
+                                         class="whitespace-pre-line text-gray-800 break-words">{{ data_get($row, $key) ?? '-' }}</div>
+                                    <button x-show="showButton"
+                                            @click.stop="expanded = !expanded"
+                                            class="text-blue-600 hover:text-blue-800 text-xs font-semibold mt-1 focus:outline-none hover:underline"
+                                            style="display: none;">
+                                        <span x-show="!expanded">Show more</span>
+                                        <span x-show="expanded">Show less</span>
+                                    </button>
+                                </div>
+                                <button
+                                    type="button"
+                                    wire:click.stop="$dispatch('switchTab', { tab: 'solution', id: {{ $row->id }} })"
+                                    class="mt-2 inline-flex items-center rounded-full bg-[#efefef] px-3 py-1 text-xs font-semibold text-[#6d6d6d] hover:bg-[#e0e0e0]">
+                                    + Add Solution
+                                </button>
+                            </div>
+                        @elseif($key === 'explanation')
                             <div x-data="{ expanded: false, showButton: false }"
                                  x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
                                  class="relative pr-2" style="max-width: 300px;">
