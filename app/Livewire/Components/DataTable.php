@@ -108,11 +108,14 @@ class DataTable extends Component
         return match ($this->type) {
             'fixture-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('fixture_id')
-                  ->orWhere('explanation', 'like', '%fixture%');
+                  ->orWhere(function($q2) {
+                      $q2->whereNull('tester_id')->whereNull('spare_part_id')->where('explanation', 'like', '%fixture%');
+                  });
             }),
             'tester-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('tester_id')
-                  ->orWhere('explanation', 'like', '%tester%');
+                  ->whereNull('fixture_id')
+                  ->whereNull('spare_part_id');
             }),
             'spare-part-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('spare_part_id')

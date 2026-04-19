@@ -56,12 +56,12 @@ class Tester extends Model
 
     public function maintenanceSchedules(): HasMany
     {
-        return $this->hasMany(MaintenanceSchedule::class);
+        return $this->hasMany(TesterMaintenanceSchedule::class);
     }
 
     public function calibrationSchedules(): HasMany
     {
-        return $this->hasMany(CalibrationSchedule::class);
+        return $this->hasMany(TesterCalibrationSchedule::class);
     }
 
     public function eventLogs(): HasMany
@@ -92,12 +92,12 @@ class Tester extends Model
 
     public function maintenanceSchedules(): HasMany
     {
-        return $this->hasMany(MaintenanceSchedule::class);
+        return $this->hasMany(TesterMaintenanceSchedule::class);
     }
 
     public function calibrationSchedules(): HasMany
     {
-        return $this->hasMany(CalibrationSchedule::class);
+        return $this->hasMany(TesterCalibrationSchedule::class);
     }
 
     public function eventLogs(): HasMany
