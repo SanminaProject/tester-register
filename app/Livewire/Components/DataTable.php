@@ -54,8 +54,8 @@ class DataTable extends Component
             'fixtures' => ['tester', 'location', 'status'],
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
-            'issues' => ['tester', 'createdBy', 'issueStatusRelation'],
-            'issue-history' => ['tester', 'createdBy'],
+            'issues' => ['tester', 'createdBy', 'issueStatusRelation', 'eventType'],
+            'issue-history' => ['tester', 'createdBy', 'issueStatusRelation', 'eventType'],
             default => [],
         };
     }
@@ -67,8 +67,8 @@ class DataTable extends Component
             'fixtures' => ['name', 'description', 'manufacturer'],
             'fixture-audit-logs' => ['explanation', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester.name', 'user.email'],
-            'issues' => ['date', 'tester_id', 'description', 'createdBy.email', 'issueStatusRelation.name'],
-            'issue-history' => ['date', 'description', 'tester_id', 'createdBy.email'],
+            'issues' => ['id', 'date', 'tester_id', 'eventType.name', 'description', 'createdBy.email', 'issueStatusRelation.name'],
+            'issue-history' => ['id', 'date', 'tester_id', 'eventType.name', 'description', 'createdBy.email', 'issueStatusRelation.name'],
             default => [],
         };
     }
@@ -91,17 +91,22 @@ class DataTable extends Component
                 'manufacturer' => 'Manufacturer',
             ],
             'issues' => [
+                'id' => 'Log ID',
                 'date' => 'Date',
                 'tester_id' => 'Test ID',
-                'description' => 'Problem',
+                'eventType.name' => 'Type',
+                'description' => 'Description',
                 'createdBy.email' => 'User',
                 'issueStatusRelation.name' => 'Status',
             ],
             'issue-history' => [
+                'id' => 'Log ID',
                 'date' => 'Date',
-                'description' => 'Action',
                 'tester_id' => 'Test ID',
+                'eventType.name' => 'Type',
+                'description' => 'Description',
                 'createdBy.email' => 'User',
+                'issueStatusRelation.name' => 'Status',
             ],
             default => [],
         };
@@ -138,8 +143,10 @@ class DataTable extends Component
                 ->activeIssueRows()
                 ->orderByDesc('date'),
             'issue-history' => $query
-                ->issues()
-                ->where('description', 'like', '[HISTORY]%')
+                ->where(function ($historyQuery) {
+                    $historyQuery->where('description', 'like', '[HISTORY]%')
+                        ->orWhereNotNull('parent_event_log_id');
+                })
                 ->orderByDesc('date'),
             'spare-part-audit-logs' => $query->where(function ($q) {
                 $q->whereNotNull('spare_part_id')
