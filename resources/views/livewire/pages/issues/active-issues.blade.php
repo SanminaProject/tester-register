@@ -5,9 +5,11 @@
         searchPlaceholder="Search issues..."
         addButtonLabel="Add Issue"
         :headers="[
+            'id' => 'Log ID',
             'date' => 'Date',
             'tester_id' => 'Test ID',
-            'description' => 'Problem',
+            'eventType.name' => 'Type',
+            'description' => 'Description',
             'createdBy.email' => 'User',
             'issueStatusRelation.name' => 'Status',
         ]" />

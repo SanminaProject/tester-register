@@ -3,11 +3,14 @@
         type="issue-history"
         title="Issue History"
         searchPlaceholder="Search issue history..."
-        :showAddButton="false"
+        addButtonLabel="Add Issue"
         :headers="[
+            'id' => 'Log ID',
             'date' => 'Date',
-            'description' => 'Action',
             'tester_id' => 'Test ID',
+            'eventType.name' => 'Type',
+            'description' => 'Description',
             'createdBy.email' => 'User',
+            'issueStatusRelation.name' => 'Status',
         ]" />
 </div>
