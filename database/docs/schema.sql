@@ -260,7 +260,7 @@ CREATE TABLE tester_event_logs (
     -- references
     tester_id INT NOT NULL, -- which tester the event is related to
     event_type INT NOT NULL, -- reference to the type of the event (issue, maintenance, calibration, software update or hardware change)
-    created_by_user_id INT NOT NULL, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
+    created_by_user_id INT, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
     resolved_by_user_id INT, -- who resolved the issue
     issue_status INT, -- status of the issue (open or closed)
     maintenance_schedule_id INT, -- reference to the maintenance schedule used
@@ -268,8 +268,8 @@ CREATE TABLE tester_event_logs (
 
     FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
     FOREIGN KEY (event_type) REFERENCES event_types(id),
-    FOREIGN KEY (created_by_user_id) REFERENCES users(id),
-    FOREIGN KEY (resolved_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (resolved_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (issue_status) REFERENCES issue_statuses(id),
     FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(id),
     FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(id)
