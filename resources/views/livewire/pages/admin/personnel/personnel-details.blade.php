@@ -45,25 +45,24 @@
 
         @if($editing)
         <div class="mt-8 pl-12">
-            <label class="block text-sm font-semibold mb-2">Role</label>
-
-            <select wire:model="selectedRoleName" class="border rounded px-3 py-2">
-                <option value="">Select role</option>
-                @foreach($roles as $role)
-                    <option value="{{ $role->name }}">{{ $role->name }}</option>
-                @endforeach
-            </select>
+            <x-select-field
+                label="Role"
+                wire:model="selectedRoleName"
+                :options="$roles"
+                valueKey="name"
+                labelKey="name"
+            />
 
             <div class="mt-4 flex gap-2">
-                <button wire:click="updatePersonnelRole"
-                    class="bg-blue-500 text-white px-4 py-2 rounded">
+                <x-primary-button wire:click="updatePersonnelRole">
                     Save
-                </button>
+                </x-primary-button>
 
-                <button wire:click="removePersonnelRole"
-                    class="bg-gray-300 px-4 py-2 rounded">
+                <x-primary-button 
+                    wire:click="removePersonnelRole"
+                    class="bg-gray-300 text-black hover:bg-gray-400">
                     Remove Role
-                </button>
+                </x-primary-button>
             </div>
         </div>
         @endif
