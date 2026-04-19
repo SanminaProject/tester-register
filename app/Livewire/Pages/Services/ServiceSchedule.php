@@ -21,32 +21,8 @@ class ServiceSchedule extends Component
     protected function fetchSchedules()
     {
 
-        // 1. Fetch All Calendar Events
-        $mSchedulesCal = DB::table('tester_maintenance_schedules')
-            ->join('testers', 'tester_maintenance_schedules.tester_id', '=', 'testers.id')
-            ->whereNotNull('next_maintenance_due')
-            ->selectRaw("
-                CONCAT('maintenance-', tester_maintenance_schedules.id) as id,
-                testers.id as tester_id,
-                CONCAT('Maintenance - ', testers.name) as title,
-                'maintenance' as type,
-                next_maintenance_due as start,
-                DATE_ADD(next_maintenance_due, INTERVAL 1 HOUR) as end
-            ");
-
-        $cSchedulesCal = DB::table('tester_calibration_schedules')
-            ->join('testers', 'tester_calibration_schedules.tester_id', '=', 'testers.id')
-            ->whereNotNull('next_calibration_due')
-            ->selectRaw("
-                CONCAT('calibration-', tester_calibration_schedules.id) as id,
-                testers.id as tester_id,
-                CONCAT('Calibration - ', testers.name) as title,
-                'calibration' as type,
-                next_calibration_due as start,
-                DATE_ADD(next_calibration_due, INTERVAL 1 HOUR) as end
-            ");
-
-        $this->calendarEvents = collect($mSchedulesCal->unionAll($cSchedulesCal)->get())->map(function ($event) {
+        // 1. Fetch All Calendar Events using the exact same logic as Dashboard
+        $this->calendarEvents = CalendarEvent::getCalendarEvents()->map(function ($event) {
             return [
                 'id' => $event->id,
                 'title' => $event->title,
