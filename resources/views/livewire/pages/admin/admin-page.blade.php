@@ -7,7 +7,6 @@
             ['label' => 'Personnel', 'tab' => 'personnel'], // table of all personnel (edit/delete their roles in details)
             ['label' => 'Roles', 'tab' => 'roles'], // table of all roles (edit/delete roles in details)
             ['label' => 'Add New Role', 'tab' => 'add'], // form to add new role
-            ['label' => 'Audit Logs', 'tab' => 'logs'], // logs of related changes
         ]" />
 
     <div class="flex-1  min-w-0 px-6 py-3">
@@ -17,8 +16,6 @@
         <livewire:pages.admin.roles.roles-table />
         @elseif ($activeTab === 'add')
         <livewire:pages.admin.roles.role-logging />
-        @elseif ($activeTab === 'logs')
-        <livewire:pages.admin.admin-audit-logs />
         @elseif ($activeTab === 'personnel-details')
         <livewire:pages.admin.personnel.personnel-details :userId="$selectedUserId" wire:key="personnel-details-{{ $selectedUserId }}" />
         @elseif ($activeTab === 'role-details')
