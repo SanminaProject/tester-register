@@ -60,8 +60,8 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => ['name', 'description', 'operating_system'],
             'fixtures' => ['name', 'description', 'manufacturer'],
-            'fixture-audit-logs' => ['explanation', 'fixture.name', 'user.email'],
-            'tester-audit-logs' => ['explanation', 'tester.name', 'user.email'],
+            'fixture-audit-logs' => ['explanation', 'fixture_id', 'fixture.name', 'user.email'],
+            'tester-audit-logs' => ['explanation', 'tester_id', 'tester.name', 'user.email'],
             default => [],
         };
     }
