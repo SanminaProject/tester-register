@@ -89,7 +89,8 @@ class ServiceSchedule extends Component
             ->selectRaw("
                 CONCAT('M-', LPAD(m.id, 4, '0')) as original_id,
                 m.next_maintenance_due as date,
-                t.name as tester_id,
+                t.id as tester_id,
+                t.name as tester_name,
                 'Maintenance' as maintenance_calibration,
                 CONCAT(u.first_name, ' ', u.last_name) as user,
                 s.name as status
@@ -104,7 +105,8 @@ class ServiceSchedule extends Component
             ->selectRaw("
                 CONCAT('C-', LPAD(c.id, 4, '0')) as original_id,
                 c.next_calibration_due as date,
-                t.name as tester_id,
+                t.id as tester_id,
+                t.name as tester_name,
                 'Calibration' as maintenance_calibration,
                 CONCAT(u.first_name, ' ', u.last_name) as user,
                 s.name as status
@@ -119,7 +121,8 @@ class ServiceSchedule extends Component
             ->selectRaw("
                 CONCAT('E-', LPAD(e.id, 4, '0')) as original_id,
                 e.date as date,
-                t.name as tester_id,
+                t.id as tester_id,
+                t.name as tester_name,
                 CASE WHEN et.name = 'calibration' THEN 'Calibration' ELSE 'Maintenance' END as maintenance_calibration,
                 CONCAT(u.first_name, ' ', u.last_name) as user,
                 'Completed' as status

@@ -35,7 +35,8 @@
                         <th scope="col" class="px-4 py-3 rounded-l-lg">ID</th>
                         <th scope="col" class="px-4 py-3">Date</th>
                         <th scope="col" class="px-4 py-3">Tester ID</th>
-                        <th scope="col" class="px-4 py-3">Maintenance / Calibration</th>
+                        <th scope="col" class="px-4 py-3">Tester Name</th>
+                        <th scope="col" class="px-4 py-3">Type</th>
                         <th scope="col" class="px-4 py-3">User</th>
                         <th scope="col" class="px-4 py-3 rounded-r-lg">Status</th>
                     </tr>
@@ -46,6 +47,7 @@
                             <td class="px-4 py-3 font-medium text-gray-900">{{ data_get($evt, 'id') }}</td>
                             <td class="px-4 py-3">{{ data_get($evt, 'date_formatted') }}</td>
                             <td class="px-4 py-3">{{ data_get($evt, 'tester_id') }}</td>
+                            <td class="px-4 py-3">{{ data_get($evt, 'tester_name') }}</td>
                             <td class="px-4 py-3">
                                 @if(data_get($evt, 'maintenance_calibration') === 'Maintenance')
                                     <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Maintenance</span>
@@ -91,7 +93,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-8 text-center text-gray-500 bg-gray-50 rounded-lg">
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500 bg-gray-50 rounded-lg">
                                 No events found.
                             </td>
                         </tr>
