@@ -167,7 +167,7 @@
                         </button>
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
-                        {{ $row->createdBy?->email ?? ($this->userLabelById[$row->created_by_user_id] ?? '-') }}
+                        {{ $row->createdBy?->full_name ?? ($this->userLabelById[$row->created_by_user_id] ?? '-') }}
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
                         @php

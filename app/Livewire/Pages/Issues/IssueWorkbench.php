@@ -68,7 +68,7 @@ class IssueWorkbench extends Component
             ->orderBy('first_name')
             ->get()
             ->map(function (User $user) {
-                $label = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+                $label = $user->full_name ?: trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
 
                 if ($label === '') {
                     $label = (string) $user->email;
