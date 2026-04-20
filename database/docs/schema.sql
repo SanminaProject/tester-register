@@ -269,8 +269,8 @@ CREATE TABLE tester_event_logs (
 
     FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
     FOREIGN KEY (event_type) REFERENCES event_types(id),
-    FOREIGN KEY (created_by_user_id) REFERENCES users(id),
-    FOREIGN KEY (resolved_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (resolved_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (issue_status) REFERENCES issue_statuses(id),
     FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(id),
     FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(id),

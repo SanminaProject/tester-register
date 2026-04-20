@@ -17,89 +17,67 @@ class EventBox extends Component
         $this->title = $title;
         $this->limit = $limit;
 
-        // TODO: get db data
-        $mockItems = [
-            [
-                'type' => 'issue',
-                'tester' => 'Tester 01',
-                'date' => now()->addDays(2),
-            ],
-            [
-                'type' => 'maintenance',
-                'tester' => 'Tester 02',
-                'date' => now()->addDays(7),
-            ],
-            [
-                'type' => 'calibration',
-                'tester' => 'Tester 03',
-                'date' => now()->addDays(2),
-            ],
-            [
-                'type' => 'calibration',
-                'tester' => 'Tester 03',
-                'date' => now()->addDays(10),
-            ],
-            [
-                'type' => 'calibration',
-                'tester' => 'Tester 03',
-                'date' => now()->addDays(10),
-            ],
-            [
-                'type' => 'maintenance',
-                'tester' => 'Tester 04',
-                'date' => now()->addDays(3),
-            ],
-            [
-                'type' => 'maintenance',
-                'tester' => 'Tester 04',
-                'date' => now()->addDays(3),
-            ],
-            [
-                'type' => 'maintenance',
-                'tester' => 'Tester 04',
-                'date' => now()->addDays(3),
-            ],
-            [
-                'type' => 'maintenance',
-                'tester' => 'Tester 04',
-                'date' => now()->addDays(3),
-            ],
-            [
-                'type' => 'issue',
-                'tester' => 'Tester 01',
-                'date' => now()->addDays(3),
-            ],
-        ];
-
         if ($this->type === 'events') {
-            // show everything except for issues
-            $filtered = array_filter($mockItems, fn ($item) => $item['type'] !== 'issue');
+            // Fetch real maintenance and calibration events
+            $start = now();
+            $end = now()->addMonths(6); // Look ahead 6 months
+
+            $mSchedules = \Illuminate\Support\Facades\DB::table('tester_maintenance_schedules as m')
+                ->join('testers as t', 'm.tester_id', '=', 't.id')
+                ->selectRaw("
+                    'maintenance' as type,
+                    t.name as tester,
+                    m.next_maintenance_due as date
+                ")
+                ->whereNotNull('m.next_maintenance_due')
+                ->whereBetween('m.next_maintenance_due', [$start, $end]);
+
+            $cSchedules = \Illuminate\Support\Facades\DB::table('tester_calibration_schedules as c')
+                ->join('testers as t', 'c.tester_id', '=', 't.id')
+                ->selectRaw("
+                    'calibration' as type,
+                    t.name as tester,
+                    c.next_calibration_due as date
+                ")
+                ->whereNotNull('c.next_calibration_due')
+                ->whereBetween('c.next_calibration_due', [$start, $end]);
+
+            $all = $mSchedules->unionAll($cSchedules)->get();
+
+            $this->items = $all->map(function ($item) {
+                return [
+                    'type' => $item->type,
+                    'tester' => $item->tester,
+                    'date' => \Carbon\Carbon::parse($item->date),
+                ];
+            })->sortBy('date')->take($this->limit)->values()->toArray();
         } 
         elseif ($this->type === 'issues') {
-            // show only issues
-            $filtered = array_filter($mockItems, fn ($item) => $item['type'] === 'issue');
+            // Mock issues for now
+            $mockItems = [
+                [
+                    'type' => 'issue',
+                    'tester' => 'Tester 01',
+                    'date' => now()->addDays(2),
+                ],
+                [
+                    'type' => 'issue',
+                    'tester' => 'Tester 01',
+                    'date' => now()->addDays(3),
+                ],
+            ];
+            $this->items = array_slice($mockItems, 0, $this->limit);
         }
         else {
-            // show all
-            $filtered = $mockItems;
+            $this->items = [];
         }
-
-        // reindex array after filtering
-        $this->items = array_values($filtered);
-
-        // sort by date
-        usort($this->items, function ($a, $b) {
-            return $a['date']->timestamp <=> $b['date']->timestamp;
-        });
-
-        $this->items = array_slice($this->items, 0, $this->limit);
     }
 
     public function getTypeClasses($type) {
         return match($type) {
-            'issue' => 'bg-red-100 text-red-700',
-            'maintenance' => 'bg-yellow-100 text-yellow-700',
-            'calibration' => 'bg-blue-100 text-blue-700',
+            'issue' => 'bg-issue-bg text-issue-text',
+            'maintenance' => 'bg-maintenance-bg text-maintenance-text',
+            'calibration' => 'bg-calibration-bg text-calibration-text',
             default => 'bg-gray-100 text-gray-700',
         };
     }

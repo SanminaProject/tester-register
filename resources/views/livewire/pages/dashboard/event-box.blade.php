@@ -9,7 +9,7 @@
                 <li class="py-3 sm:px-2 sm:py-2 border-b border-gray-50 sm:border-gray-100 last:border-b-0 hover:bg-gray-50 transition">
                     <div class="flex items-center gap-2 sm:gap-4">
                         
-                        <div class="text-[10px] sm:text-xs font-bold sm:font-semibold px-1 sm:px-2 py-0.5 sm:py-1 rounded flex items-center justify-center flex-shrink-0 min-w-[50px] sm:min-w-0 {{ $item['type'] === 'issue' ? 'w-12 sm:w-16' : 'w-20 sm:w-auto sm:min-w-[80px]' }} {{ $this->getTypeClasses($item['type']) }}">
+                        <div class="text-[10px] sm:text-xs font-bold sm:font-semibold px-1 sm:px-2 py-0.5 sm:py-1 rounded flex items-center justify-center flex-shrink-0 w-24 sm:w-[100px] {{ $this->getTypeClasses($item['type']) }}">
                                 {{ ucfirst($item['type']) }}
                         </div>
 
@@ -33,7 +33,7 @@
         <div class="mx-4 sm:mx-6 border-t border-gray-100"></div>
 
         <div class="px-4 sm:px-6 pt-3 pb-4 flex justify-end">
-            <a href="#" class="text-sm font-medium text-gray-500 hover:text-indigo-900 transition">
+            <a href="{{ $type === 'events' ? route('services') : '#' }}" class="text-sm font-medium text-gray-500 hover:text-indigo-900 transition">
                 View All &rarr;
             </a>
         </div>     

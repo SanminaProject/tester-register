@@ -100,29 +100,26 @@
 
 /* weekly and daily event colours */
 .fc-event.calibration {
-    background-color: #dbeafe;
-    border-color: #dbeafe;
+    @apply bg-calibration-bg border-calibration-bg;
 }
 
 .fc-event.maintenance {
-    background-color: #fef9c3;
-    border-color: #fef9c3;
+    @apply bg-maintenance-bg border-maintenance-bg;
 }
 
 .fc-event.issue {
-    background-color: #fee2e2;
-    border-color: #fee2e2;
+    @apply bg-issue-bg border-issue-bg;
 }
 
 /* monthly event dot colours */
 .fc-event.calibration .fc-daygrid-event-dot{
-    border-color: #3b82f6;
+    @apply border-calibration-text;
 }
 
 .fc-event.maintenance .fc-daygrid-event-dot {
-    border-color: #f59e0b;
+    @apply border-maintenance-text;
 }
 
 .fc-event.issue .fc-daygrid-event-dot{
-    border-color: #ef4444;
+    @apply border-issue-text;
 }

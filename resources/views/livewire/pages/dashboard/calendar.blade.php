@@ -1,4 +1,4 @@
-<div wire:ignore class="flex flex-col h-full">
+<div wire:ignore wire:key="calendar-wrapper-{{ request()->routeIs('services') ? 'services' : 'dashboard' }}" class="flex flex-col h-full">
     <style>
         /* Mobile-only Calendar Optimization */
         @media (max-width: 639px) {
@@ -89,6 +89,9 @@
             <div 
                 id="calendar" 
                 data-events='@json($events)'
+                @if(isset($view)) data-view="{{ $view }}" @endif
+                x-data
+                x-init="$nextTick(() => { document.dispatchEvent(new CustomEvent('calendar-ready')) })"
                 class="form-control min-h-[350px] sm:min-h-[400px]">
             </div>
         </div>

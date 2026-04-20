@@ -21,7 +21,14 @@ export default {
                 
                 'light-grey': '#F6F3F3',
                 grey: '#D9D9D9',
-                'dark-grey': '#7D7D7D',
+                                'dark-grey': '#7D7D7D',
+                
+                'maintenance-bg': '#fef9c3',
+                'maintenance-text': '#a16207',
+                'calibration-bg': '#dbeafe',
+                'calibration-text': '#1d4ed8',
+                'issue-bg': '#fee2e2',
+                'issue-text': '#b91c1c',
                 
                 white: '#FFFFFF',
                 black: '#000000',
@@ -34,12 +41,12 @@ export default {
 
     plugins: [forms],
     safelist: [
-        'bg-red-100',
-        'text-red-700',
-        'bg-yellow-100',
-        'text-yellow-700',
-        'bg-blue-100',
-        'text-blue-700',
+        'bg-issue-bg',
+        'text-issue-text',
+        'bg-maintenance-bg',
+        'text-maintenance-text',
+        'bg-calibration-bg',
+        'text-calibration-text',
         'bg-gray-100',
         'text-gray-700',
     ],

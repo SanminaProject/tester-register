@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->unsignedInteger('tester_id');
             $table->unsignedInteger('event_type');
-            $table->unsignedInteger('created_by_user_id');
+            $table->unsignedInteger('created_by_user_id')->nullable();
             $table->unsignedInteger('resolved_by_user_id')->nullable();
             $table->unsignedInteger('issue_status')->nullable();
             $table->unsignedInteger('maintenance_schedule_id')->nullable();
@@ -32,8 +32,8 @@ return new class extends Migration
             // Foreign key constraints
             $table->foreign('tester_id')->references('id')->on('testers')->cascadeOnDelete();
             $table->foreign('event_type')->references('id')->on('event_types');
-            $table->foreign('created_by_user_id')->references('id')->on('users');
-            $table->foreign('resolved_by_user_id')->references('id')->on('users');
+            $table->foreign('created_by_user_id')->references('id')->on('users')->nullOnDelete();
+            $table->foreign('resolved_by_user_id')->references('id')->on('users')->nullOnDelete();
             $table->foreign('issue_status')->references('id')->on('issue_statuses');
             $table->foreign('maintenance_schedule_id')->references('id')->on('tester_maintenance_schedules');
             $table->foreign('calibration_schedule_id')->references('id')->on('tester_calibration_schedules');
