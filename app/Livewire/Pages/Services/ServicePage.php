@@ -2,12 +2,17 @@
 
 namespace App\Livewire\Pages\Services;
 
+use Livewire\Attributes\Url;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ServicePage extends Component
 {
+    #[Url]
     public string $activeTab = 'schedules';
+
+    #[Url(as: 'tester_id')]
+    public ?int $testerId = null;
 
     public function setTab($tab)
     {

@@ -53,12 +53,12 @@
             <div class="text-[#8c8c8c] md:text-gray-600 tracking-wide text-[14px] md:text-[16px]">Name</div>
             <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                 <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px]">{{ $testerName }}</div>
-                <div class="text-[13px] md:text-[14px] font-medium flex items-center gap-1 cursor-pointer hover:text-black transition-colors" style="color: #8c8c8c;">
+                <a href="{{ route('testers', ['activeTab' => 'details', 'selectedTesterId' => $selectedTesterId]) }}" wire:navigate class="text-[13px] md:text-[14px] font-medium flex items-center gap-1 cursor-pointer hover:text-black transition-colors" style="color: #8c8c8c;">
                     View Tester Details
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
-                </div>
+                </a>
             </div>
         </div>
         @endif
@@ -116,9 +116,11 @@
                             <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] py-1 md:py-2">{{ $nextMaintenanceDate ? date('j.n.Y H:i', strtotime($nextMaintenanceDate)) : '-' }}</div>
                         @endif
                     </div>
+                    @if($isEditing)
                     <div class="text-[12px] md:text-[13px] text-[#8c8c8c]">
                         *Maintenance Period will be calculated based on Next Maintenance Date.
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -196,9 +198,11 @@
                             <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] py-1 md:py-2">{{ $nextCalibrationDate ? date('j.n.Y H:i', strtotime($nextCalibrationDate)) : '-' }}</div>
                         @endif
                     </div>
+                    @if($isEditing)
                     <div class="text-[12px] md:text-[13px] text-[#8c8c8c]">
                         *Calibration Period will be calculated based on Next Calibration Date.
                     </div>
+                    @endif
                 </div>
             </div>
 

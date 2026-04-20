@@ -46,10 +46,15 @@ class MaintenanceSettings extends Component
     public $users = [];
     public $nextMaintenanceUserId = null;
     public $nextCalibrationUserId = null;
+    public $preselectedTesterId = null;
 
     public function mount()
     {
         $this->loadOptions();
+
+        if ($this->preselectedTesterId) {
+            $this->selectTester($this->preselectedTesterId);
+        }
     }
 
     public function loadOptions()

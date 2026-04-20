@@ -13,7 +13,7 @@
         @if ($activeTab === 'schedules')
         <livewire:pages.services.service-schedule />
         @elseif ($activeTab === 'maintenance')
-        <livewire:pages.services.maintenance-settings />
+        <livewire:pages.services.maintenance-settings :preselectedTesterId="$testerId" />
         @elseif ($activeTab === 'logs')
         <div class="w-full pt-4">
             <livewire:components.data-table

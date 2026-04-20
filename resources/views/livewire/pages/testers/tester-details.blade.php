@@ -84,7 +84,7 @@
                     <span class="tracking-wide text-[12px] md:text-[15px] text-[#8c8c8c] md:text-dark-grey">Last Inventoried Date:</span>
                     <span class="font-semibold md:font-normal text-[13px] md:text-[16px] text-[#1a1a1a] md:text-dark-grey">{{ $tester->last_inventoried_date ? $tester->last_inventoried_date->format('j.n.Y H:i') : 'Never' }}</span>
                 </div>
-                <x-primary-button type="button" class="w-32 md:w-40 text-[13px] !py-2.5 md:text-sm">
+                <x-primary-button type="button" wire:click="updateInventoryDate" class="w-32 md:w-40 text-[13px] !py-2.5 md:text-sm">
                     Inventory
                 </x-primary-button>
             </div>
@@ -93,7 +93,13 @@
             <div class="bg-[#f8f8f8] md:bg-light-grey rounded-[16px] md:rounded-xl p-5 md:p-7 flex flex-col gap-5 md:gap-6">
                 <!-- Links -->
                 <div class="flex flex-col gap-4 md:gap-5 border-b border-[#e8e8e8] md:border-gray-200 pb-5 md:pb-6">
-                    @foreach(['Maintenance /Calibration', 'Spare Parts', 'Audit Logs'] as $link)
+                    <a href="{{ route('services', ['activeTab' => 'maintenance', 'tester_id' => $tester->id]) }}" wire:navigate class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
+                        Maintenance /Calibration
+                        <svg class="h-[14px] w-[14px] md:h-4 md:w-4 text-[#8c8c8c] md:text-black group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    @foreach(['Spare Parts', 'Audit Logs'] as $link)
                     <button class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
                         {{ $link }}
                         <svg class="h-[14px] w-[14px] md:h-4 md:w-4 text-[#8c8c8c] md:text-black group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
