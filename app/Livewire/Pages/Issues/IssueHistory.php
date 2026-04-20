@@ -58,7 +58,7 @@ class IssueHistory extends Component
                 'resolvedBy',
                 'issueStatusRelation',
                 'eventType',
-                'solutionEntries' => function (Builder $builder): void {
+                'solutionEntries' => function ($builder): void {
                     $builder->with(['createdBy', 'resolvedBy', 'issueStatusRelation', 'eventType'])
                         ->orderBy('date');
                 },
