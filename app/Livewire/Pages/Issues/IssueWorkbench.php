@@ -168,7 +168,7 @@ class IssueWorkbench extends Component
     public function getHeaderTitleProperty(): string
     {
         return match ($this->mode) {
-            'add_issue' => 'Add Issue',
+            'add_issue' => 'Add New Issue',
             'add_solution' => 'Add Solution',
             default => 'Active Issues',
         };

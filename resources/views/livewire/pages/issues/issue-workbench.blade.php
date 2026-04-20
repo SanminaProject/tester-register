@@ -1,7 +1,8 @@
 <div class="flex min-h-[calc(100vh-8rem)] w-full min-w-0 flex-col rounded-xl bg-white px-8 pt-6 pb-8 shadow-sm">
-    <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold pl-8">{{ $this->headerTitle }}</h3>
+    <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-4">
+        <h3 class="text-[32px] font-bold pl-4 leading-none">{{ $this->headerTitle }}</h3>
         <div class="flex items-center gap-3">
+            @if ($mode === 'active')
             <div class="relative">
                 <input
                     type="text"
@@ -46,6 +47,7 @@
                     </ul>
                 </div>
             </div>
+            @endif
 
             @if ($mode !== 'active')
             <button
@@ -72,39 +74,53 @@
     @endif
 
     <div class="data-table-scroll mt-3 flex-1 w-full overflow-x-auto pb-8">
-        <table class="min-w-full table-auto">
+        <table class="min-w-full table-auto"
+            x-data="{ widths: [] }"
+            x-init="$nextTick(() => {
+                if (widths.length === 0) {
+                    widths = Array.from($el.querySelectorAll('th')).map(th => th.offsetWidth);
+                }
+            })">
             <thead>
                 <tr class="border-b">
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Log ID</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Date</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Tester ID</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Type</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700">Description</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">User</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Status</th>
+                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap" :style="widths[0] ? `min-width: ${widths[0]}px; width: ${widths[0]}px;` : ''">Log ID</th>
+                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap" :style="widths[1] ? `min-width: ${widths[1]}px; width: ${widths[1]}px;` : ''">Date</th>
+                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap" :style="widths[2] ? `min-width: ${widths[2]}px; width: ${widths[2]}px;` : ''">Tester ID</th>
+                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap" :style="widths[3] ? `min-width: ${widths[3]}px; width: ${widths[3]}px;` : ''">Type</th>
+                    <th class="px-5 py-3 text-left text-sm text-gray-700" :style="widths[4] ? `min-width: ${widths[4]}px; width: ${widths[4]}px;` : ''">Description</th>
+                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap" :style="widths[5] ? `min-width: ${widths[5]}px; width: ${widths[5]}px;` : ''">User</th>
+                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap" :style="widths[6] ? `min-width: ${widths[6]}px; width: ${widths[6]}px;` : ''">Status</th>
                 </tr>
             </thead>
             <tbody>
+                @php
+                $currentCount = method_exists($this->rows, 'count') ? $this->rows->count() : count($this->rows);
+                $perPage = method_exists($this->rows, 'perPage') ? $this->rows->perPage() : $currentCount;
+                $baseExtraRows = max($perPage - $currentCount, 0);
+                $extraInlineRows = ($showInlineForm && ($mode === 'add_issue' || $mode === 'add_solution')) ? 1 : 0;
+                $emptyRows = max($baseExtraRows - $extraInlineRows, 0);
+                @endphp
+
                 @if ($showInlineForm && $mode === 'add_issue')
-                <tr class="border-b bg-pink-50">
+                <tr class="border-b bg-[#faf7f8]">
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
-                        <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">Auto Generated</span>
+                        <span class="rounded-full bg-[#efefef] px-4 py-1.5 text-xs font-semibold text-[#777]">Auto</span>
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-text-input type="date" wire:model="issueForm.date" class="w-full" />
+                        <x-text-input type="date" wire:model="issueForm.date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('issueForm.date')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-select-field wire:model="issueForm.tester_id" :options="$testers" placeholder="Select tester" />
+                        <x-select-field wire:model="issueForm.tester_id" :options="$testers" placeholder="Select tester" class="rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('issueForm.tester_id')" class="mt-2" />
                     </td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top lowercase">problem</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">Problem</td>
                     <td class="px-5 py-3 text-sm text-gray-800 align-top">
-                        <x-text-input type="text" wire:model="issueForm.description" class="w-full" />
+                        <x-text-input type="text" wire:model="issueForm.description" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('issueForm.description')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-select-field wire:model="issueForm.created_by_user_id" :options="$users" placeholder="Select user" />
+                        <x-select-field wire:model="issueForm.created_by_user_id" :options="$users" placeholder="Select user" class="rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('issueForm.created_by_user_id')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
@@ -112,6 +128,7 @@
                             wire:model="issueForm.status_id"
                             :options="$statuses"
                             placeholder="Select status"
+                            class="rounded-full border-0 bg-[#efefef] shadow-none"
                             error="issueForm.status_id" />
                     </td>
                 </tr>
@@ -122,11 +139,26 @@
                     class="border-b hover:bg-thirdly cursor-pointer transition-colors duration-150"
                     wire:click="beginAddSolution({{ $row->id }})">
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->id }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->date?->format('d.m.Y') ?? '-' }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->date?->format('d.m.Y H:i') ?? '-' }}</td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->tester_id }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap lowercase">{{ $row->eventType?->name ?? '-' }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ ucfirst(strtolower((string) ($row->eventType?->name ?? '-'))) }}</td>
                     <td class="px-5 py-3 text-sm text-gray-800 align-top">
-                        <div class="max-w-[340px] whitespace-pre-line break-words">{{ $row->description ?? '-' }}</div>
+                        <div class="max-w-[340px]">
+                            <div x-data="{ expanded: false, showButton: false }"
+                                x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
+                                class="relative pr-2">
+                                <div x-ref="text"
+                                    :class="expanded ? '' : 'line-clamp-2'"
+                                    class="whitespace-pre-line text-gray-800 break-words">{{ $row->description ?? '-' }}</div>
+                                <button x-show="showButton"
+                                    @click.stop="expanded = !expanded"
+                                    class="text-blue-600 hover:text-blue-800 text-xs font-semibold mt-1 focus:outline-none hover:underline"
+                                    style="display: none;">
+                                    <span x-show="!expanded">Show more</span>
+                                    <span x-show="expanded">Show less</span>
+                                </button>
+                            </div>
+                        </div>
                         <button
                             type="button"
                             wire:click.stop="beginAddSolution({{ $row->id }})"
@@ -137,28 +169,38 @@
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
                         {{ $row->createdBy?->email ?? ($this->userLabelById[$row->created_by_user_id] ?? '-') }}
                     </td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->issueStatusRelation?->name ?? '-' }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
+                        @php
+                        $statusName = strtolower((string) ($row->issueStatusRelation?->name ?? ''));
+                        $isSolved = $statusName === 'solved';
+                        @endphp
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
+                            {{ strtoupper($row->issueStatusRelation?->name ?? '-') }}
+                        </span>
+                    </td>
                 </tr>
 
                 @if ($showInlineForm && $mode === 'add_solution' && $selectedIssueId === (int) $row->id)
-                <tr class="border-b bg-blue-50">
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->id }}</td>
+                <tr class="border-b bg-[#f7f8fc]">
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
+                        <span class="rounded-full bg-[#efefef] px-4 py-1.5 text-xs font-semibold text-[#777]">Auto</span>
+                    </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-text-input type="date" wire:model="solutionForm.resolution_date" class="w-full" />
+                        <x-text-input type="date" wire:model="solutionForm.resolution_date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('solutionForm.resolution_date')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->tester_id }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap lowercase">solution</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Solution</td>
                     <td class="px-5 py-3 text-sm text-gray-800 align-top">
-                        <x-text-input type="text" wire:model="solutionForm.resolution_description" class="w-full" />
+                        <x-text-input type="text" wire:model="solutionForm.resolution_description" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('solutionForm.resolution_description')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-select-field wire:model="solutionForm.resolved_by_user_id" :options="$users" placeholder="Select user" />
+                        <x-select-field wire:model="solutionForm.resolved_by_user_id" :options="$users" placeholder="Select user" class="rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('solutionForm.resolved_by_user_id')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-select-field wire:model="solutionForm.status_id" :options="$statuses" placeholder="Select status" />
+                        <x-select-field wire:model="solutionForm.status_id" :options="$statuses" placeholder="Select status" class="rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('solutionForm.status_id')" class="mt-2" />
                     </td>
                 </tr>
@@ -168,6 +210,18 @@
                     <td colspan="7" class="px-5 py-6 text-center text-gray-400">No data found.</td>
                 </tr>
                 @endforelse
+
+                @for ($i = 0; $i < $emptyRows; $i++)
+                    <tr class="border-b last:border-0">
+                    <td class="px-5 py-3 text-sm whitespace-nowrap align-top">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm whitespace-nowrap align-top">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm whitespace-nowrap align-top">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm whitespace-nowrap align-top">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm align-top">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm whitespace-nowrap align-top">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm whitespace-nowrap align-top">&nbsp;</td>
+                    </tr>
+                    @endfor
             </tbody>
         </table>
     </div>
