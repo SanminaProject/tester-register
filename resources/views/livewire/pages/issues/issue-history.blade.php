@@ -36,12 +36,12 @@
                     <div class="px-4 py-2 font-semibold border-b">Filter</div>
                     <ul>
                         @foreach ($filters as $key => $label)
-                            <li wire:click="toggleFilter('{{ $key }}')" class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center">
-                                <span>{{ $label }}</span>
-                                @if(in_array($key, $activeFilters, true))
-                                    <span>✓</span>
-                                @endif
-                            </li>
+                        <li wire:click="toggleFilter('{{ $key }}')" class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center">
+                            <span>{{ $label }}</span>
+                            @if(in_array($key, $activeFilters, true))
+                            <span>✓</span>
+                            @endif
+                        </li>
                         @endforeach
                     </ul>
                 </div>
@@ -71,73 +71,73 @@
             </thead>
             <tbody>
                 @forelse ($this->groups as $issue)
-                    <tr class="border-b">
-                        <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->id }}</td>
-                        <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->date?->format('d.m.Y H:i') ?? '-' }}</td>
-                        <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->tester_id }}</td>
-                        <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Problem</td>
-                        <td class="px-5 py-3 text-sm text-gray-800 align-top">
-                            <div class="max-w-[340px]">
-                                <div x-data="{ expanded: false, showButton: false }"
-                                     x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
-                                     class="relative pr-2">
-                                    <div x-ref="text"
-                                         :class="expanded ? '' : 'line-clamp-2'"
-                                         class="whitespace-pre-line text-gray-800 break-words">{{ $issue->description ?? '-' }}</div>
-                                    <button x-show="showButton"
-                                            @click.stop="expanded = !expanded"
-                                            class="text-blue-600 hover:text-blue-800 text-xs font-semibold mt-1 focus:outline-none hover:underline"
-                                            style="display: none;">
-                                        <span x-show="!expanded">Show more</span>
-                                        <span x-show="expanded">Show less</span>
-                                    </button>
-                                </div>
+                <tr class="border-b">
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->id }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->date?->format('d.m.Y H:i') ?? '-' }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->tester_id }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Problem</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 align-top">
+                        <div class="max-w-[340px]">
+                            <div x-data="{ expanded: false, showButton: false }"
+                                x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
+                                class="relative pr-2">
+                                <div x-ref="text"
+                                    :class="expanded ? '' : 'line-clamp-2'"
+                                    class="whitespace-pre-line text-gray-800 break-words">{{ $issue->description ?? '-' }}</div>
+                                <button x-show="showButton"
+                                    @click.stop="expanded = !expanded"
+                                    class="text-blue-600 hover:text-blue-800 text-xs font-semibold mt-1 focus:outline-none hover:underline"
+                                    style="display: none;">
+                                    <span x-show="!expanded">Show more</span>
+                                    <span x-show="expanded">Show less</span>
+                                </button>
                             </div>
-                        </td>
-                        <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->createdBy?->full_name ?? '-' }}</td>
-                        <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
-                            @php
-                                $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
-                                $isSolved = $statusName === 'solved';
-                            @endphp
-                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
-                                {{ strtoupper($issue->issueStatusRelation?->name ?? '-') }}
-                            </span>
-                        </td>
-                    </tr>
+                        </div>
+                    </td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->createdBy?->full_name ?? '-' }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
+                        @php
+                        $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
+                        $isSolved = $statusName === 'solved';
+                        @endphp
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
+                            {{ strtoupper($issue->issueStatusRelation?->name ?? '-') }}
+                        </span>
+                    </td>
+                </tr>
 
-                    @foreach ($issue->solutionEntries as $solution)
-                        <tr class="border-b">
-                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
-                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $solution->date?->format('d.m.Y H:i') ?? '-' }}</td>
-                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
-                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Solution</td>
-                            <td class="px-5 py-3 text-sm text-gray-800 align-top">
-                                <div class="max-w-[340px]">
-                                    <div x-data="{ expanded: false, showButton: false }"
-                                         x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
-                                         class="relative pr-2">
-                                        <div x-ref="text"
-                                             :class="expanded ? '' : 'line-clamp-2'"
-                                             class="whitespace-pre-line text-gray-800 break-words">{{ $solution->resolution_description ?? $solution->description ?? '-' }}</div>
-                                        <button x-show="showButton"
-                                                @click.stop="expanded = !expanded"
-                                                class="text-blue-600 hover:text-blue-800 text-xs font-semibold mt-1 focus:outline-none hover:underline"
-                                                style="display: none;">
-                                            <span x-show="!expanded">Show more</span>
-                                            <span x-show="expanded">Show less</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $solution->resolvedBy?->full_name ?? $solution->createdBy?->full_name ?? '-' }}</td>
-                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
-                        </tr>
-                    @endforeach
+                @foreach ($issue->solutionEntries as $solution)
+                <tr class="border-b">
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $solution->date?->format('d.m.Y H:i') ?? '-' }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Solution</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 align-top">
+                        <div class="max-w-[340px]">
+                            <div x-data="{ expanded: false, showButton: false }"
+                                x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
+                                class="relative pr-2">
+                                <div x-ref="text"
+                                    :class="expanded ? '' : 'line-clamp-2'"
+                                    class="whitespace-pre-line text-gray-800 break-words">{{ $solution->resolution_description ?? $solution->description ?? '-' }}</div>
+                                <button x-show="showButton"
+                                    @click.stop="expanded = !expanded"
+                                    class="text-blue-600 hover:text-blue-800 text-xs font-semibold mt-1 focus:outline-none hover:underline"
+                                    style="display: none;">
+                                    <span x-show="!expanded">Show more</span>
+                                    <span x-show="expanded">Show less</span>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $solution->resolvedBy?->full_name ?? $solution->createdBy?->full_name ?? '-' }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
+                </tr>
+                @endforeach
                 @empty
-                    <tr>
-                        <td colspan="7" class="px-5 py-6 text-center text-gray-400">No data found.</td>
-                    </tr>
+                <tr>
+                    <td colspan="7" class="px-5 py-6 text-center text-gray-400">No data found.</td>
+                </tr>
                 @endforelse
             </tbody>
         </table>

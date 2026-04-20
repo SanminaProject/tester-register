@@ -43,11 +43,17 @@
         </div>
         <div>
             <p class="text-sm text-gray-500">User</p>
-            <p class="font-semibold text-gray-900">{{ $issue->createdBy?->email ?? '-' }}</p>
+            <p class="font-semibold text-gray-900">{{ $issue->createdBy?->full_name ?? '-' }}</p>
         </div>
         <div>
             <p class="text-sm text-gray-500">Status</p>
-            <p class="font-semibold text-gray-900">{{ $issue->issueStatusRelation?->name ?? '-' }}</p>
+            @php
+            $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
+            $isSolved = $statusName === 'solved';
+            @endphp
+            <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
+                {{ strtoupper($issue->issueStatusRelation?->name ?? '-') }}
+            </span>
         </div>
     </div>
 </div>

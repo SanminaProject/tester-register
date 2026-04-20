@@ -35,7 +35,15 @@
                                 <div class="whitespace-pre-line">{{ $issue->description }}</div>
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $this->issueUserLabel }}</td>
-                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->issueStatusRelation?->name ?? '-' }}</td>
+                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
+                                @php
+                                    $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
+                                    $isSolved = $statusName === 'solved';
+                                @endphp
+                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
+                                    {{ strtoupper($issue->issueStatusRelation?->name ?? '-') }}
+                                </span>
+                            </td>
                         </tr>
 
                         <tr class="border-b">

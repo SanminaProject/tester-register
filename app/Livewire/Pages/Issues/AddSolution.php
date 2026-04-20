@@ -34,7 +34,7 @@ class AddSolution extends Component
             ->orderBy('first_name')
             ->get()
             ->map(function (User $user) {
-                $label = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+                $label = $user->full_name ?: trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
                 if ($label === '') {
                     $label = $user->email;
                 }
@@ -136,7 +136,7 @@ class AddSolution extends Component
             return '-';
         }
 
-        $label = trim((string) ($user->first_name ?? '') . ' ' . (string) ($user->last_name ?? ''));
+        $label = $user->full_name ?: trim((string) ($user->first_name ?? '') . ' ' . (string) ($user->last_name ?? ''));
 
         return $label !== '' ? $label : (string) ($user->email ?? '-');
     }
