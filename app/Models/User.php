@@ -62,4 +62,27 @@ class User extends Authenticatable
             get: fn () => trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''))
         );
     }
+
+    /**
+     * Get the testers this user is responsible for.
+     */
+    public function testers()
+    {
+        return $this->belongsToMany(
+        Tester::class,
+        'user_tester_assignments',
+        'user_id',
+        'tester_id'
+    );
+    }
+
+    public function getRoleNamesAttribute()
+    {
+        return $this->roles->pluck('name')->implode(', ');
+    }
+
+    public function getTesterNamesAttribute()
+    {
+        return $this->testers->pluck('name')->implode(', ');
+    }
 }

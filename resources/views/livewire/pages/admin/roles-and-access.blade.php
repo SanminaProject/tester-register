@@ -1,6 +1,6 @@
 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
     <div class="p-6 text-gray-900">
-        <h1 class="text-xl font-bold mb-4">{{ __('Manage User Roles') }}</h1>
+        <h1 class="text-xl font-bold mb-4">{{ __('Roles & Access') }}</h1>
 
         <div class="space-y-6">
             <div>
