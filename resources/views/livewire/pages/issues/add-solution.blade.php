@@ -7,9 +7,9 @@
             </div>
 
             @if (session()->has('message'))
-                <div class="mb-4 rounded-md bg-green-100 px-4 py-2 text-sm text-green-800">
-                    {{ session('message') }}
-                </div>
+            <div class="mb-4 rounded-md bg-green-100 px-4 py-2 text-sm text-green-800">
+                {{ session('message') }}
+            </div>
             @endif
 
             <div class="overflow-x-auto">
@@ -37,8 +37,8 @@
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $this->issueUserLabel }}</td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
                                 @php
-                                    $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
-                                    $isSolved = $statusName === 'solved';
+                                $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
+                                $isSolved = $statusName === 'solved';
                                 @endphp
                                 <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
                                     {{ strtoupper($issue->issueStatusRelation?->name ?? '-') }}

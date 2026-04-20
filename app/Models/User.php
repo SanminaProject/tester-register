@@ -59,14 +59,14 @@ class User extends Authenticatable
     protected function name(): Attribute
     {
         return Attribute::make(
-            get: fn () => trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''))
+            get: fn() => trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''))
         );
     }
 
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn () => trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''))
+            get: fn() => trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''))
         );
     }
 
@@ -76,11 +76,11 @@ class User extends Authenticatable
     public function testers()
     {
         return $this->belongsToMany(
-        Tester::class,
-        'user_tester_assignments',
-        'user_id',
-        'tester_id'
-    );
+            Tester::class,
+            'user_tester_assignments',
+            'user_id',
+            'tester_id'
+        );
     }
 
     public function getRoleNamesAttribute()
