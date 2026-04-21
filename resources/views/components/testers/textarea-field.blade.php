@@ -6,11 +6,11 @@
 ])
 
 <div>
-    <label class="block text-sm font-medium text-gray-700 text-left">{{ $label }}</label>
+    <label class="block text-[15px] font-semibold text-gray-800 mb-2">{{ $label }}</label>
     <textarea
         rows="{{ $rows }}"
         placeholder="{{ $placeholder }}"
-        {{ $attributes->merge(['class' => 'bg-grey rounded-full px-8 py-4 border-none shadow-none w-full text-black focus:ring-2 focus:ring-blue-200 focus:outline-none transition']) }}></textarea>
+        {{ $attributes->merge(['class' => 'w-full bg-light-grey border-none text-black focus:border-highlight focus:ring-highlight rounded-[24px] shadow-sm px-5 py-3 text-sm transition resize-y']) }}></textarea>
 
     @if($error)
     <x-input-error :messages="$errors->get($error)" class="mt-1" />

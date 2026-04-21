@@ -8,8 +8,8 @@
 ])
 
 <div>
-    <label class="block text-sm font-medium text-gray-700 text-left">{{ $label }}</label>
-    <select {{ $attributes->merge(['class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm']) }}>
+    <label class="block text-[15px] font-semibold text-gray-800 mb-2">{{ $label }}</label>
+    <select {{ $attributes->merge(['class' => 'w-full bg-light-grey border-none text-black focus:border-highlight focus:ring-highlight rounded-[30px] shadow-sm px-5 py-2.5 text-sm transition']) }}>
         @if($placeholder !== '')
         <option value="">{{ $placeholder }}</option>
         @endif

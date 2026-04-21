@@ -19,13 +19,15 @@
         <div class="grid grid-cols-[145px_1fr] md:grid-cols-[200px_1fr] gap-x-2 md:gap-x-4 items-start relative">
             <div class="text-[#8c8c8c] md:text-gray-600 tracking-wide text-[14px] md:text-[16px] pt-1">Search Tester</div>
             <div class="relative w-full max-w-[400px]">
-                <div class="relative">
-                    <input type="text" wire:model.live.debounce.300ms="searchQuery" 
-                           class="block w-full text-[14px] md:text-[15px] font-semibold md:font-extrabold border border-gray-300 rounded bg-gray-50 py-2 pk-3 focus:ring-1 focus:ring-primary focus:border-primary" 
-                           placeholder="Type Tester ID or Name...">
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
+<div class="relative w-full">
+                        <input type="text" wire:model.live.debounce.300ms="searchQuery" 
+                               class="w-full pl-10 pr-4 py-2 bg-[#dddddd] rounded-full focus:outline-none focus:ring-2 focus:ring-pink-200 border-0 shadow-none text-sm" 
+                               placeholder="Search..." style="box-shadow:none;">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#2C3E50]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </span>
                 </div>
                 
                 @if(count($searchResults) > 0)

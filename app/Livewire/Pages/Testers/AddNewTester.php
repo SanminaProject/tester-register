@@ -64,13 +64,14 @@ class AddNewTester extends Component
 
     public function updatedSearchQuery()
     {
-        if (strlen($this->search_query) < 2) {
+        if (strlen($this->search_query) < 1) {
             $this->search_results = [];
             return;
         }
 
         $this->search_results = Tester::where('name', 'like', '%' . $this->search_query . '%')
             ->orWhere('id_number_by_customer', 'like', '%' . $this->search_query . '%')
+            ->orWhere('id', 'like', '%' . $this->search_query . '%')
             ->limit(5)
             ->get(['id', 'name', 'id_number_by_customer'])
             ->toArray();
@@ -96,8 +97,8 @@ class AddNewTester extends Component
             $this->additional_info     = $existing->additional_info;
             $this->asset_no            = optional(TesterAsset::where('tester_id', $existing->id)->first())->asset_no;
 
-            // Clear search state
-            $this->search_query = '';
+            // Updated: keep the name in the search bar and clear results
+            $this->search_query = $existing->id . ' - ' . $existing->name;
             $this->search_results = [];
 
             session()->flash('message', 'Data copied successfully! ');
