@@ -159,6 +159,10 @@ class DataTable extends Component
         // type-specific scopes
         $query = $this->applyTypeScopes($query);
 
+        if (in_array($this->type, ['fixture-audit-logs', 'tester-audit-logs', 'spare-part-audit-logs'])) {
+            $query->orderByDesc('changed_at')->orderByDesc('id');
+        }
+
         $keyword = trim($this->search);
 
         if ($keyword !== '') {

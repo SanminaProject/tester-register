@@ -1,18 +1,29 @@
 <div class="flex flex-col w-full min-h-[calc(100vh-8rem)] mb-12 md:mb-0 rounded-[24px] md:rounded-2xl bg-white px-5 md:px-10 pt-6 md:pt-8 pb-10 md:pb-12 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:shadow-sm font-sans text-gray-800">
-    <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-8 border-b border-gray-200">
-        <div class="flex items-center gap-4 mb-4 md:mb-0">
-            <button 
-                type="button" 
-                wire:click="$dispatch('switchTab', { tab: 'all' })" 
-                class="flex items-center justify-center w-8 h-8 rounded hover:bg-gray-100 transition-colors text-black">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
+        <div class="flex items-center justify-between pb-6 border-b border-gray-200">
+            <div class="flex items-center gap-4">
+                <button 
+                    type="button" 
+                    wire:click="$dispatch('switchTab', { tab: '{{ $tester_id ? 'details' : 'all' }}'{{ $tester_id ? ', id: ' . $tester_id : '' }} })" 
+                    class="flex items-center justify-center w-8 h-8 rounded hover:bg-gray-100 transition-colors text-black">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2 class="text-xl font-extrabold text-black tracking-tight">
+                    {{ $tester_id ? 'Edit Tester Details' : 'Add New Tester' }}
+                </h2>
+            </div>
+            
+            <button
+                class="bg-primary hover:bg-[#8A0028] text-white text-[15px] font-medium px-8 py-2 md:py-2.5 rounded-full transition-colors flex-shrink-0"
+                wire:click="save"
+                type="button">
+                Save
             </button>
-            <h2 class="text-xl font-extrabold text-black tracking-tight">Add New Tester</h2>
         </div>
 
-        <div class="relative flex-1 max-w-md mx-0 md:mx-8 mb-4 md:mb-0">
+        @if(!$tester_id)
+        <div class="relative flex max-w-md my-6 md:mb-8">
             <div class="relative w-full lg:w-70">
                 <input type="text" wire:model.live.debounce.300ms="search_query" class="w-full pl-10 pr-4 py-2 bg-[#dddddd] rounded-full focus:outline-none focus:ring-2 focus:ring-pink-200 border-0 shadow-none text-sm" placeholder="Search..." style="box-shadow:none;">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#2C3E50]">
@@ -22,7 +33,7 @@
                 </span>
             </div>
             @if(!empty($search_results))
-            <div class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+            <div class="absolute z-10 top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
                 @foreach($search_results as $result)
                 <div class="px-4 py-2 hover:bg-gray-50 flex justify-between items-center border-b cursor-pointer" wire:click="selectAndCopyTester({{ $result['id'] }})">
                     <span class="text-sm text-gray-700 font-medium">{{ $result['id'] }} - {{ $result['name'] }}</span>
@@ -32,14 +43,7 @@
             </div>
             @endif
         </div>
-
-        <button
-            class="bg-primary hover:bg-[#8A0028] text-white text-[15px] font-medium px-8 py-2 md:py-2.5 rounded-full transition-colors flex-shrink-0"
-            wire:click="save"
-            type="button">
-            Save
-        </button>
-    </div>
+        @endif
 
     <!-- The Grid Layout -->
     <!-- Matches tester-details layout to maintain white space on the right side -->
@@ -51,7 +55,7 @@
                 
                 <!-- Row 1 -->
             <div>
-                <x-testers.input-field label="*ID" wire:model="tester_id" placeholder="" />
+                <x-testers.input-field label="*ID" wire:model="tester_id" placeholder="" disabled />
             </div>
             <div>
                 <x-testers.input-field label="*Name" wire:model="name" placeholder="" />

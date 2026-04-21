@@ -11,7 +11,7 @@ class TesterDetails extends Component
 
     public function mount($testerId)
     {
-        $this->tester = Tester::with(['owner', 'statusRelation', 'location'])->findOrFail($testerId);
+        $this->tester = Tester::with(['owner', 'statusRelation', 'location', 'assets'])->findOrFail($testerId);
     }
 
     public function updateInventoryDate()

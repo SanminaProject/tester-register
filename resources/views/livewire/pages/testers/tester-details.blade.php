@@ -14,7 +14,7 @@
             <h2 class="text-xl font-extrabold text-black tracking-tight">Tester Details</h2>
         </div>
 
-        <x-primary-button type="button" class="w-32">
+        <x-primary-button type="button" class="w-32" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $tester->id }} })">
             Edit
         </x-primary-button>
     </div>
@@ -49,18 +49,19 @@
                 'Product Family' => $tester->product_family,
                 'Manufacturer' => $tester->manufacturer,
                 'Implementaion Date' => $tester->implementation_date ? $tester->implementation_date->format('j.n.Y H:i') : null,
-                'Linked Measuring Devices' => $tester->linked_measuring_devices ?? null,
                 'Additional Info' => $tester->additional_info,
-                'Asset 1' => $tester->asset_1,
-                'Asset 2' => $tester->asset_2,
-                'Asset 3' => $tester->asset_3,
-                'Asset 4' => $tester->asset_4,
-                'Asset 5' => $tester->asset_5,
             ];
 
-            // Filter out empty asset rows just like requested
+            // Add dynamic assets to the bottom
+            if ($tester->assets && $tester->assets->count() > 0) {
+                foreach ($tester->assets as $index => $asset) {
+                    $rows['Asset ' . ($index + 1)] = $asset->asset_no;
+                }
+            }
+
+            // Filter out empty rows just like requested
             $rows = array_filter($rows, function($value, $label) {
-                if (in_array($label, ['Linked Measuring Devices', 'Additional Info']) || str_starts_with($label, 'Asset ')) {
+                if ($label === 'Additional Info') {
                     return $value !== null && $value !== '';
                 }
                 return true; // Keep all other regular fields

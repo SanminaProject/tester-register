@@ -174,7 +174,36 @@ class TesterController extends ApiController
     {
         $this->authorize('delete', $tester);
 
+        $tester->load('assets');
+
+        $details = [
+            "- id: [{$tester->id}]",
+            "- name: [" . ($tester->name ?? 'empty') . "]",
+            "- description: [" . ($tester->description ?? 'empty') . "]",
+            "- id_number_by_customer: [" . ($tester->id_number_by_customer ?? 'empty') . "]",
+            "- operating_system: [" . ($tester->operating_system ?? 'empty') . "]",
+            "- type: [" . ($tester->type ?? 'empty') . "]",
+            "- product_family: [" . ($tester->product_family ?? 'empty') . "]",
+            "- manufacturer: [" . ($tester->manufacturer ?? 'empty') . "]",
+            "- implementation_date: [" . ($tester->implementation_date ?? 'empty') . "]",
+            "- additional_info: [" . ($tester->additional_info ?? 'empty') . "]",
+            "- location_id: [" . ($tester->location_id ?? 'empty') . "]",
+            "- owner_id: [" . ($tester->owner_id ?? 'empty') . "]",
+            "- status: [" . ($tester->status ?? 'empty') . "]",
+        ];
+
+        foreach ($tester->assets as $index => $asset) {
+            $details[] = "- asset_no " . ($index + 1) . ": [" . ($asset->asset_no ?? 'empty') . "]";
+        }
+
         $tester->delete();
+
+        \App\Models\DataChangeLog::create([
+            'changed_at' => now(),
+            'explanation' => "Deleted tester details:\n" . implode("\n", $details),
+            'tester_id' => $tester->id,
+            'user_id' => auth()->id() ?? 1,
+        ]);
 
         return $this->success('Tester deleted successfully');
     }

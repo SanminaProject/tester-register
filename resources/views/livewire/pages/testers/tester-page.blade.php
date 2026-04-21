@@ -13,7 +13,9 @@
         @if ($activeTab === 'all')
         <livewire:pages.testers.all-testers />
         @elseif ($activeTab === 'add')
-        <livewire:pages.testers.add-new-tester />
+        <livewire:pages.testers.add-new-tester key="add-tester" />
+        @elseif ($activeTab === 'edit')
+        <livewire:pages.testers.add-new-tester :testerId="$selectedTesterId" wire:key="edit-tester-{{ $selectedTesterId }}" />
         @elseif ($activeTab === 'logs')
         <livewire:pages.testers.tester-audit-logs />
         @elseif ($activeTab === 'details')
