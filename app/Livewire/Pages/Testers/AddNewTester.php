@@ -25,10 +25,9 @@ class AddNewTester extends Component
     public $location_id;
     public $status_id;
     public $additional_info;
-    public $linked_measuring_devices;
     public $implementation_date;
     public $documents = [];
-    public $asset_no;
+    public $asset_nos = [''];
 
     public $search_query = '';
     public $search_results = [];
@@ -95,7 +94,9 @@ class AddNewTester extends Component
                 ? $existing->implementation_date->format('Y-m-d')
                 : null;
             $this->additional_info     = $existing->additional_info;
-            $this->asset_no            = optional(TesterAsset::where('tester_id', $existing->id)->first())->asset_no;
+            
+            $existingAssets = TesterAsset::where('tester_id', $existing->id)->pluck('asset_no')->toArray();
+            $this->asset_nos = !empty($existingAssets) ? array_slice($existingAssets, 0, 5) : [''];
 
             // Updated: keep the name in the search bar and clear results
             $this->search_query = $existing->id . ' - ' . $existing->name;
@@ -120,7 +121,8 @@ class AddNewTester extends Component
             'location_id' => ['nullable', 'integer', 'exists:tester_and_fixture_locations,id'],
             'owner_id' => ['nullable', 'integer', 'exists:tester_customers,id'],
             'status_id' => ['nullable', 'integer', 'exists:asset_statuses,id'],
-            'asset_no' => ['nullable', 'string', 'max:100'],
+            'asset_nos' => ['nullable', 'array', 'max:5'],
+            'asset_nos.*' => ['nullable', 'string', 'max:100'],
             ...$this->documentRules,
         ]);
 
@@ -140,11 +142,15 @@ class AddNewTester extends Component
                 'status' => $validated['status_id'] ?? null,
             ]);
 
-            if (!empty($validated['asset_no'])) {
-                TesterAsset::create([
-                    'asset_no' => $validated['asset_no'],
-                    'tester_id' => $tester->id,
-                ]);
+            if (!empty($validated['asset_nos'])) {
+                foreach ($validated['asset_nos'] as $asset_no) {
+                    if (!empty(trim($asset_no))) {
+                        TesterAsset::create([
+                            'asset_no' => trim($asset_no),
+                            'tester_id' => $tester->id,
+                        ]);
+                    }
+                }
             }
 
             if (!empty($this->documents)) {
@@ -169,11 +175,26 @@ class AddNewTester extends Component
             'location_id',
             'status_id',
             'additional_info',
-            'linked_measuring_devices',
             'implementation_date',
             'documents',
-            'asset_no',
         ]);
+        $this->asset_nos = [''];
+    }
+
+    public function addAssetInput()
+    {
+        if (count($this->asset_nos) < 5) {
+            $this->asset_nos[] = '';
+        }
+    }
+
+    public function removeAssetInput($index)
+    {
+        unset($this->asset_nos[$index]);
+        $this->asset_nos = array_values($this->asset_nos);
+        if (empty($this->asset_nos)) {
+            $this->asset_nos = [''];
+        }
     }
 
     public function updatedDocuments(): void

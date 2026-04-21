@@ -103,20 +103,34 @@
             </div>
 
             <!-- Row 8 -->
-            <div class="lg:col-span-2">
-                <x-testers.input-field label="Linked Measuring Devices" wire:model="linked_measuring_devices" placeholder="" />
-            </div>
 
             <!-- Row 9 -->
             <div>
-                <x-testers.input-field label="Asset" wire:model="asset_no" placeholder="" />
+                <label class="block text-[15px] font-semibold text-gray-800 mb-2">Asset</label>
                 
-                <button type="button" class="mt-6 w-[200px] py-2 rounded-full bg-[#f3f4f6] text-[#8e95a2] font-semibold text-sm flex justify-center items-center gap-1 hover:bg-gray-200 transition">
+                @foreach($asset_nos as $index => $asset_no)
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="flex-1">
+                            <input type="text" wire:model="asset_nos.{{ $index }}" class="w-full px-5 py-2.5 text-sm bg-light-grey rounded-[30px] border-none focus:ring-1 focus:ring-secondary focus:bg-white transition-colors text-black" placeholder="Enter asset number...">
+                        </div>
+                        @if(count($asset_nos) > 1)
+                            <button type="button" wire:click="removeAssetInput({{ $index }})" class="flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors" title="Remove Asset">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        @endif
+                    </div>
+                @endforeach
+                
+                @if(count($asset_nos) < 5)
+                <button type="button" wire:click="addAssetInput" class="mt-2 w-[200px] py-2 rounded-full bg-[#f3f4f6] text-[#8e95a2] font-semibold text-sm flex justify-center items-center gap-1 hover:bg-gray-200 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Add New Asset
                 </button>
+                @endif
+                
+                @error('asset_nos.*') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
             </div>
             
             <div>
