@@ -48,6 +48,12 @@ class MaintenanceSettings extends Component
     public $nextCalibrationUserId = null;
     public $preselectedTesterId = null;
 
+    public bool $showAddPeriodModal = false;
+    public string $newPeriodType = 'maintenance';
+    public int $newMonths = 0;
+    public int $newWeeks = 0;
+    public int $newDays = 0;
+
     public function mount()
     {
         $this->loadOptions();
@@ -68,35 +74,43 @@ class MaintenanceSettings extends Component
         $mProcedures = DB::table('tester_maintenance_procedures')
             ->join('procedure_interval_units', 'tester_maintenance_procedures.interval_unit', '=', 'procedure_interval_units.id')
             ->select('tester_maintenance_procedures.id', 'interval_value', 'procedure_interval_units.name as unit', 'type')
+            ->orderBy('procedure_interval_units.id', 'desc')
+            ->orderBy('interval_value', 'asc')
             ->get();
         
         $this->maintenanceOptions = [];
         foreach ($mProcedures as $p) {
-            $typeStr = str_replace(['Standard ', 'Full '], '', $p->type);
-            $typeStr = trim($typeStr);
-            if(empty($typeStr)) {
-                $typeStr = "{$p->interval_value} {$p->unit}";
-            } elseif (strtolower($typeStr) !== 'custom') {
-                $typeStr = "{$p->interval_value} {$p->unit}";
+            if (str_starts_with($p->type, 'Custom: ')) {
+                $this->maintenanceOptions[$p->id] = str_replace('Custom: ', '', $p->type);
+            } else {
+                $typeStr = str_replace(['Standard ', 'Full '], '', $p->type);
+                $typeStr = trim($typeStr);
+                if(empty($typeStr) || strtolower($typeStr) !== 'custom') {
+                    $typeStr = "{$p->interval_value} {$p->unit}";
+                }
+                $this->maintenanceOptions[$p->id] = $typeStr;
             }
-            $this->maintenanceOptions[$p->id] = $typeStr;
         }
 
         $cProcedures = DB::table('tester_calibration_procedures')
             ->join('procedure_interval_units', 'tester_calibration_procedures.interval_unit', '=', 'procedure_interval_units.id')
             ->select('tester_calibration_procedures.id', 'interval_value', 'procedure_interval_units.name as unit', 'type')
+            ->orderBy('procedure_interval_units.id', 'desc')
+            ->orderBy('interval_value', 'asc')
             ->get();
             
         $this->calibrationOptions = [];
         foreach ($cProcedures as $p) {
-            $typeStr = str_replace(['Standard ', 'Full '], '', $p->type);
-            $typeStr = trim($typeStr);
-            if(empty($typeStr)) {
-                $typeStr = "{$p->interval_value} {$p->unit}";
-            } elseif (strtolower($typeStr) !== 'custom') {
-                $typeStr = "{$p->interval_value} {$p->unit}";
+            if (str_starts_with($p->type, 'Custom: ')) {
+                $this->calibrationOptions[$p->id] = str_replace('Custom: ', '', $p->type);
+            } else {
+                $typeStr = str_replace(['Standard ', 'Full '], '', $p->type);
+                $typeStr = trim($typeStr);
+                if(empty($typeStr) || strtolower($typeStr) !== 'custom') {
+                    $typeStr = "{$p->interval_value} {$p->unit}";
+                }
+                $this->calibrationOptions[$p->id] = $typeStr;
             }
-            $this->calibrationOptions[$p->id] = $typeStr;
         }
     }
 
@@ -195,23 +209,41 @@ class MaintenanceSettings extends Component
 
     public function updatedMaintenancePeriodId($value)
     {
+        if ($value === 'add_new_period') {
+            $this->showAddPeriodModal = true;
+            $this->newPeriodType = 'maintenance';
+            $this->maintenancePeriodId = '';
+            return;
+        }
+
         if (!$value || $value === 'custom') return;
         
         $proc = DB::table('tester_maintenance_procedures')
             ->join('procedure_interval_units', 'tester_maintenance_procedures.interval_unit', '=', 'procedure_interval_units.id')
-            ->select('interval_value', 'procedure_interval_units.name as unit')
+            ->select('interval_value', 'procedure_interval_units.name as unit', 'type')
             ->where('tester_maintenance_procedures.id', $value)
             ->first();
 
         if ($proc) {
             $date = $this->getRawDate('maintenance');
-            $val = (int)$proc->interval_value;
-            $unit = strtolower($proc->unit);
+            
+            if (str_starts_with($proc->type, 'Custom: ')) {
+                preg_match('/(\d+)\s+Month/i', $proc->type, $m);
+                preg_match('/(\d+)\s+Week/i', $proc->type, $w);
+                preg_match('/(\d+)\s+Day/i', $proc->type, $d);
 
-            if (str_contains($unit, 'month')) $date->addMonths($val);
-            elseif (str_contains($unit, 'year')) $date->addYears($val);
-            elseif (str_contains($unit, 'day')) $date->addDays($val);
-            elseif (str_contains($unit, 'week')) $date->addWeeks($val);
+                if (!empty($m[1])) $date->addMonths((int)$m[1]);
+                if (!empty($w[1])) $date->addWeeks((int)$w[1]);
+                if (!empty($d[1])) $date->addDays((int)$d[1]);
+            } else {
+                $val = (int)$proc->interval_value;
+                $unit = strtolower($proc->unit);
+
+                if (str_contains($unit, 'month')) $date->addMonths($val);
+                elseif (str_contains($unit, 'year')) $date->addYears($val);
+                elseif (str_contains($unit, 'day')) $date->addDays($val);
+                elseif (str_contains($unit, 'week')) $date->addWeeks($val);
+            }
             
             $this->nextMaintenanceDate = $date->format('Y-m-d\TH:i');
         }
@@ -219,45 +251,46 @@ class MaintenanceSettings extends Component
 
     public function updatedNextMaintenanceDate($value)
     {
-        if (!$value) return;
-
-        $target = Carbon::parse($value);
-        $start = $this->getRawDate('maintenance');
-        
-        if ($target->lessThanOrEqualTo($start)) {
-            $this->maintenancePeriodId = '';
-            return;
-        }
-
-        $diff = $start->diff($target);
-        $parts = [];
-        if ($diff->y > 0) $parts[] = $diff->y . ($diff->y == 1 ? ' Year' : ' Years');
-        if ($diff->m > 0) $parts[] = $diff->m . ($diff->m == 1 ? ' Month' : ' Months');
-        if ($diff->d > 0) $parts[] = $diff->d . ($diff->d == 1 ? ' Day' : ' Days');
-        
-        $this->customMaintenanceLabel = !empty($parts) ? implode(' ', $parts) : '0 Days';
-        $this->maintenancePeriodId = 'custom';
+        // Removed custom period calculation
     }
 
     public function updatedCalibrationPeriodId($value)
     {
+        if ($value === 'add_new_period') {
+            $this->showAddPeriodModal = true;
+            $this->newPeriodType = 'calibration';
+            $this->calibrationPeriodId = '';
+            return;
+        }
+
         if (!$value || $value === 'custom') return;
         
         $proc = DB::table('tester_calibration_procedures')
             ->join('procedure_interval_units', 'tester_calibration_procedures.interval_unit', '=', 'procedure_interval_units.id')
-            ->select('interval_value', 'procedure_interval_units.name as unit')
+            ->select('interval_value', 'procedure_interval_units.name as unit', 'type')
             ->where('tester_calibration_procedures.id', $value)
             ->first();
 
         if ($proc) {
             $date = $this->getRawDate('calibration');
-            $val = (int)$proc->interval_value;
-            $unit = strtolower($proc->unit);
+            
+            if (str_starts_with($proc->type, 'Custom: ')) {
+                preg_match('/(\d+)\s+Month/i', $proc->type, $m);
+                preg_match('/(\d+)\s+Week/i', $proc->type, $w);
+                preg_match('/(\d+)\s+Day/i', $proc->type, $d);
 
-            if (str_contains($unit, 'month')) $date->addMonths($val);
-            elseif (str_contains($unit, 'year')) $date->addYears($val);
-            elseif (str_contains($unit, 'day')) $date->addDays($val);
-            elseif (str_contains($unit, 'week')) $date->addWeeks($val);
+                if (!empty($m[1])) $date->addMonths((int)$m[1]);
+                if (!empty($w[1])) $date->addWeeks((int)$w[1]);
+                if (!empty($d[1])) $date->addDays((int)$d[1]);
+            } else {
+                $val = (int)$proc->interval_value;
+                $unit = strtolower($proc->unit);
+
+                if (str_contains($unit, 'month')) $date->addMonths($val);
+                elseif (str_contains($unit, 'year')) $date->addYears($val);
+                elseif (str_contains($unit, 'day')) $date->addDays($val);
+                elseif (str_contains($unit, 'week')) $date->addWeeks($val);
+            }
             
             $this->nextCalibrationDate = $date->format('Y-m-d\TH:i');
         }
@@ -265,24 +298,7 @@ class MaintenanceSettings extends Component
 
     public function updatedNextCalibrationDate($value)
     {
-        if (!$value) return;
-
-        $target = Carbon::parse($value);
-        $start = $this->getRawDate('calibration');
-        
-        if ($target->lessThanOrEqualTo($start)) {
-            $this->calibrationPeriodId = '';
-            return;
-        }
-
-        $diff = $start->diff($target);
-        $parts = [];
-        if ($diff->y > 0) $parts[] = $diff->y . ($diff->y == 1 ? ' Year' : ' Years');
-        if ($diff->m > 0) $parts[] = $diff->m . ($diff->m == 1 ? ' Month' : ' Months');
-        if ($diff->d > 0) $parts[] = $diff->d . ($diff->d == 1 ? ' Day' : ' Days');
-        
-        $this->customCalibrationLabel = !empty($parts) ? implode(' ', $parts) : '0 Days';
-        $this->calibrationPeriodId = 'custom';
+        // Removed custom period calculation
     }
 
     public function toggleEdit()
@@ -295,6 +311,57 @@ class MaintenanceSettings extends Component
         } else {
             $this->isEditing = true;
         }
+    }
+
+    public function saveNewPeriod()
+    {
+        $this->validate([
+            'newMonths' => 'integer|min:0|max:120',
+            'newWeeks' => 'integer|min:0|max:52',
+            'newDays' => 'integer|min:0|max:365',
+        ]);
+
+        if ($this->newMonths == 0 && $this->newWeeks == 0 && $this->newDays == 0) {
+            return;
+        }
+
+        $parts = [];
+        if ($this->newMonths > 0) $parts[] = $this->newMonths . ($this->newMonths == 1 ? ' Month' : ' Months');
+        if ($this->newWeeks > 0) $parts[] = $this->newWeeks . ($this->newWeeks == 1 ? ' Week' : ' Weeks');
+        if ($this->newDays > 0) $parts[] = $this->newDays . ($this->newDays == 1 ? ' Day' : ' Days');
+        $label = implode(' ', $parts);
+
+        // Approximate total days just for basic sorting/storage if needed
+        $totalDays = ($this->newMonths * 30) + ($this->newWeeks * 7) + $this->newDays; 
+
+        $table = $this->newPeriodType === 'maintenance' ? 'tester_maintenance_procedures' : 'tester_calibration_procedures';
+        $unitId = DB::table('procedure_interval_units')->where('name', 'days')->value('id') ?? 1;
+
+        $newId = DB::table($table)->insertGetId([
+            'type' => 'Custom: ' . $label,
+            'interval_value' => $totalDays,
+            'interval_unit' => $unitId,
+        ]);
+
+        $this->loadOptions();
+
+        if ($this->newPeriodType === 'maintenance') {
+            $this->maintenancePeriodId = $newId;
+            $this->updatedMaintenancePeriodId($newId);
+        } else {
+            $this->calibrationPeriodId = $newId;
+            $this->updatedCalibrationPeriodId($newId);
+        }
+
+        $this->closeAddPeriodModal();
+    }
+
+    public function closeAddPeriodModal()
+    {
+        $this->showAddPeriodModal = false;
+        $this->newMonths = 0;
+        $this->newWeeks = 0;
+        $this->newDays = 0;
     }
 
     protected function handleCustomPeriod($type, $dateString)

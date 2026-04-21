@@ -91,11 +91,9 @@
                                 <option value="">Select Period...</option>
                                 @foreach($maintenanceOptions as $id => $label)
                                     <option value="{{ $id }}">{{ $label }}</option>
-                                @endforeach
-                                @if($maintenancePeriodId === 'custom')
-                                <option value="custom">Custom ({{ $customMaintenanceLabel }})</option>
-                                @endif
-                            </select>
+                                @endforeach                                @if(class_exists(\Spatie\Permission\Models\Role::class) && auth()->user() && auth()->user()->hasRole('Admin'))
+                                    <option value="add_new_period" class="font-bold text-primary bg-pink-50">+ Add New Period</option>
+                                @endif                            </select>
                         @else
                             <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] py-1 md:py-2">{{ $maintenancePeriodLabel }}</div>
                         @endif
@@ -118,11 +116,6 @@
                             <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] py-1 md:py-2">{{ $nextMaintenanceDate ? date('j.n.Y H:i', strtotime($nextMaintenanceDate)) : '-' }}</div>
                         @endif
                     </div>
-                    @if($isEditing)
-                    <div class="text-[12px] md:text-[13px] text-[#8c8c8c]">
-                        *Maintenance Period will be calculated based on Next Maintenance Date.
-                    </div>
-                    @endif
                 </div>
             </div>
 
@@ -173,11 +166,9 @@
                                 <option value="">Select Period...</option>
                                 @foreach($calibrationOptions as $id => $label)
                                     <option value="{{ $id }}">{{ $label }}</option>
-                                @endforeach
-                                @if($calibrationPeriodId === 'custom')
-                                <option value="custom">Custom ({{ $customCalibrationLabel }})</option>
-                                @endif
-                            </select>
+                                @endforeach                                @if(class_exists(\Spatie\Permission\Models\Role::class) && auth()->user() && auth()->user()->hasRole('Admin'))
+                                    <option value="add_new_period" class="font-bold text-primary bg-pink-50">+ Add New Period</option>
+                                @endif                            </select>
                         @else
                             <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] py-1 md:py-2">{{ $calibrationPeriodLabel }}</div>
                         @endif
@@ -200,11 +191,6 @@
                             <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] py-1 md:py-2">{{ $nextCalibrationDate ? date('j.n.Y H:i', strtotime($nextCalibrationDate)) : '-' }}</div>
                         @endif
                     </div>
-                    @if($isEditing)
-                    <div class="text-[12px] md:text-[13px] text-[#8c8c8c]">
-                        *Calibration Period will be calculated based on Next Calibration Date.
-                    </div>
-                    @endif
                 </div>
             </div>
 
@@ -231,6 +217,70 @@
     @else
     <div class="flex items-center justify-center py-20 text-[#8c8c8c]">
         Please search and select a tester above to view or modify calibration & maintenance settings.
+    </div>
+    @endif
+
+    <!-- Modal for adding new period -->
+    @if($showAddPeriodModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/50">
+        <div class="relative w-full max-w-md p-4 mx-auto">
+            <div class="relative bg-white rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                    <h3 class="text-xl font-bold text-gray-900">
+                        Add New {{ ucfirst($newPeriodType) }} Period
+                    </h3>
+                    <button type="button" wire:click="closeAddPeriodModal" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center">
+                        <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="p-4 md:p-5">
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-900">Months</label>
+                            <input type="number" min="0" max="120" wire:model="newMonths" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5">
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-900">Weeks</label>
+                            <input type="number" min="0" max="52" wire:model="newWeeks" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5">
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-900">Days</label>
+                            <input type="number" min="0" max="365" wire:model="newDays" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5">
+                        </div>
+                    </div>
+                    
+                    @if($errors->any())
+                        <div class="text-sm text-red-500 mb-4">
+                            @foreach ($errors->all() as $error)
+                                <div>{{ $error }}</div>
+                            @endforeach
+                        </div>
+                    @endif
+                    
+                    <div class="text-sm text-gray-500 mb-6 mt-2">
+                        Preview: 
+                        <span class="font-semibold text-gray-800">
+                            @if($newMonths > 0) {{ $newMonths }} {{ $newMonths == 1 ? 'Month' : 'Months' }} @endif
+                            @if($newWeeks > 0) {{ $newWeeks }} {{ $newWeeks == 1 ? 'Week' : 'Weeks' }} @endif
+                            @if($newDays > 0) {{ $newDays }} {{ $newDays == 1 ? 'Day' : 'Days' }} @endif
+                            @if($newMonths == 0 && $newWeeks == 0 && $newDays == 0) 0 Days @endif
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button wire:click="saveNewPeriod" type="button" class="w-full text-white bg-primary hover:bg-secondary font-medium rounded-full text-sm px-5 py-2.5 text-center transition-colors">
+                            Add Period
+                        </button>
+                        <button wire:click="closeAddPeriodModal" type="button" class="w-full text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-full text-sm px-5 py-2.5 text-center transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     @endif
 </div>
