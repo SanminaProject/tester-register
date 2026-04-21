@@ -6,12 +6,11 @@
         :showAddButton="false"
         :headers="[
             'id' => 'ID',
-            'explanation' => 'Explanation',
             'changed_at' => 'Changed At',
             'tester.id' => 'Tester ID',
             'tester.name' => 'Tester Name',
-            'user.first_name' => 'Firstname',
-            'user.last_name' => 'Lastname',
+            'explanation' => 'Action Details',
+            'user.name' => 'User',
             'user.email' => 'Email'
         ]"
     />

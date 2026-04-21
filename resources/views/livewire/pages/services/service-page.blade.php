@@ -23,11 +23,11 @@
                 :showAddButton="false"
                 :headers="[
                     'id' => 'ID',
-                    'explanation' => 'Action Details',
                     'changed_at' => 'Changed At',
                     'tester_id' => 'Tester ID',
                     'tester.name' => 'Tester Name',
-                    'user.name' => 'Modified By',
+                    'explanation' => 'Action Details',
+                    'user.name' => 'User',
                     'user.email' => 'Email'
                 ]"
             />
