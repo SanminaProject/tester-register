@@ -4,7 +4,7 @@
         :active-tab="$activeTab"
         :items="[
             ['label' => 'Active Issues', 'tab' => 'all'],
-            ['label' => 'Add Issue', 'tab' => 'add'],
+            ['label' => 'Add New Issue', 'tab' => 'add'],
             ['label' => 'Issue History', 'tab' => 'logs'],
         ]" />
 
