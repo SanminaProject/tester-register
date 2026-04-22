@@ -9,7 +9,7 @@ class InventoryPage extends Component
 {
     public string $activeTab = 'spare-parts';
     public ?int $selectedSparePartId = null;
-    public ?int $selectedSupplierId = null;
+    public ?int $selectedSparePartSupplierId = null;
 
     public function setTab($tab)
     {
@@ -25,18 +25,10 @@ class InventoryPage extends Component
                 $this->selectedSparePartId = $id;
             } elseif ($this->activeTab === 'suppliers') {
                 $this->activeTab = 'supplier-details';
-                $this->selectedSupplierId = $id;
+                $this->selectedSparePartSupplierId = $id;
             }
 
             return;
-        }
-
-        if (is_array($tab)) {
-            $this->activeTab = $tab['tab'] ?? 'spare-parts';
-            $this->selectedSparePartId = $tab['id'] ?? null;
-        } else {
-            $this->activeTab = $tab ?: 'spare-parts';
-            $this->selectedSparePartId = $id;
         }
 
         $this->activeTab = $tab;

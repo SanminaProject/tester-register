@@ -5,16 +5,16 @@
             <!-- Back Arrow -->
             <button 
                 type="button" 
-                wire:click="$dispatch('switchTab', { tab: 'spare-parts' })" 
+                wire:click="$dispatch('switchTab', { tab: 'suppliers' })" 
                 class="flex items-center justify-center w-8 h-8 rounded hover:bg-gray-100 transition-colors text-black">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
-            <h2 class="text-xl font-extrabold text-black tracking-tight">Spare Part Details</h2>
+            <h2 class="text-xl font-extrabold text-black tracking-tight">Supplier Details</h2>
         </div>
 
-        <x-primary-button type="button" class="w-32" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $sparePart->id }} })">
+        <x-primary-button type="button" class="w-32" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $sparePartSupplier->id }} })">
             Edit
         </x-primary-button>
     </div>
@@ -26,18 +26,14 @@
         <div class="flex flex-col gap-y-3.5 pl-12 w-full max-w-4xl">
             @php
             $rows = [
-                'ID' => $sparePart->id,
-                'Name' => $sparePart->name,
-                'Description' => $sparePart->description,
-                'Manufacturer Part Number' => $sparePart->manufacturer_part_number,
-                'Quantity in Stock' => $sparePart->quantity_in_stock,
-                'Unit Price' => $sparePart->unit_price,
-                'Last Order Date' => $sparePart->last_order_date,
-                'Tester ID' => $sparePart->tester_id,
-                'Tester Name' => $sparePart->tester?->name,
-                'Supplier ID' => $sparePart->supplier_id,
-                'Supplier Name' => $sparePart->supplier?->supplier_name,
-                'Reorder Level' => $sparePart->reorder_level,
+                'ID' => $sparePartSupplier->id,
+                'Name' => $sparePartSupplier->supplier_name,
+                'Contact Person' => $sparePartSupplier->contact_person,
+                'Contact Email' => $sparePartSupplier->contact_email,
+                'Contact Phone' => $sparePartSupplier->contact_phone,
+                'Address' => $sparePartSupplier->address,
+                'Number of Testers' => $sparePartSupplier->spare_parts_count,
+                'Created at' => $sparePartSupplier->created_at,
             ];
             @endphp
             
@@ -53,13 +49,13 @@
         <div class="mt-16 pl-10 flex justify-start">
             <button 
                 type="button" 
-                wire:click="deleteSparePart"
-                wire:confirm="Are you sure you want to delete this spare part? This action cannot be undone."
+                wire:click="deleteSupplier"
+                wire:confirm="Are you sure you want to delete this spare part supplier? This action cannot be undone."
                 class="flex items-center justify-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg font-semibold text-[14px] transition-colors shadow-sm cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                Delete Part
+                Delete Supplier
             </button>
         </div>
         @endif
