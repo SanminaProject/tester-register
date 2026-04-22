@@ -64,6 +64,10 @@ new class extends Component
                         {{ __('Services') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('inventory')" :active="request()->routeIs('inventory')" wire:navigate>
+                        {{ __('Inventory') }}
+                    </x-nav-link>
+
                     @role('Admin')
                     <x-nav-link :href="route('admin')" :active="request()->routeIs('admin')" wire:navigate>
                         {{ __('Admin') }}

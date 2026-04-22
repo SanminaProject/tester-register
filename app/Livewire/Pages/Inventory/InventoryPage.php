@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Livewire\Pages\Fixtures;
+namespace App\Livewire\Pages\Inventory;
 
 use Livewire\Attributes\On;
 use Livewire\Component;
 
-class FixturePage extends Component
+class InventoryPage extends Component
 {
-    public string $activeTab = 'all';
-    public ?int $selectedFixtureId = null;
+    public string $activeTab = 'spare-parts';
 
     public function setTab($tab)
     {
@@ -16,19 +15,19 @@ class FixturePage extends Component
     }
 
     #[On('switchTab')]
-    public function switchTab($tab = 'all', $id = null)
+    public function switchTab($tab = 'spare-parts', $id = null)
     {
         if (is_array($tab)) {
-            $this->activeTab = $tab['tab'] ?? 'all';
+            $this->activeTab = $tab['tab'] ?? 'spare-parts';
             $this->selectedFixtureId = $tab['id'] ?? null;
         } else {
-            $this->activeTab = $tab ?: 'all';
+            $this->activeTab = $tab ?: 'spare-parts';
             $this->selectedFixtureId = $id;
         }
     }
 
     public function render()
     {
-        return view('livewire.pages.fixtures.fixture-page');
+        return view('livewire.pages.inventory.inventory-page');
     }
 }

@@ -1,0 +1,25 @@
+<div class="flex">
+    <x-sidebar 
+        title="Inventory" 
+        :active-tab="$activeTab"
+        :items="[
+            ['label' => 'Spare Parts', 'tab' => 'spare-parts'], // list all spare parts
+            ['label' => 'Suppliers', 'tab' => 'suppliers'], // list all suppliers
+            ['label' => 'Audit Logs', 'tab' => 'logs']
+        ]" 
+    />
+        
+    <div class="flex-1 px-6 py-3">
+        @if ($activeTab === 'spare-parts')
+        <livewire:pages.inventory.spare-parts.spare-parts-table />
+        @elseif ($activeTab === 'suppliers')
+        <livewire:pages.inventory.suppliers.suppliers-table />
+        @elseif ($activeTab === 'logs')
+        <livewire:pages.inventory.inventory-audit-logs />
+        @elseif ($activeTab === 'details')
+        <livewire:pages.fixtures.fixture-details :fixtureId="$selectedFixtureId" wire:key="fixture-details-{{ $selectedFixtureId }}" />
+        @elseif ($activeTab === 'edit')
+        <livewire:pages.fixtures.fixture-logging :fixtureId="$selectedFixtureId" wire:key="fixture-edit-{{ $selectedFixtureId }}" />
+        @endif
+    </div>
+</div>

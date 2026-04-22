@@ -27,3 +27,4 @@ require __DIR__ . '/testers.php';
 require __DIR__ . '/fixtures.php';
 require __DIR__ . '/issues.php';
 require __DIR__ . '/services.php';
+require __DIR__ . '/inventory.php';
