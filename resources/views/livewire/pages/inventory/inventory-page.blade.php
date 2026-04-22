@@ -16,8 +16,8 @@
         <livewire:pages.inventory.suppliers.suppliers-table />
         @elseif ($activeTab === 'logs')
         <livewire:pages.inventory.inventory-audit-logs />
-        @elseif ($activeTab === 'details')
-        <livewire:pages.fixtures.fixture-details :fixtureId="$selectedFixtureId" wire:key="fixture-details-{{ $selectedFixtureId }}" />
+        @elseif ($activeTab === 'spare-part-details')
+        <livewire:pages.inventory.spare-parts.spare-part-details :sparePartId="$selectedSparePartId" wire:key="spare-part-details-{{ $selectedSparePartId }}" />
         @elseif ($activeTab === 'edit')
         <livewire:pages.fixtures.fixture-logging :fixtureId="$selectedFixtureId" wire:key="fixture-edit-{{ $selectedFixtureId }}" />
         @endif
