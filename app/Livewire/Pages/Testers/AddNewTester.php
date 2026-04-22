@@ -4,9 +4,11 @@ namespace App\Livewire\Pages\Testers;
 
 use App\Models\TesterAsset;
 use Livewire\Component;
+use Livewire\Attributes\Computed;
 use Livewire\WithFileUploads;
 use App\Models\Tester;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +32,7 @@ class AddNewTester extends Component
     public $additional_info;
     public $implementation_date;
     public $documents = [];
+    public $newDocuments = [];
     public $asset_nos = [''];
 
     public $search_query = '';
@@ -39,7 +42,7 @@ class AddNewTester extends Component
     public $families = [], $types = [], $os_versions = [], $manufacturers = [];
 
     private array $documentRules = [
-        'documents.*' => ['nullable', 'file', 'mimes:txt,pdf,csv,doc,docx,xls,xlsx,ppt,pptx', 'max:10240'],
+        'documents.*' => ['nullable', 'file', 'mimes:txt,pdf,csv,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,webp', 'max:10240'],
     ];
 
     public function mount($testerId = null)
@@ -268,7 +271,8 @@ class AddNewTester extends Component
 
             if (!empty($this->documents)) {
                 foreach ($this->documents as $document) {
-                    $document->store('testers/' . $tester->id . '/documents');
+                    $originalName = $document->getClientOriginalName();
+                    $document->storeAs('testers/' . $tester->id . '/documents', $originalName);
                 }
             }
         });
@@ -303,6 +307,60 @@ class AddNewTester extends Component
     {
         if (count($this->asset_nos) < 5) {
             $this->asset_nos[] = '';
+        }
+    }
+
+    public function updatedNewDocuments()
+    {
+        $this->validate([
+            'newDocuments.*' => ['nullable', 'file', 'mimes:txt,pdf,csv,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,webp', 'max:10240'],
+        ]);
+
+        foreach ($this->newDocuments as $doc) {
+            $this->documents[] = $doc;
+        }
+
+        // Reset so the user can select another file (or the same file again) if desired
+        $this->newDocuments = [];
+    }
+
+    #[Computed]
+    public function existingDocuments()
+    {
+        if (!$this->tester_id) {
+            return collect([]);
+        }
+
+        $path = 'testers/' . $this->tester_id . '/documents';
+        
+        if (Storage::disk('local')->exists($path)) {
+            return collect(Storage::disk('local')->files($path))->map(function ($filePath) {
+                return [
+                    'name' => basename($filePath),
+                    'path' => $filePath,
+                ];
+            });
+        }
+
+        return collect([]);
+    }
+
+    public function deleteExistingDocument($filename)
+    {
+        if (!$this->tester_id) return;
+        
+        $path = 'testers/' . $this->tester_id . '/documents/' . $filename;
+        if (Storage::disk('local')->exists($path)) {
+            Storage::disk('local')->delete($path);
+            session()->flash('message', 'Document deleted successfully.');
+        }
+    }
+
+    public function removeSelectedDocument($index)
+    {
+        if (isset($this->documents[$index])) {
+            unset($this->documents[$index]);
+            $this->documents = array_values($this->documents); // Reset keys so frontend indices match correctly
         }
     }
 

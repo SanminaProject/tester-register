@@ -114,27 +114,31 @@
                 <div class="flex flex-col gap-4 md:gap-5 pt-0 md:pt-1">
                     <div class="flex justify-between items-center">
                         <span class="text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black">Documents</span>
-                        <button class="text-[11px] text-[#8c8c8c] md:text-dark-grey hover:text-black flex items-center gap-1.5 transition uppercase md:capitalize tracking-wider md:tracking-normal font-semibold md:font-normal">
+                        @if(count($this->documents) > 0)
+                        <button wire:click="downloadAllDocuments" class="text-[11px] text-[#8c8c8c] md:text-dark-grey hover:text-black flex items-center gap-1.5 transition uppercase md:capitalize tracking-wider md:tracking-normal font-semibold md:font-normal">
                             <svg class="h-[14px] w-[14px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             Download All
                         </button>
+                        @endif
                     </div>
 
                     <div class="flex flex-col gap-3 md:gap-4">
-                        @for ($i = 1; $i <= 3; $i++)
+                        @forelse ($this->documents as $document)
                         <div class="flex justify-between items-center">
-                            <a href="#" class="font-semibold md:font-normal text-[13px] md:text-[12px] text-[#2c6ecb] md:text-gray-400 md:underline decoration-gray-300 underline-offset-[3px] hover:text-blue-800 md:hover:text-black hover:decoration-black transition">
-                                Document_{{ $i }}.pdf
-                            </a>
-                            <button class="text-[#8c8c8c] md:text-gray-400 hover:text-black transition">
+                            <button wire:click="downloadDocument('{{ $document['path'] }}')" class="max-w-[200px] md:max-w-[250px] truncate font-semibold md:font-normal text-[13px] md:text-[12px] text-[#2c6ecb] md:text-gray-400 md:underline decoration-gray-300 underline-offset-[3px] hover:text-blue-800 md:hover:text-black hover:decoration-black transition" title="{{ $document['name'] }}">
+                                {{ $document['name'] }}
+                            </button>
+                            <button wire:click="downloadDocument('{{ $document['path'] }}')" class="text-[#8c8c8c] md:text-gray-400 hover:text-black transition">
                                 <svg class="h-[15px] w-[15px] md:h-[15px] md:w-[15px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                             </button>
                         </div>
-                        @endfor
+                        @empty
+                        <span class="text-[13px] text-gray-400 italic">No documents available.</span>
+                        @endforelse
                     </div>
                 </div>
             </div>

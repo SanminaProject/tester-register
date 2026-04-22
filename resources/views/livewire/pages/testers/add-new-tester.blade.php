@@ -138,12 +138,22 @@
             </div>
             
             <div>
-                <x-testers.upload-field label="Documents" :multiple="true" model="documents" accept=".jpg,.jpeg,.png,.gif,.txt,.pdf,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx" placeholder="Upload Files" />
+                <x-testers.upload-field 
+                    label="Documents" 
+                    :multiple="true" 
+                    model="newDocuments" 
+                    accept=".jpg,.jpeg,.png,.gif,.webp,.txt,.pdf,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx" 
+                    placeholder="Upload Files" 
+                    allowedTypes="JPG, PNG, GIF, PDF, CSV, DOC, XLS, PPT, TXT"
+                />
                 
-                <div wire:loading wire:target="documents" class="text-xs text-blue-600 mt-1">
+                <div wire:loading wire:target="newDocuments" class="text-xs text-blue-600 mt-1">
                     Uploading files...
                 </div>
 
+                @error('newDocuments.*')
+                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
                 @error('documents.*')
                 <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                 @enderror
@@ -152,8 +162,33 @@
                 <div class="mt-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
                     <p class="text-xs font-semibold text-gray-700 mb-1">Selected files:</p>
                     <ul class="space-y-1">
-                        @foreach($documents as $document)
-                        <li class="text-xs text-gray-600">{{ $document->getClientOriginalName() }}</li>
+                        @foreach($documents as $index => $document)
+                        <li class="flex justify-between items-center text-xs text-gray-600">
+                            <span class="truncate pr-2">{{ $document->getClientOriginalName() }}</span>
+                            <button type="button" wire:click="removeSelectedDocument({{ $index }})" class="text-red-500 hover:text-red-700 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
+                @if($this->tester_id && count($this->existingDocuments) > 0)
+                <div class="mt-4 rounded-md border border-gray-200 bg-white px-3 py-2">
+                    <p class="text-xs font-semibold text-gray-700 mb-2">Existing files:</p>
+                    <ul class="space-y-2">
+                        @foreach($this->existingDocuments as $doc)
+                        <li class="flex justify-between items-center text-xs text-gray-600">
+                            <span class="truncate max-w-[80%]" title="{{ $doc['name'] }}">{{ $doc['name'] }}</span>
+                            <button type="button" wire:click="deleteExistingDocument('{{ str_replace("'", "\'", $doc['name']) }}')" wire:confirm="Are you sure you want to delete this file?" class="text-red-500 hover:text-red-700 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </li>
                         @endforeach
                     </ul>
                 </div>
