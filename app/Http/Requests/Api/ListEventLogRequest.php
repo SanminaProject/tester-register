@@ -25,7 +25,7 @@ class ListEventLogRequest extends FormRequest
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
             'tester_id' => ['nullable', 'integer', 'exists:testers,id'],
-            'type' => ['nullable', 'in:maintenance,calibration,issue,repair,other'],
+            'type' => ['nullable', 'in:maintenance,calibration,issue,problem,solution,repair,other'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];

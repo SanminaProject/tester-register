@@ -21,4 +21,14 @@ class EventLogPolicy extends BasePolicy
     {
         return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
     }
+
+    public function update(User $user, EventLog $eventLog): bool
+    {
+        return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
+    }
+
+    public function delete(User $user, EventLog $eventLog): bool
+    {
+        return $this->hasAnyRole($user, ['admin', 'manager', 'technician']);
+    }
 }

@@ -10,6 +10,7 @@ use App\Models\Fixture;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Models\DataChangeLog;
+use App\Models\TesterEventLog;
 use Illuminate\Support\Str;
 
 class DataTable extends Component
@@ -33,11 +34,11 @@ class DataTable extends Component
     {
         $plural = Str::plural($this->type);
         $singular = Str::singular($this->type);
-        
+
         if (view()->exists("livewire.pages.admin.{$plural}.{$singular}-details") || view()->exists("livewire.pages.admin.{$singular}.{$singular}-details")) {
             return true;
-        } 
-        
+        }
+
         return view()->exists("livewire.pages.{$plural}.{$singular}-details");
     }
 
@@ -50,6 +51,8 @@ class DataTable extends Component
             'roles' => Role::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
+            'issues' => TesterEventLog::class,
+            'issue-history' => TesterEventLog::class,
             default => throw new \Exception("Invalid data type"),
         };
     }
@@ -59,9 +62,11 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => ['owner', 'statusRelation'],
             'fixtures' => ['tester', 'location', 'status'],
-            'personnel' => ['roles', 'testers'], 
+            'personnel' => ['roles', 'testers'],
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
+            'issues' => ['tester', 'createdBy', 'issueStatusRelation', 'eventType'],
+            'issue-history' => ['tester', 'createdBy', 'issueStatusRelation', 'eventType'],
             default => [],
         };
     }
@@ -75,6 +80,8 @@ class DataTable extends Component
             'roles' => ['name', 'guard_name'],
             'fixture-audit-logs' => ['explanation', 'fixture_id', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester_id', 'tester.name', 'user.email'],
+            'issues' => ['id', 'date', 'tester_id', 'eventType.name', 'description', 'createdBy.email', 'issueStatusRelation.name'],
+            'issue-history' => ['id', 'date', 'tester_id', 'eventType.name', 'description', 'createdBy.email', 'issueStatusRelation.name'],
             default => [],
         };
     }
@@ -95,6 +102,24 @@ class DataTable extends Component
                 'name' => 'Name',
                 'description' => 'Description',
                 'manufacturer' => 'Manufacturer',
+            ],
+            'issues' => [
+                'id' => 'Log ID',
+                'date' => 'Date',
+                'tester_id' => 'Test ID',
+                'eventType.name' => 'Type',
+                'description' => 'Description',
+                'createdBy.email' => 'User',
+                'issueStatusRelation.name' => 'Status',
+            ],
+            'issue-history' => [
+                'id' => 'Log ID',
+                'date' => 'Date',
+                'tester_id' => 'Test ID',
+                'eventType.name' => 'Type',
+                'description' => 'Description',
+                'createdBy.email' => 'User',
+                'issueStatusRelation.name' => 'Status',
             ],
             default => [],
         };
@@ -136,6 +161,15 @@ class DataTable extends Component
                 $q->whereNotNull('spare_part_id')
                   ->orWhere('explanation', 'like', '%spare part%');
             }),
+            'issues' => $query
+                ->activeIssueRows()
+                ->orderByDesc('date'),
+            'issue-history' => $query
+                ->where(function ($historyQuery) {
+                    $historyQuery->where('description', 'like', '[HISTORY]%')
+                        ->orWhereNotNull('parent_event_log_id');
+                })
+                ->orderByDesc('date'),
             default => $query,
         };
     }
@@ -167,10 +201,18 @@ class DataTable extends Component
         }
 
         $keyword = trim($this->search);
+        $searchColumns = $this->getSearchColumns();
+
+        if (! empty($this->activeFilters)) {
+            $filteredColumns = array_values(array_intersect($searchColumns, $this->activeFilters));
+            if (! empty($filteredColumns)) {
+                $searchColumns = $filteredColumns;
+            }
+        }
 
         if ($keyword !== '') {
-            $query->where(function ($q) use ($keyword) {
-                foreach ($this->getSearchColumns() as $column) {
+            $query->where(function ($q) use ($keyword, $searchColumns) {
+                foreach ($searchColumns as $column) {
                     if (str_contains($column, '.')) {
                         [$relation, $relColumn] = explode('.', $column, 2);
                         $q->orWhereHas($relation, function ($relQuery) use ($relColumn, $keyword) {
