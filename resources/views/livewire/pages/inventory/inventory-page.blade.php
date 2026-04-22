@@ -1,4 +1,4 @@
-<div class="flex">
+<div class="flex w-full">
     <x-sidebar 
         title="Inventory" 
         :active-tab="$activeTab"
@@ -9,7 +9,7 @@
         ]" 
     />
         
-    <div class="flex-1 px-6 py-3">
+    <div class="flex-1 min-w-0 px-6 py-3">
         @if ($activeTab === 'spare-parts')
         <livewire:pages.inventory.spare-parts.spare-parts-table />
         @elseif ($activeTab === 'suppliers')

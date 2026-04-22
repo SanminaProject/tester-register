@@ -9,6 +9,7 @@ use App\Models\Fixture;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Models\DataChangeLog;
+use App\Models\TesterSparePart;
 use Illuminate\Support\Str;
 
 class DataTable extends Component
@@ -36,6 +37,10 @@ class DataTable extends Component
         if (view()->exists("livewire.pages.admin.{$plural}.{$singular}-details") || view()->exists("livewire.pages.admin.{$singular}.{$singular}-details")) {
             return true;
         } 
+
+        if (view()->exists("livewire.pages.inventory.{$plural}.{$singular}-details") || view()->exists("livewire.pages.inventory.{$singular}.{$singular}-details")) {
+            return true;
+        } 
         
         return view()->exists("livewire.pages.{$plural}.{$singular}-details");
     }
@@ -47,6 +52,7 @@ class DataTable extends Component
             'fixtures' => Fixture::class,
             'personnel' => User::class,
             'roles' => Role::class,
+            'spare-parts' => TesterSparePart::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
             default => throw new \Exception("Invalid data type"),
@@ -59,6 +65,7 @@ class DataTable extends Component
             'testers' => ['owner', 'statusRelation'],
             'fixtures' => ['tester', 'location', 'status'],
             'personnel' => ['roles', 'testers'], 
+            'spare-parts' => ['tester', 'supplier'],
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
             default => [],
@@ -71,7 +78,8 @@ class DataTable extends Component
             'testers' => ['name', 'description', 'operating_system'],
             'fixtures' => ['name', 'description', 'manufacturer'],
             'personnel' => ['first_name', 'last_name', 'email'],
-            'roles' => ['name', 'guard_name'],
+            'roles' => ['name', 'guard_name', 'supplier.supplier_name', 'tester.name'],
+            'spare-parts' => ['name', 'description'],
             'fixture-audit-logs' => ['explanation', 'fixture_id', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester_id', 'tester.name', 'user.email'],
             default => [],
