@@ -67,12 +67,11 @@
 
                     <div>
                         <x-input-label for="status_id" value="Status" />
-                        <x-testers.dropdown-field
-                            id="status_id"
-                            wire:model="status_id"
-                            :options="$statuses"
-                            placeholder="Select status"
-                            error="status_id" />
+                        <div class="mt-1">
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-[#FFD8DE] text-[#FF4A5A]">
+                                ACTIVE
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

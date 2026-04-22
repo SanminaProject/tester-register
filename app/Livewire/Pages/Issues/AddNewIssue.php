@@ -123,7 +123,7 @@ class AddNewIssue extends Component
             return;
         }
 
-        $issue = TesterEventLog::create([
+        TesterEventLog::create([
             'date' => Carbon::parse($validated['date'])->startOfDay(),
             'description' => $validated['problem'],
             'tester_id' => $validated['tester_id'],

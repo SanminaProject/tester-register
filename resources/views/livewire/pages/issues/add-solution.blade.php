@@ -39,8 +39,9 @@
                                 @php
                                 $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
                                 $isSolved = $statusName === 'solved';
+                                $isActive = $statusName === 'active';
                                 @endphp
-                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
+                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : ($isActive ? 'bg-[#FFD8DE] text-[#FF4A5A]' : 'bg-gray-200 text-gray-700') }}">
                                     {{ strtoupper($issue->issueStatusRelation?->name ?? '-') }}
                                 </span>
                             </td>
@@ -53,7 +54,7 @@
                                 <x-input-error :messages="$errors->get('resolution_date')" class="mt-2" />
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->tester_id }}</td>
-                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">solution</td>
+                            <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Solution</td>
                             <td class="px-5 py-3 text-sm text-gray-800">
                                 <x-text-input type="text" wire:model="resolution_description" class="w-full" />
                                 <x-input-error :messages="$errors->get('resolution_description')" class="mt-2" />
@@ -63,8 +64,9 @@
                                 <x-input-error :messages="$errors->get('resolved_by_user_id')" class="mt-2" />
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
-                                <x-select-field wire:model="status_id" :options="$statuses" placeholder="Select status" />
-                                <x-input-error :messages="$errors->get('status_id')" class="mt-2" />
+                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-[#CFF3DA] text-[#2E9F57]">
+                                    SOLVED
+                                </span>
                             </td>
                         </tr>
                     </tbody>

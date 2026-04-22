@@ -264,7 +264,7 @@ class IssueWorkbench extends Component
 
         $issuePayload = $validated['issueForm'];
 
-        $issue = TesterEventLog::create([
+        TesterEventLog::create([
             'date' => Carbon::parse((string) $issuePayload['date'])->startOfDay(),
             'description' => (string) $issuePayload['description'],
             'tester_id' => (int) $issuePayload['tester_id'],
