@@ -1,6 +1,7 @@
 <div class="flex flex-col w-full min-h-[calc(100vh-8rem)] mb-12 md:mb-0 rounded-[24px] md:rounded-2xl bg-white px-5 md:px-10 pt-6 md:pt-8 pb-10 md:pb-12 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:shadow-sm font-sans text-gray-800">
-        <div class="flex items-center justify-between pb-6 border-b border-gray-200">
-            <div class="flex items-center gap-4">
+        <div class="flex items-center justify-between pb-6 border-b border-gray-200 flex-wrap md:flex-nowrap gap-y-4">
+            <!-- Left: Title -->
+            <div class="flex items-center gap-4 w-full md:w-auto md:flex-1">
                 <button 
                     type="button" 
                     wire:click="$dispatch('switchTab', { tab: '{{ $tester_id ? 'details' : 'all' }}'{{ $tester_id ? ', id: ' . $tester_id : '' }} })" 
@@ -9,41 +10,45 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <h2 class="text-xl font-extrabold text-black tracking-tight">
+                <h2 class="text-xl font-extrabold text-black tracking-tight whitespace-nowrap">
                     {{ $tester_id ? 'Edit Tester Details' : 'Add New Tester' }}
                 </h2>
             </div>
-            
-            <button
-                class="bg-primary hover:bg-[#8A0028] text-white text-[15px] font-medium px-8 py-2 md:py-2.5 rounded-full transition-colors flex-shrink-0"
-                wire:click="save"
-                type="button">
-                Save
-            </button>
-        </div>
 
-        @if(!$tester_id)
-        <div class="relative flex max-w-md my-6 md:mb-8">
-            <div class="relative w-full lg:w-70">
-                <input type="text" wire:model.live.debounce.300ms="search_query" class="w-full pl-10 pr-4 py-2 bg-[#dddddd] rounded-full focus:outline-none focus:ring-2 focus:ring-pink-200 border-0 shadow-none text-sm" placeholder="Search..." style="box-shadow:none;">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#2C3E50]">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </span>
-            </div>
-            @if(!empty($search_results))
-            <div class="absolute z-10 top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
-                @foreach($search_results as $result)
-                <div class="px-4 py-2 hover:bg-gray-50 flex justify-between items-center border-b cursor-pointer" wire:click="selectAndCopyTester({{ $result['id'] }})">
-                    <span class="text-sm text-gray-700 font-medium">{{ $result['id'] }} - {{ $result['name'] }}</span>
-                    <span class="text-xs text-gray-400">Copy Data</span>
+            <!-- Center: Search Bar -->
+            @if(!$tester_id)
+            <div class="relative w-full max-w-[320px] mx-auto order-last md:order-none">
+                <div class="relative w-full">
+                    <input type="text" wire:model.live.debounce.300ms="search_query" class="w-full pl-10 pr-4 py-2 bg-[#dddddd] rounded-full focus:outline-none focus:ring-2 focus:ring-pink-200 border-0 shadow-none text-sm" placeholder="Search..." style="box-shadow:none;">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#2C3E50]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
                 </div>
-                @endforeach
+                @if(!empty($search_results))
+                <div class="absolute z-10 top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+                    @foreach($search_results as $result)
+                    <div class="px-4 py-2 hover:bg-gray-50 flex justify-between items-center border-b cursor-pointer" wire:click="selectAndCopyTester({{ $result['id'] }})">
+                        <span class="text-sm text-gray-700 font-medium">{{ $result['id'] }} - {{ $result['name'] }}</span>
+                        <span class="text-xs text-gray-400">Copy Data</span>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
             </div>
             @endif
+            
+            <!-- Right: Action Button -->
+            <div class="flex w-full md:w-auto md:flex-1 justify-end order-2 md:order-none">
+                <button
+                    class="bg-primary hover:bg-[#8A0028] text-white text-[15px] font-medium px-8 py-2 md:py-2.5 rounded-full transition-colors flex-shrink-0"
+                    wire:click="save"
+                    type="button">
+                    Save
+                </button>
+            </div>
         </div>
-        @endif
 
     <!-- The Grid Layout -->
     <!-- Matches tester-details layout to maintain white space on the right side -->

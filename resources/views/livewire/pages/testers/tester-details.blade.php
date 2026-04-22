@@ -14,9 +14,11 @@
             <h2 class="text-xl font-extrabold text-black tracking-tight">Tester Details</h2>
         </div>
 
-        <x-primary-button type="button" class="w-32" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $tester->id }} })">
-            Edit
-        </x-primary-button>
+        <div class="flex items-center gap-3">
+            <x-primary-button type="button" class="w-32 justify-center" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $tester->id }} })">
+                Edit
+            </x-primary-button>
+        </div>
     </div>
 
     <!-- Main Grid Content -->
@@ -77,7 +79,7 @@
         </div>
 
         <!-- 3. Right Blocks (Inventory & Links/Docs) -->
-        <div class="hidden md:flex flex-col gap-5 md:gap-6">
+        <div class="hidden md:flex flex-col gap-5 md:gap-6 h-full">
             
             <!-- Inventory Block -->
             <div class="bg-[#f8f8f8] md:bg-light-grey rounded-[16px] md:rounded-xl p-5 md:p-7 flex items-center justify-between">
@@ -142,6 +144,21 @@
                     </div>
                 </div>
             </div>
+
+            @if(auth()->user() && auth()->user()->hasRole('Admin'))
+            <div class="mt-auto pt-4 flex justify-start pl-2">
+                <button 
+                    type="button" 
+                    wire:click="deleteTester"
+                    wire:confirm="Are you sure you want to delete this tester? This action cannot be undone."
+                    class="flex items-center justify-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg font-semibold text-[14px] transition-colors shadow-sm cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete Tester
+                </button>
+            </div>
+            @endif
         </div>
 
     </div>

@@ -126,9 +126,11 @@ class DataTable extends Component
                   });
             }),
             'tester-audit-logs' => $query->where(function($q) {
-                $q->whereNotNull('tester_id')
-                  ->whereNull('fixture_id')
-                  ->whereNull('spare_part_id');
+                $q->where(function($subQ) {
+                    $subQ->whereNotNull('tester_id')
+                         ->whereNull('fixture_id')
+                         ->whereNull('spare_part_id');
+                })->orWhere('explanation', 'like', 'Deleted tester details%');
             }),
             'spare-part-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('spare_part_id')
