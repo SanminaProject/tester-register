@@ -10,6 +10,7 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Models\DataChangeLog;
 use App\Models\TesterSparePart;
+use App\Models\TesterSparePartSupplier;
 use Illuminate\Support\Str;
 
 class DataTable extends Component
@@ -53,6 +54,7 @@ class DataTable extends Component
             'personnel' => User::class,
             'roles' => Role::class,
             'spare-parts' => TesterSparePart::class,
+            'suppliers' => TesterSparePartSupplier::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
             default => throw new \Exception("Invalid data type"),
@@ -80,6 +82,7 @@ class DataTable extends Component
             'personnel' => ['first_name', 'last_name', 'email'],
             'roles' => ['name', 'guard_name', 'supplier.supplier_name', 'tester.name'],
             'spare-parts' => ['name', 'description'],
+            'suppliers' => ['supplier_name', 'supplier_email'],
             'fixture-audit-logs' => ['explanation', 'fixture_id', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester_id', 'tester.name', 'user.email'],
             default => [],
@@ -162,6 +165,11 @@ class DataTable extends Component
         // count users for roles table
         if ($this->type === 'roles') {
             $query->withCount('users');
+        }
+
+        // count testers for spare part table
+        if ($this->type === 'suppliers') {
+            $query->withCount('spareParts');
         }
 
         // type-specific scopes
