@@ -4,6 +4,7 @@ namespace App\Livewire\Components;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithoutUrlPagination;
 use App\Models\Tester;
 use App\Models\Fixture;
 use App\Models\User;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 
 class DataTable extends Component
 {
-    use WithPagination;
+    use WithPagination, WithoutUrlPagination;
 
     public $headers = [];
     public $type = 'testers'; // or fixtures etc.
