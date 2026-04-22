@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Pages\Issues;
 
-use App\Models\EventType;
 use App\Models\IssueStatus;
 use App\Models\Tester;
 use App\Models\TesterEventLog;
@@ -30,7 +29,11 @@ class AddNewIssue extends Component
     public function mount($issueId = null): void
     {
         $this->testers = Tester::query()->select('id', 'name')->orderBy('id')->get();
-        $this->statuses = IssueStatus::query()->select('id', 'name')->orderBy('id')->get();
+        $this->statuses = IssueStatus::query()
+            ->select('id', 'name')
+            ->whereRaw('LOWER(name) in (?, ?)', ['active', 'solved'])
+            ->orderBy('id')
+            ->get();
         $this->users = User::query()
             ->select('id', 'first_name', 'last_name', 'email')
             ->orderBy('first_name')
@@ -85,7 +88,6 @@ class AddNewIssue extends Component
             'tester_id' => ['required', 'integer', 'exists:testers,id'],
             'problem' => ['required', 'string', 'max:1000'],
             'created_by_user_id' => ['required', 'integer', 'exists:users,id'],
-            'status_id' => ['required', 'integer', 'exists:issue_statuses,id'],
         ]);
 
         $eventTypeId = TesterEventLog::resolveEventTypeId('problem')
@@ -96,51 +98,23 @@ class AddNewIssue extends Component
             return;
         }
 
-        $actorId = (int) (Auth::id() ?? 1);
+        $activeStatusId = $this->resolveIssueStatusId('active');
+        if ($activeStatusId === null) {
+            $this->addError('status_id', 'Issue status Active is not configured.');
+            return;
+        }
 
         if ($this->isEdit && $this->issueId) {
             $issue = TesterEventLog::query()->activeIssueRows()->findOrFail($this->issueId);
 
-            $original = [
-                'date' => optional($issue->date)->toDateString(),
-                'tester_id' => (int) $issue->tester_id,
-                'problem' => (string) $issue->description,
-                'created_by_user_id' => (int) $issue->created_by_user_id,
-                'status_id' => (int) ($issue->issue_status ?? 0),
-            ];
-
             $issue->fill([
-                'date' => Carbon::parse($validated['date'])->endOfDay(),
+                'date' => Carbon::parse($validated['date'])->startOfDay(),
                 'tester_id' => $validated['tester_id'],
                 'description' => $validated['problem'],
                 'created_by_user_id' => $validated['created_by_user_id'],
-                'issue_status' => $validated['status_id'],
+                'issue_status' => $activeStatusId,
             ]);
             $issue->save();
-
-            $changes = [];
-            $current = [
-                'date' => Carbon::parse($validated['date'])->toDateString(),
-                'tester_id' => (int) $validated['tester_id'],
-                'problem' => (string) $validated['problem'],
-                'created_by_user_id' => (int) $validated['created_by_user_id'],
-                'status_id' => (int) $validated['status_id'],
-            ];
-
-            foreach ($current as $key => $value) {
-                if (($original[$key] ?? null) !== $value) {
-                    $changes[] = $key . ': [' . ($original[$key] ?? 'empty') . '] -> [' . $value . ']';
-                }
-            }
-
-            if ($changes !== []) {
-                $this->writeHistoryLog(
-                    testerId: (int) $issue->tester_id,
-                    eventTypeId: (int) $eventTypeId,
-                    actorId: (int) $actorId,
-                    message: '[HISTORY] Updated issue #' . $issue->id . ' | ' . implode('; ', $changes)
-                );
-            }
 
             $this->dispatch('saved');
             session()->flash('message', 'Issue updated successfully.');
@@ -150,23 +124,16 @@ class AddNewIssue extends Component
         }
 
         $issue = TesterEventLog::create([
-            'date' => Carbon::parse($validated['date'])->endOfDay(),
+            'date' => Carbon::parse($validated['date'])->startOfDay(),
             'description' => $validated['problem'],
             'tester_id' => $validated['tester_id'],
             'event_type' => $eventTypeId,
             'created_by_user_id' => $validated['created_by_user_id'],
-            'issue_status' => $validated['status_id'],
+            'issue_status' => $activeStatusId,
             'resolved_date' => null,
             'resolved_by_user_id' => null,
             'resolution_description' => null,
         ]);
-
-        $this->writeHistoryLog(
-            testerId: (int) $issue->tester_id,
-            eventTypeId: (int) $eventTypeId,
-            actorId: (int) $actorId,
-            message: '[HISTORY] Created issue #' . $issue->id
-        );
 
         $this->dispatch('saved');
         session()->flash('message', 'Issue created successfully.');
@@ -186,19 +153,13 @@ class AddNewIssue extends Component
         $this->dispatch('switchTab', tab: 'all');
     }
 
-    private function writeHistoryLog(int $testerId, int $eventTypeId, int $actorId, string $message): void
+    private function resolveIssueStatusId(string $statusName): ?int
     {
-        TesterEventLog::create([
-            'date' => now(),
-            'description' => $message,
-            'tester_id' => $testerId,
-            'event_type' => $eventTypeId,
-            'created_by_user_id' => $actorId,
-            'issue_status' => null,
-            'resolution_description' => null,
-            'resolved_date' => null,
-            'resolved_by_user_id' => null,
-        ]);
+        $statusId = IssueStatus::query()
+            ->whereRaw('LOWER(name) = ?', [strtolower($statusName)])
+            ->value('id');
+
+        return $statusId !== null ? (int) $statusId : null;
     }
 
     public function getCurrentUserLabelProperty(): string

@@ -62,7 +62,11 @@ class IssueWorkbench extends Component
     public function mount(string $requestedTab = 'all', ?int $requestedIssueId = null): void
     {
         $this->testers = Tester::query()->select('id', 'name')->orderBy('id')->get();
-        $this->statuses = IssueStatus::query()->select('id', 'name')->orderBy('id')->get();
+        $this->statuses = IssueStatus::query()
+            ->select('id', 'name')
+            ->whereRaw('LOWER(name) in (?, ?)', ['active', 'solved'])
+            ->orderBy('id')
+            ->get();
         $this->users = User::query()
             ->select('id', 'first_name', 'last_name', 'email')
             ->orderBy('first_name')
@@ -242,7 +246,6 @@ class IssueWorkbench extends Component
             'issueForm.tester_id' => ['required', 'integer', 'exists:testers,id'],
             'issueForm.description' => ['required', 'string', 'max:1000'],
             'issueForm.created_by_user_id' => ['required', 'integer', 'exists:users,id'],
-            'issueForm.status_id' => ['required', 'integer', 'exists:issue_statuses,id'],
         ]);
 
         $eventTypeId = TesterEventLog::resolveEventTypeId('problem')
@@ -253,27 +256,26 @@ class IssueWorkbench extends Component
             return;
         }
 
+        $activeStatusId = $this->resolveIssueStatusId('active');
+        if ($activeStatusId === null) {
+            $this->addError('issueForm.status_id', 'Issue status Active is not configured.');
+            return;
+        }
+
         $issuePayload = $validated['issueForm'];
 
         $issue = TesterEventLog::create([
-            'date' => Carbon::parse((string) $issuePayload['date'])->endOfDay(),
+            'date' => Carbon::parse((string) $issuePayload['date'])->startOfDay(),
             'description' => (string) $issuePayload['description'],
             'tester_id' => (int) $issuePayload['tester_id'],
             'event_type' => (int) $eventTypeId,
             'created_by_user_id' => (int) $issuePayload['created_by_user_id'],
-            'issue_status' => (int) $issuePayload['status_id'],
+            'issue_status' => $activeStatusId,
             'resolved_date' => null,
             'resolved_by_user_id' => null,
             'resolution_description' => null,
             'parent_event_log_id' => null,
         ]);
-
-        $this->writeHistoryLog(
-            testerId: (int) $issue->tester_id,
-            eventTypeId: (int) $eventTypeId,
-            actorId: (int) (Auth::id() ?? 1),
-            message: '[HISTORY] Created issue #' . $issue->id
-        );
 
         session()->flash('message', 'Issue created successfully.');
         $this->cancelInlineForm();
@@ -290,23 +292,26 @@ class IssueWorkbench extends Component
             'solutionForm.resolution_date' => ['required', 'date'],
             'solutionForm.resolution_description' => ['required', 'string', 'max:1000'],
             'solutionForm.resolved_by_user_id' => ['required', 'integer', 'exists:users,id'],
-            'solutionForm.status_id' => ['required', 'integer', 'exists:issue_statuses,id'],
         ]);
 
         $solutionTypeId = TesterEventLog::resolveEventTypeId('solution');
-        $problemTypeId = TesterEventLog::resolveEventTypeId('problem')
-            ?? TesterEventLog::resolveEventTypeId('issue');
+        $solvedStatusId = $this->resolveIssueStatusId('solved');
 
-        if ($solutionTypeId === null || $problemTypeId === null) {
+        if ($solutionTypeId === null) {
             $this->addError('solutionForm.status_id', 'Event types problem/solution are not configured.');
+            return;
+        }
+
+        if ($solvedStatusId === null) {
+            $this->addError('solutionForm.status_id', 'Issue status Solved is not configured.');
             return;
         }
 
         $issue = TesterEventLog::query()->activeIssueRows()->findOrFail($this->selectedIssueId);
         $solutionPayload = $validated['solutionForm'];
 
-        DB::transaction(function () use ($issue, $solutionPayload, $solutionTypeId, $problemTypeId) {
-            $resolvedAt = Carbon::parse((string) $solutionPayload['resolution_date'])->endOfDay();
+        DB::transaction(function () use ($issue, $solutionPayload, $solutionTypeId, $solvedStatusId) {
+            $resolvedAt = Carbon::parse((string) $solutionPayload['resolution_date'])->startOfDay();
 
             TesterEventLog::create([
                 'date' => $resolvedAt,
@@ -317,7 +322,7 @@ class IssueWorkbench extends Component
                 'resolved_by_user_id' => (int) $solutionPayload['resolved_by_user_id'],
                 'resolved_date' => $resolvedAt,
                 'resolution_description' => (string) $solutionPayload['resolution_description'],
-                'issue_status' => (int) $solutionPayload['status_id'],
+                'issue_status' => $solvedStatusId,
                 'parent_event_log_id' => (int) $issue->id,
             ]);
 
@@ -325,22 +330,9 @@ class IssueWorkbench extends Component
                 'resolved_date' => $resolvedAt,
                 'resolution_description' => (string) $solutionPayload['resolution_description'],
                 'resolved_by_user_id' => (int) $solutionPayload['resolved_by_user_id'],
-                'issue_status' => (int) $solutionPayload['status_id'],
+                'issue_status' => $solvedStatusId,
             ]);
             $issue->save();
-
-            TesterEventLog::create([
-                'date' => now(),
-                'description' => '[HISTORY] Added solution for issue #' . $issue->id,
-                'tester_id' => (int) $issue->tester_id,
-                'event_type' => (int) $problemTypeId,
-                'created_by_user_id' => (int) (Auth::id() ?? 1),
-                'issue_status' => null,
-                'resolution_description' => null,
-                'resolved_date' => null,
-                'resolved_by_user_id' => null,
-                'parent_event_log_id' => (int) $issue->id,
-            ]);
         });
 
         session()->flash('message', 'Solution saved successfully.');
@@ -375,21 +367,6 @@ class IssueWorkbench extends Component
             ->value('id');
 
         return $statusId !== null ? (int) $statusId : null;
-    }
-
-    private function writeHistoryLog(int $testerId, int $eventTypeId, int $actorId, string $message): void
-    {
-        TesterEventLog::create([
-            'date' => now(),
-            'description' => $message,
-            'tester_id' => $testerId,
-            'event_type' => $eventTypeId,
-            'created_by_user_id' => $actorId,
-            'issue_status' => null,
-            'resolution_description' => null,
-            'resolved_date' => null,
-            'resolved_by_user_id' => null,
-        ]);
     }
 
     private function applyRequestedTab(string $requestedTab, ?int $requestedIssueId = null): void
