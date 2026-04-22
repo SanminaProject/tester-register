@@ -242,7 +242,7 @@ class IssueWorkbench extends Component
     private function saveIssue(): void
     {
         $validated = $this->validate([
-            'issueForm.date' => ['required', 'date'],
+            'issueForm.date' => ['required', 'date_format:Y-m-d\\TH:i'],
             'issueForm.tester_id' => ['required', 'integer', 'exists:testers,id'],
             'issueForm.description' => ['required', 'string', 'max:1000'],
             'issueForm.created_by_user_id' => ['required', 'integer', 'exists:users,id'],
@@ -265,7 +265,7 @@ class IssueWorkbench extends Component
         $issuePayload = $validated['issueForm'];
 
         TesterEventLog::create([
-            'date' => Carbon::parse((string) $issuePayload['date'])->startOfDay(),
+            'date' => Carbon::createFromFormat('Y-m-d\\TH:i', (string) $issuePayload['date']),
             'description' => (string) $issuePayload['description'],
             'tester_id' => (int) $issuePayload['tester_id'],
             'event_type' => (int) $eventTypeId,
@@ -289,7 +289,7 @@ class IssueWorkbench extends Component
         }
 
         $validated = $this->validate([
-            'solutionForm.resolution_date' => ['required', 'date'],
+            'solutionForm.resolution_date' => ['required', 'date_format:Y-m-d\\TH:i'],
             'solutionForm.resolution_description' => ['required', 'string', 'max:1000'],
             'solutionForm.resolved_by_user_id' => ['required', 'integer', 'exists:users,id'],
         ]);
@@ -311,7 +311,7 @@ class IssueWorkbench extends Component
         $solutionPayload = $validated['solutionForm'];
 
         DB::transaction(function () use ($issue, $solutionPayload, $solutionTypeId, $solvedStatusId) {
-            $resolvedAt = Carbon::parse((string) $solutionPayload['resolution_date'])->startOfDay();
+            $resolvedAt = Carbon::createFromFormat('Y-m-d\\TH:i', (string) $solutionPayload['resolution_date']);
 
             TesterEventLog::create([
                 'date' => $resolvedAt,
@@ -342,7 +342,7 @@ class IssueWorkbench extends Component
     private function resetIssueForm(): void
     {
         $this->issueForm = [
-            'date' => now()->toDateString(),
+            'date' => now()->format('Y-m-d\\TH:i'),
             'tester_id' => null,
             'description' => '',
             'created_by_user_id' => Auth::id() ?? 1,
@@ -353,7 +353,7 @@ class IssueWorkbench extends Component
     private function resetSolutionForm(): void
     {
         $this->solutionForm = [
-            'resolution_date' => now()->toDateString(),
+            'resolution_date' => now()->format('Y-m-d\\TH:i'),
             'resolution_description' => '',
             'resolved_by_user_id' => Auth::id() ?? 1,
             'status_id' => $this->resolveIssueStatusId('solved'),

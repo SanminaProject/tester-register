@@ -107,7 +107,7 @@
                         <span class="rounded-full bg-[#efefef] px-4 py-1.5 text-xs font-semibold text-[#777]">Auto</span>
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-text-input type="date" wire:model="issueForm.date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
+                        <x-text-input type="datetime-local" wire:model="issueForm.date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('issueForm.date')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
@@ -184,7 +184,7 @@
                         <span class="rounded-full bg-[#efefef] px-4 py-1.5 text-xs font-semibold text-[#777]">Auto</span>
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-text-input type="date" wire:model="solutionForm.resolution_date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
+                        <x-text-input type="datetime-local" wire:model="solutionForm.resolution_date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('solutionForm.resolution_date')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->tester_id }}</td>
