@@ -4,10 +4,10 @@
 ])
 
 <div>
-    <label class="block text-sm font-medium text-gray-700 text-left">{{ $label }}</label>
-    <input
+    <label class="block text-[15px] font-semibold text-gray-800 mb-2">{{ $label }}</label>
+    <x-text-input
         type="date"
-        {{ $attributes->merge(['class' => 'bg-grey rounded-full px-8 py-4 border-none shadow-none w-full text-black focus:ring-2 focus:ring-blue-200 focus:outline-none transition']) }}>
+        {{ $attributes->merge(['class' => 'w-full px-5 py-2.5 text-sm']) }} />
 
     @if($error)
     <x-input-error :messages="$errors->get($error)" class="mt-1" />
