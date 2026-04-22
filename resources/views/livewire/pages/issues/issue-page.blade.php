@@ -5,7 +5,6 @@
         :items="[
             ['label' => 'Active Issues', 'tab' => 'all'],
             ['label' => 'Add Issue', 'tab' => 'add'],
-            ['label' => 'Add Solution', 'tab' => 'solution'],
             ['label' => 'Issue History', 'tab' => 'logs'],
         ]" />
 
