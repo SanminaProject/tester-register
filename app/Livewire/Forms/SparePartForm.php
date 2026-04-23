@@ -58,7 +58,12 @@ class SparePartForm extends Form
     {
         $this->sparePart = $sparePart;
 
-        $this->fill($sparePart->toArray());
+        $this->fill([
+            ...$sparePart->toArray(),
+            'last_order_date' => $sparePart->last_order_date
+                ? $sparePart->last_order_date->format('Y-m-d')
+                : null,
+        ]);
     }
 
     public function update()

@@ -8,6 +8,7 @@ use App\Models\Tester;
 use App\Models\TesterSparePartSupplier;
 use App\Models\DataChangeLog;
 use Livewire\Component;
+use Illuminate\Support\Carbon;
 
 class SparePartLogging extends Component
 {
@@ -42,18 +43,53 @@ class SparePartLogging extends Component
         if ($this->isEdit) {
             $sparePart = TesterSparePart::findOrFail($this->sparePartId);
 
-            $this->form->update($sparePart);
+            if ($sparePart) {
+                $original = clone $sparePart;
+                $this->form->update($sparePart);
+                $sparePart->refresh();
 
-            DataChangeLog::create([
-                'changed_at' => now(),
-                'explanation' => "Updated spare part [ID: {$sparePart->id}] - Name: {$sparePart->name}",
-                'spare_part_id' => $sparePart->id,
-                'user_id' => auth()->id() ?? 1,
-            ]);
+                $changes = [];
+
+                foreach ($sparePart->getAttributes() as $key => $newValue) {
+                    if ($key === 'updated_at') continue;
+
+                    $oldValue = $original->getOriginal($key);
+
+                    if ($key === 'last_order_date') {
+                        $oldValue = $oldValue ? Carbon::parse($oldValue)->format('Y-m-d') : null;
+                        $newValue = $newValue ? Carbon::parse($newValue)->format('Y-m-d') : null;
+                    }
+
+                    if ($oldValue != $newValue) {
+                        $oldStr = is_null($oldValue) ? 'empty' : $oldValue;
+                        $newStr = is_null($newValue) ? 'empty' : $newValue;
+                        $changes[] = "- {$key}: [{$oldStr}] -> [{$newStr}]";
+                    }
+                }
+
+                if (!empty($changes)) {
+                    DataChangeLog::create([
+                        'changed_at' => now(),
+                        'explanation' => "Edited spare part details:\n" . implode("\n", $changes),
+                        'spare_part_id' => $sparePart->id,
+                        'user_id' => auth()->id() ?? 1,
+                    ]);
+                }
+            }
 
             session()->flash('success', 'Spare part updated successfully!');
         } else {
             $this->form->save();
+
+            $sparePart = TesterSparePart::latest('id')->first();
+            if ($sparePart) {
+                DataChangeLog::create([
+                    'changed_at' => now(),
+                    'explanation' => "Added new spare part: {$sparePart->name}",
+                    'spare_part_id' => $sparePart->id,
+                    'user_id' => auth()->id() ?? 1,
+                ]);
+            }
 
             session()->flash('success', 'Spare part created successfully!');
         }

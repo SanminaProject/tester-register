@@ -5,6 +5,8 @@ namespace App\Livewire\Pages\Fixtures;
 use App\Livewire\Forms\FixtureForm;
 use Livewire\Component;
 use App\Models\Tester;
+use App\Models\Fixture;
+use App\Models\DataChangeLog;
 use App\Models\TesterAndFixtureLocation;
 use App\Models\AssetStatus;
 
@@ -36,7 +38,7 @@ class FixtureLogging extends Component
         $this->statuses = AssetStatus::select('id', 'name')->get();
 
         // Get distinct manufacturers from existing fixtures and add some common defaults
-        $existing = \App\Models\Fixture::whereNotNull('manufacturer')
+        $existing = Fixture::whereNotNull('manufacturer')
             ->distinct()
             ->pluck('manufacturer')
             ->toArray();
@@ -53,7 +55,7 @@ class FixtureLogging extends Component
     public function save()
     {
         if ($this->isEdit && $this->fixtureId) {
-            $fixture = \App\Models\Fixture::find($this->fixtureId);
+            $fixture = Fixture::find($this->fixtureId);
             if ($fixture) {
                 $original = clone $fixture;
                 $this->form->update($fixture);
@@ -74,7 +76,7 @@ class FixtureLogging extends Component
                         
                         $explanation = "Edited fixture details:\n" . implode("\n", $details);
                         
-                        \App\Models\DataChangeLog::create([
+                        DataChangeLog::create([
                             'changed_at' => now(),
                             'explanation' => $explanation,
                             'fixture_id' => $fixture->id,
@@ -86,9 +88,9 @@ class FixtureLogging extends Component
         } else {
             $this->form->save();
             
-            $fixture = \App\Models\Fixture::latest('id')->first();
+            $fixture = Fixture::latest('id')->first();
             if ($fixture) {
-                \App\Models\DataChangeLog::create([
+                DataChangeLog::create([
                     'changed_at' => now(),
                     'explanation' => "Added new fixture: {$fixture->name}",
                     'fixture_id' => $fixture->id,
