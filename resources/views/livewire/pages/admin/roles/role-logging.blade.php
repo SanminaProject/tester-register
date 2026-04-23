@@ -21,6 +21,7 @@
                             label="Name"
                             wire:model="form.name"
                         />
+                        <x-input-error :messages="$errors->get('form.name')" />
                     </div>
                 </div>
             </div>
