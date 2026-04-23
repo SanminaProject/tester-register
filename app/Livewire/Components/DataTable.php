@@ -13,6 +13,8 @@ use App\Models\TesterSparePart;
 use App\Models\TesterSparePartSupplier;
 use Illuminate\Support\Str;
 
+// TODO: clean up (especially role part)
+
 class DataTable extends Component
 {
     use WithPagination;
