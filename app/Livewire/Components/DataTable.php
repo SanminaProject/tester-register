@@ -8,6 +8,7 @@ use App\Models\Tester;
 use App\Models\TesterEventLog;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithoutUrlPagination;
@@ -88,6 +89,10 @@ class DataTable extends Component
 
     protected function getSearchColumns(): array
     {
+        if (! empty($this->headers)) {
+            return array_keys($this->headers);
+        }
+
         return match ($this->type) {
             'testers' => ['name', 'description', 'operating_system'],
             'fixtures' => ['name', 'description', 'manufacturer'],
@@ -175,6 +180,20 @@ class DataTable extends Component
 
             $relationObject = $model->{$relation}();
             $relatedModel = $relationObject->getRelated();
+
+            if ($this->isUserNameRelationColumn($relation, $relatedColumn)) {
+                return $relatedModel::query()
+                    ->selectRaw("TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, ''))) as full_name")
+                    ->where(function ($query) {
+                        $query->whereNotNull('first_name')->orWhereNotNull('last_name');
+                    })
+                    ->orderBy('first_name')
+                    ->orderBy('last_name')
+                    ->pluck('full_name')
+                    ->filter()
+                    ->values()
+                    ->all();
+            }
 
             return $relatedModel::query()
                 ->whereNotNull($relatedColumn)
@@ -320,7 +339,12 @@ class DataTable extends Component
 
                 if (str_contains($column, '.')) {
                     [$relation, $relatedColumn] = explode('.', $column, 2);
-                    $query->whereHas($relation, function ($relationQuery) use ($relatedColumn, $selectedValues) {
+                    $query->whereHas($relation, function ($relationQuery) use ($relation, $relatedColumn, $selectedValues) {
+                        if ($this->isUserNameRelationColumn($relation, $relatedColumn)) {
+                            $relationQuery->whereIn(DB::raw("TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')))"), $selectedValues);
+                            return;
+                        }
+
                         $relationQuery->whereIn($relatedColumn, $selectedValues);
                     });
                 } else {
@@ -337,8 +361,8 @@ class DataTable extends Component
 
             if (str_contains($column, '.')) {
                 [$relation, $relatedColumn] = explode('.', $column, 2);
-                $query->whereHas($relation, function ($relationQuery) use ($relatedColumn, $keyword) {
-                    $relationQuery->where($relatedColumn, 'like', '%' . $keyword . '%');
+                $query->whereHas($relation, function ($relationQuery) use ($relation, $relatedColumn, $keyword) {
+                    $this->applyRelationKeywordCondition($relationQuery, $relation, $relatedColumn, $keyword);
                 });
             } else {
                 $query->where($column, 'like', '%' . $keyword . '%');
@@ -361,8 +385,8 @@ class DataTable extends Component
                 foreach ($searchColumns as $column) {
                     if (str_contains($column, '.')) {
                         [$relation, $relatedColumn] = explode('.', $column, 2);
-                        $nestedQuery->orWhereHas($relation, function ($relationQuery) use ($relatedColumn, $keyword) {
-                            $relationQuery->where($relatedColumn, 'like', '%' . $keyword . '%');
+                        $nestedQuery->orWhereHas($relation, function ($relationQuery) use ($relation, $relatedColumn, $keyword) {
+                            $this->applyRelationKeywordCondition($relationQuery, $relation, $relatedColumn, $keyword);
                         });
                     } else {
                         $nestedQuery->orWhere($column, 'like', '%' . $keyword . '%');
@@ -372,6 +396,27 @@ class DataTable extends Component
         }
 
         return $query;
+    }
+
+    protected function isUserNameRelationColumn(string $relation, string $relatedColumn): bool
+    {
+        return in_array($relation, ['user', 'createdBy', 'resolvedBy'], true)
+            && in_array($relatedColumn, ['name', 'full_name'], true);
+    }
+
+    protected function applyRelationKeywordCondition($relationQuery, string $relation, string $relatedColumn, string $keyword): void
+    {
+        if ($this->isUserNameRelationColumn($relation, $relatedColumn)) {
+            $relationQuery->where(function ($nameQuery) use ($keyword) {
+                $nameQuery->where('first_name', 'like', '%' . $keyword . '%')
+                    ->orWhere('last_name', 'like', '%' . $keyword . '%')
+                    ->orWhereRaw("TRIM(CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, ''))) like ?", ['%' . $keyword . '%']);
+            });
+
+            return;
+        }
+
+        $relationQuery->where($relatedColumn, 'like', '%' . $keyword . '%');
     }
 
     public function exportCurrentList()

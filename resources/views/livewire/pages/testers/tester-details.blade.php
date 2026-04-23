@@ -102,14 +102,18 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                     </a>
-                    @foreach(['Spare Parts', 'Audit Logs'] as $link)
                     <button class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
-                        {{ $link }}
+                        Spare Parts
                         <svg class="h-[14px] w-[14px] md:h-4 md:w-4 text-[#8c8c8c] md:text-black group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
-                    @endforeach
+                    <a href="{{ route('testers', ['activeTab' => 'logs', 'tester_id' => $tester->id]) }}" wire:navigate class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
+                        Audit Logs
+                        <svg class="h-[14px] w-[14px] md:h-4 md:w-4 text-[#8c8c8c] md:text-black group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
                 </div>
 
                 <!-- Documents -->
@@ -170,42 +174,77 @@
         <div class="md:hidden border-t-[1px] border-[#e8e8e8] w-full mb-6"></div>
 
         @php
-            $issues = \App\Models\TesterEventLog::where('tester_id', $tester->id)->orderBy('date', 'desc')->get();
+            $issues = \App\Models\TesterEventLog::query()
+                ->with([
+                    'createdBy',
+                    'resolvedBy',
+                    'issueStatusRelation',
+                    'solutionEntries.resolvedBy',
+                    'solutionEntries.createdBy',
+                ])
+                ->where('tester_id', $tester->id)
+                ->whereNull('parent_event_log_id')
+                ->whereHas('eventType', function ($query) {
+                    $query->whereRaw('LOWER(name) = ?', ['problem']);
+                })
+                ->orderByDesc('date')
+                ->get();
         @endphp
 
         <div class="flex flex-col gap-y-10 md:px-0">
             @forelse($issues as $issue)
-            <div class="flex flex-col gap-y-3 {{ !$loop->last ? 'border-b md:border-gray-200 border-[#e8e8e8] pb-8' : '' }}">
-                <div class="grid grid-cols-[140px_1fr] md:grid-cols-[140px_1fr_100px_1fr] items-center gap-x-4 border-b border-[#e8e8e8] md:border-gray-100 pb-3">
+            <div class="flex flex-col gap-y-4 {{ !$loop->last ? 'border-b md:border-gray-200 border-[#e8e8e8] pb-8' : '' }}">
+                <div class="grid grid-cols-[120px_1fr] md:grid-cols-[120px_1fr_100px_1fr] items-center gap-x-4">
                     <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Log ID</span>
                     <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->id }}</span>
-                    <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px] mt-2 md:mt-0">Detector</span>
-                    <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium mt-2 md:mt-0">{{ \App\Models\User::find($issue->created_by_user_id)?->name ?? 'Unknown' }}</span>
+                    <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px] mt-2 md:mt-0">Status</span>
+                    @php
+                        $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
+                        $statusClasses = $statusName === 'solved'
+                            ? 'bg-[#CFF3DA] text-[#2E9F57]'
+                            : 'bg-[#FFD8DE] text-[#FF4A5A]';
+                    @endphp
+                    <div class="mt-2 md:mt-0">
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $statusClasses }}">
+                            {{ strtoupper($issue->issueStatusRelation?->name ?? 'ACTIVE') }}
+                        </span>
+                    </div>
                 </div>
 
-                <div class="flex flex-col {{ ($issue->resolved_date || $issue->resolution_description) ? 'border-b border-[#e8e8e8] md:border-gray-100 pb-3' : '' }}">
-                    <div class="grid grid-cols-[140px_1fr] items-center gap-x-4 mb-2.5">
+                <div class="mx-3 border-t border-gray-100"></div>
+
+                <div class="flex flex-col gap-y-2">
+                    <div class="grid grid-cols-[120px_1fr] items-center gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Entry Date</span>
                         <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->date ? $issue->date->format('j.n.Y H:i') : '-' }}</span>
                     </div>
-                    <div class="grid grid-cols-[140px_1fr] items-start gap-x-4">
-                        <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Indication</span>
-                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed">{{ $issue->description ?? '-' }}</span>
+                    <div class="grid grid-cols-[120px_1fr] items-center gap-x-4">
+                        <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">User</span>
+                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->createdBy?->full_name ?? 'Unknown' }}</span>
+                    </div>
+                    <div class="grid grid-cols-[120px_1fr] items-start gap-x-4">
+                        <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Problem</span>
+                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed break-words">{{ $issue->description ?? '-' }}</span>
                     </div>
                 </div>
 
-                @if($issue->resolved_date || $issue->resolution_description)
-                <div class="flex flex-col pt-1">
-                    <div class="grid grid-cols-[140px_1fr] items-center gap-x-4 mb-2.5">
+                @foreach($issue->solutionEntries as $solution)
+                <div class="mx-6 border-t border-gray-100"></div>
+                <div class="flex flex-col gap-y-2">
+                    <div class="grid grid-cols-[120px_1fr] items-center gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Solved Date</span>
-                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->resolved_date ? $issue->resolved_date->format('j.n.Y H:i') : '-' }}</span>
+                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $solution->date ? $solution->date->format('j.n.Y H:i') : '-' }}</span>
                     </div>
-                    <div class="grid grid-cols-[140px_1fr] items-start gap-x-4">
+                    <div class="grid grid-cols-[120px_1fr] items-center gap-x-4">
+                        <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">User</span>
+                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $solution->resolvedBy?->full_name ?? $solution->createdBy?->full_name ?? 'Unknown' }}</span>
+                    </div>
+                    <div class="grid grid-cols-[120px_1fr] items-start gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Solution</span>
-                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed">{{ $issue->resolution_description ?? '-' }}</span>
+                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed break-words">{{ $solution->resolution_description ?? $solution->description ?? '-' }}</span>
                     </div>
                 </div>
-                @endif
+                @endforeach
             </div>
             @empty
             <div class="text-[13px] md:text-[16px] text-dark-grey py-4">No issues recorded for this tester.</div>

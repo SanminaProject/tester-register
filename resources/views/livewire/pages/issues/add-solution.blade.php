@@ -20,7 +20,7 @@
                             <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Date</th>
                             <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Tester ID</th>
                             <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Type</th>
-                            <th class="px-5 py-3 text-left text-sm text-gray-700">Description</th>
+                            <th class="px-5 py-3 text-left text-sm text-gray-700" style="min-width: 520px; width: 520px;">Description</th>
                             <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">User</th>
                             <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Status</th>
                         </tr>
@@ -32,7 +32,7 @@
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->tester_id }}</td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $this->issueTypeLabel }}</td>
                             <td class="px-5 py-3 text-sm text-gray-800">
-                                <div class="whitespace-pre-line">{{ $issue->description }}</div>
+                                <div class="max-w-[560px] whitespace-pre-line break-words">{{ $issue->description }}</div>
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $this->issueUserLabel }}</td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
@@ -56,7 +56,7 @@
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->tester_id }}</td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Solution</td>
                             <td class="px-5 py-3 text-sm text-gray-800">
-                                <x-text-input type="text" wire:model="resolution_description" class="w-full" />
+                                <textarea wire:model="resolution_description" rows="4" class="w-full min-h-[120px] resize-y rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                                 <x-input-error :messages="$errors->get('resolution_description')" class="mt-2" />
                             </td>
                             <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">

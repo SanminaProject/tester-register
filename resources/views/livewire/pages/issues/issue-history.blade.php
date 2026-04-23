@@ -27,25 +27,79 @@
                         <line x1="10" y1="18" x2="14" y2="18" stroke-width="2" stroke="currentColor" />
                     </svg>
                     <span>Filter</span>
+                    @if (!empty($columnFilters))
+                        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-primary"></span>
+                    @endif
                 </button>
                 <div
                     x-show="open"
                     @click.away="open = false"
-                    class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-                    style="min-width: 180px;">
-                    <div class="px-4 py-2 font-semibold border-b">Filter</div>
-                    <ul>
-                        @foreach ($filters as $key => $label)
-                        <li wire:click="toggleFilter('{{ $key }}')" class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center">
-                            <span>{{ $label }}</span>
-                            @if(in_array($key, $activeFilters, true))
-                            <span>✓</span>
-                            @endif
-                        </li>
-                        @endforeach
-                    </ul>
+                    class="absolute right-0 z-20 mt-2 rounded-2xl border border-gray-200 bg-white shadow-xl"
+                    style="width: min(44rem, calc(100vw - 2rem));">
+                    <div class="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+                        <div>
+                            <div class="text-sm font-semibold text-gray-800">Filter</div>
+                            <div class="text-xs text-gray-500">Use any column to narrow the current list</div>
+                        </div>
+                        <button
+                            type="button"
+                            wire:click="clearFilters"
+                            class="rounded-full bg-[#f3f3f3] px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-200">
+                            Clear all
+                        </button>
+                    </div>
+
+                    <div class="max-h-[70vh] overflow-y-auto p-4">
+                        <div class="grid gap-3 md:grid-cols-2">
+                            @foreach ($filters as $filter)
+                                <div class="rounded-xl border border-gray-200 bg-[#fafafa] p-3">
+                                    <div class="mb-2 flex items-center justify-between gap-2">
+                                        <span class="text-sm font-semibold text-gray-700">{{ $filter['label'] }}</span>
+                                        <span class="text-[11px] uppercase tracking-wide text-gray-400">{{ str_replace('_', ' ', $filter['type']) }}</span>
+                                    </div>
+
+                                    @if ($filter['type'] === 'range')
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="number" placeholder="From" wire:model.live.debounce.250ms="columnFilters.{{ $filter['stateKey'] }}.min" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-gray-400 focus:outline-none">
+                                            <input type="number" placeholder="To" wire:model.live.debounce.250ms="columnFilters.{{ $filter['stateKey'] }}.max" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-gray-400 focus:outline-none">
+                                        </div>
+                                    @elseif ($filter['type'] === 'date_range')
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="date" wire:model.live="columnFilters.{{ $filter['stateKey'] }}.from" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-gray-400 focus:outline-none">
+                                            <input type="date" wire:model.live="columnFilters.{{ $filter['stateKey'] }}.to" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-gray-400 focus:outline-none">
+                                        </div>
+                                    @elseif ($filter['type'] === 'multi')
+                                        <div class="max-h-40 space-y-1 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2">
+                                            @forelse ($filter['options'] as $option)
+                                                <label wire:key="history-filter-{{ $filter['stateKey'] }}-{{ md5((string) $option) }}" class="flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5 hover:bg-gray-50">
+                                                    <input type="checkbox" value="{{ $option }}" wire:model.live="columnFilters.{{ $filter['stateKey'] }}" class="mt-0.5 rounded border-gray-300 text-primary focus:ring-primary">
+                                                    <span class="break-words text-sm text-gray-700">{{ $option }}</span>
+                                                </label>
+                                            @empty
+                                                <div class="px-2 py-1.5 text-xs text-gray-400">No selectable values</div>
+                                            @endforelse
+                                        </div>
+                                    @else
+                                        <input type="text" placeholder="Filter {{ $filter['label'] }}" wire:model.live.debounce.300ms="columnFilters.{{ $filter['stateKey'] }}" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-gray-400 focus:outline-none">
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <button
+                type="button"
+                wire:click="exportCurrentList"
+                wire:loading.attr="disabled"
+                wire:target="exportCurrentList"
+                class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-[#f5f5f5] px-4 py-2 text-sm font-medium text-gray-600 shadow-none transition hover:bg-gray-100 hover:text-gray-800 disabled:opacity-60">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+                </svg>
+                <span>Export current list</span>
+            </button>
 
             <button
                 class="ml-1 px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-pink-700 transition text-sm"
@@ -56,28 +110,38 @@
         </div>
     </div>
 
-    <div class="data-table-scroll mt-3 flex-1 w-full overflow-x-auto pb-8">
-        <table class="min-w-full table-auto">
+    <div class="data-table-scroll mt-3 flex-1 w-full overflow-x-hidden pb-8">
+        <table class="w-full table-fixed">
+            <colgroup>
+                <col class="w-[6%]">
+                <col class="w-[14%]">
+                <col class="w-[12%]">
+                <col class="w-[8%]">
+                <col class="w-[34%]">
+                <col class="w-[14%]">
+                <col class="w-[12%]">
+            </colgroup>
             <thead>
                 <tr class="border-b">
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Log ID</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Date</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Tester ID</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Type</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700">Description</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">User</th>
-                    <th class="px-5 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Status</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700">Log ID</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700">Date</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700">Tester ID</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700">Type</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700">Description</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700">User</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700">Status</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($this->groups as $issue)
-                <tr class="border-b">
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->id }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->date?->format('d.m.Y H:i') ?? '-' }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->tester_id }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Problem</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 align-top">
-                        <div class="max-w-[340px]">
+                @php $hasSolutions = $issue->solutionEntries->isNotEmpty(); @endphp
+                <tr class="{{ $hasSolutions ? '' : 'border-b' }}">
+                    <td class="px-4 py-3 text-sm text-gray-800">{{ $issue->id }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800">{{ $issue->date?->format('d.m.Y H:i') ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800">{{ $issue->tester_id }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800">Problem</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 align-middle">
+                        <div class="w-full">
                             <div x-data="{ expanded: false, showButton: false }"
                                 x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
                                 class="relative pr-2">
@@ -94,8 +158,8 @@
                             </div>
                         </div>
                     </td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->createdBy?->full_name ?? '-' }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
+                    <td class="px-4 py-3 text-sm text-gray-800 break-words">{{ $issue->createdBy?->full_name ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800">
                         @php
                         $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
                         $isSolved = $statusName === 'solved';
@@ -108,13 +172,13 @@
                 </tr>
 
                 @foreach ($issue->solutionEntries as $solution)
-                <tr class="border-b">
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $solution->date?->format('d.m.Y H:i') ?? '-' }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">Solution</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 align-top">
-                        <div class="max-w-[340px]">
+                <tr class="{{ $loop->last ? 'border-b' : '' }}">
+                    <td class="px-4 py-3 text-sm text-gray-800">&nbsp;</td>
+                    <td class="px-4 py-3 text-sm text-gray-800">{{ $solution->date?->format('d.m.Y H:i') ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800">&nbsp;</td>
+                    <td class="px-4 py-3 text-sm text-gray-800">Solution</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 align-middle">
+                        <div class="w-full">
                             <div x-data="{ expanded: false, showButton: false }"
                                 x-init="$nextTick(() => { showButton = $refs.text.scrollHeight > $refs.text.clientHeight })"
                                 class="relative pr-2">
@@ -131,17 +195,8 @@
                             </div>
                         </div>
                     </td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $solution->resolvedBy?->full_name ?? $solution->createdBy?->full_name ?? '-' }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
-                        @php
-                        $solutionStatusName = strtolower((string) ($solution->issueStatusRelation?->name ?? ''));
-                        $solutionIsSolved = $solutionStatusName === 'solved';
-                        $solutionIsActive = $solutionStatusName === 'active';
-                        @endphp
-                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $solutionIsSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : ($solutionIsActive ? 'bg-[#FFD8DE] text-[#FF4A5A]' : 'bg-gray-200 text-gray-700') }}">
-                            {{ strtoupper($solution->issueStatusRelation?->name ?? '-') }}
-                        </span>
-                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-800 break-words">{{ $solution->resolvedBy?->full_name ?? $solution->createdBy?->full_name ?? '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800">&nbsp;</td>
                 </tr>
                 @endforeach
                 @empty

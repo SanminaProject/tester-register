@@ -10,9 +10,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class IssueWorkbench extends Component
 {
@@ -23,9 +27,13 @@ class IssueWorkbench extends Component
     public bool $showInlineForm = false;
 
     public string $search = '';
+    public array $columnFilters = [];
+
+    /** @var array<string, array{column:string,label:string,stateKey:string,type:string,options:array}> */
+    public array $filters = [];
 
     /** @var array<string, string> */
-    public array $filters = [
+    public array $headers = [
         'id' => 'Log ID',
         'date' => 'Date',
         'tester_id' => 'Tester ID',
@@ -34,9 +42,6 @@ class IssueWorkbench extends Component
         'createdBy.email' => 'User',
         'issueStatusRelation.name' => 'Status',
     ];
-
-    /** @var list<string> */
-    public array $activeFilters = [];
 
     /** @var array{date:string,tester_id:int|null,description:string,created_by_user_id:int|null,status_id:int|null} */
     public array $issueForm = [
@@ -85,6 +90,8 @@ class IssueWorkbench extends Component
             })
             ->toArray();
 
+        $this->filters = $this->buildFiltersConfig();
+        $this->normalizeColumnFilters();
         $this->resetIssueForm();
         $this->resetSolutionForm();
         $this->applyRequestedTab($requestedTab, $requestedIssueId);
@@ -109,14 +116,15 @@ class IssueWorkbench extends Component
         $this->resetPage();
     }
 
-    public function toggleFilter(string $filter): void
+    public function updatedColumnFilters(): void
     {
-        if (in_array($filter, $this->activeFilters, true)) {
-            $this->activeFilters = array_values(array_diff($this->activeFilters, [$filter]));
-        } else {
-            $this->activeFilters[] = $filter;
-        }
+        $this->resetPage();
+    }
 
+    public function clearFilters(): void
+    {
+        $this->columnFilters = [];
+        $this->normalizeColumnFilters();
         $this->resetPage();
     }
 
@@ -190,27 +198,254 @@ class IssueWorkbench extends Component
 
     public function getRowsProperty()
     {
+        return $this->buildFilteredQuery()->paginate(10);
+    }
+
+    public function getUserLabelByIdProperty(): array
+    {
+        $labels = [];
+
+        foreach ($this->users as $user) {
+            $labels[(int) ($user['id'] ?? 0)] = (string) ($user['name'] ?? '-');
+        }
+
+        return $labels;
+    }
+
+    public function exportCurrentList()
+    {
+        $rows = $this->buildFilteredQuery()->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $columnIndex = 1;
+        foreach ($this->headers as $label) {
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($columnIndex) . '1', $label);
+            $columnIndex++;
+        }
+
+        $sheet->getStyle('1:1')->getFont()->setBold(true);
+
+        $rowNumber = 2;
+        foreach ($rows as $row) {
+            $columnIndex = 1;
+            foreach (array_keys($this->headers) as $key) {
+                $sheet->setCellValue(
+                    Coordinate::stringFromColumnIndex($columnIndex) . $rowNumber,
+                    (string) (data_get($row, $key) ?? '-')
+                );
+                $columnIndex++;
+            }
+            $rowNumber++;
+        }
+
+        foreach (range(1, count($this->headers)) as $columnNumber) {
+            $sheet->getColumnDimensionByColumn($columnNumber)->setAutoSize(true);
+        }
+
+        $fileName = 'active-issues-' . now()->format('Y-m-d_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    protected function buildFiltersConfig(): array
+    {
+        $definitions = [];
+
+        foreach ($this->headers as $column => $label) {
+            $type = $this->resolveFilterType($column);
+            $definitions[$column] = [
+                'column' => $column,
+                'label' => $label,
+                'stateKey' => 'filter_' . substr(md5($column), 0, 12),
+                'type' => $type,
+                'options' => $type === 'multi' ? $this->getFilterOptions($column) : [],
+            ];
+        }
+
+        return $definitions;
+    }
+
+    protected function resolveFilterType(string $column): string
+    {
+        if ($column === 'id' || $column === 'tester_id') {
+            return 'range';
+        }
+
+        if ($column === 'date') {
+            return 'date_range';
+        }
+
+        if (in_array($column, ['eventType.name', 'createdBy.email', 'issueStatusRelation.name'], true)) {
+            return 'multi';
+        }
+
+        return 'text';
+    }
+
+    protected function getFilterOptions(string $column): array
+    {
+        if (! str_contains($column, '.')) {
+            return TesterEventLog::query()
+                ->whereNotNull($column)
+                ->distinct()
+                ->orderBy($column)
+                ->pluck($column)
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        [$relation, $relatedColumn] = explode('.', $column, 2);
+        $model = new TesterEventLog();
+
+        if (! method_exists($model, $relation)) {
+            return [];
+        }
+
+        $relatedModel = $model->{$relation}()->getRelated();
+
+        return $relatedModel::query()
+            ->whereNotNull($relatedColumn)
+            ->distinct()
+            ->orderBy($relatedColumn)
+            ->pluck($relatedColumn)
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected function normalizeColumnFilters(): void
+    {
+        foreach ($this->filters as $definition) {
+            $stateKey = $definition['stateKey'];
+            $type = $definition['type'];
+            $current = $this->columnFilters[$stateKey] ?? null;
+
+            if ($type === 'multi') {
+                $this->columnFilters[$stateKey] = is_array($current)
+                    ? array_values(array_filter($current, fn ($item) => $item !== null && $item !== ''))
+                    : [];
+                continue;
+            }
+
+            if ($type === 'range') {
+                $this->columnFilters[$stateKey] = [
+                    'min' => is_array($current) ? ($current['min'] ?? null) : null,
+                    'max' => is_array($current) ? ($current['max'] ?? null) : null,
+                ];
+                continue;
+            }
+
+            if ($type === 'date_range') {
+                $this->columnFilters[$stateKey] = [
+                    'from' => is_array($current) ? ($current['from'] ?? null) : null,
+                    'to' => is_array($current) ? ($current['to'] ?? null) : null,
+                ];
+                continue;
+            }
+
+            if (is_array($current)) {
+                $this->columnFilters[$stateKey] = '';
+            }
+        }
+    }
+
+    protected function applyColumnFilters(Builder $query): Builder
+    {
+        foreach ($this->filters as $column => $definition) {
+            $stateKey = $definition['stateKey'];
+            $value = $this->columnFilters[$stateKey] ?? null;
+
+            if ($definition['type'] === 'range') {
+                $minValue = is_array($value) ? ($value['min'] ?? null) : null;
+                $maxValue = is_array($value) ? ($value['max'] ?? null) : null;
+
+                if ($minValue !== null && $minValue !== '') {
+                    $query->where($column, '>=', $minValue);
+                }
+
+                if ($maxValue !== null && $maxValue !== '') {
+                    $query->where($column, '<=', $maxValue);
+                }
+
+                continue;
+            }
+
+            if ($definition['type'] === 'date_range') {
+                $from = is_array($value) ? ($value['from'] ?? null) : null;
+                $to = is_array($value) ? ($value['to'] ?? null) : null;
+
+                if ($from !== null && $from !== '') {
+                    $query->whereDate($column, '>=', $from);
+                }
+
+                if ($to !== null && $to !== '') {
+                    $query->whereDate($column, '<=', $to);
+                }
+
+                continue;
+            }
+
+            if ($definition['type'] === 'multi') {
+                if (! is_array($value)) {
+                    continue;
+                }
+
+                $selectedValues = array_values(array_filter($value, fn ($item) => $item !== null && $item !== ''));
+                if (empty($selectedValues)) {
+                    continue;
+                }
+
+                if (str_contains($column, '.')) {
+                    [$relation, $relColumn] = explode('.', $column, 2);
+                    $query->whereHas($relation, function (Builder $relationQuery) use ($relColumn, $selectedValues) {
+                        $relationQuery->whereIn($relColumn, $selectedValues);
+                    });
+                } else {
+                    $query->whereIn($column, $selectedValues);
+                }
+
+                continue;
+            }
+
+            $keyword = trim((string) $value);
+            if ($keyword === '') {
+                continue;
+            }
+
+            if (str_contains($column, '.')) {
+                [$relation, $relColumn] = explode('.', $column, 2);
+                $query->whereHas($relation, function (Builder $relationQuery) use ($relColumn, $keyword) {
+                    $relationQuery->where($relColumn, 'like', '%' . $keyword . '%');
+                });
+            } else {
+                $query->where($column, 'like', '%' . $keyword . '%');
+            }
+        }
+
+        return $query;
+    }
+
+    protected function buildFilteredQuery(): Builder
+    {
         $query = TesterEventLog::query()
             ->with(['eventType', 'createdBy', 'issueStatusRelation'])
             ->activeIssueRows()
             ->orderByDesc('date');
 
-        $searchColumns = [
-            'id',
-            'date',
-            'tester_id',
-            'eventType.name',
-            'description',
-            'createdBy.email',
-            'issueStatusRelation.name',
-        ];
-
-        if ($this->activeFilters !== []) {
-            $searchColumns = array_values(array_intersect($searchColumns, $this->activeFilters));
-        }
+        $query = $this->applyColumnFilters($query);
 
         $keyword = trim($this->search);
         if ($keyword !== '') {
+            $searchColumns = array_keys($this->headers);
+
             $query->where(function (Builder $builder) use ($keyword, $searchColumns) {
                 foreach ($searchColumns as $column) {
                     if (str_contains($column, '.')) {
@@ -225,18 +460,7 @@ class IssueWorkbench extends Component
             });
         }
 
-        return $query->paginate(10);
-    }
-
-    public function getUserLabelByIdProperty(): array
-    {
-        $labels = [];
-
-        foreach ($this->users as $user) {
-            $labels[(int) ($user['id'] ?? 0)] = (string) ($user['name'] ?? '-');
-        }
-
-        return $labels;
+        return $query;
     }
 
     private function saveIssue(): void
@@ -244,8 +468,9 @@ class IssueWorkbench extends Component
         $validated = $this->validate([
             'issueForm.date' => ['required', 'date_format:Y-m-d\\TH:i'],
             'issueForm.tester_id' => ['required', 'integer', 'exists:testers,id'],
-            'issueForm.description' => ['required', 'string', 'max:1000'],
+            'issueForm.description' => ['required', 'string', 'max:2000'],
             'issueForm.created_by_user_id' => ['required', 'integer', 'exists:users,id'],
+            'issueForm.status_id' => ['required', 'integer', 'exists:issue_statuses,id'],
         ]);
 
         $eventTypeId = TesterEventLog::resolveEventTypeId('problem')
@@ -256,9 +481,12 @@ class IssueWorkbench extends Component
             return;
         }
 
-        $activeStatusId = $this->resolveIssueStatusId('active');
-        if ($activeStatusId === null) {
-            $this->addError('issueForm.status_id', 'Issue status Active is not configured.');
+        $selectedStatusId = isset($validated['issueForm']['status_id'])
+            ? (int) $validated['issueForm']['status_id']
+            : null;
+
+        if ($selectedStatusId === null) {
+            $this->addError('issueForm.status_id', 'Issue status is required.');
             return;
         }
 
@@ -270,7 +498,7 @@ class IssueWorkbench extends Component
             'tester_id' => (int) $issuePayload['tester_id'],
             'event_type' => (int) $eventTypeId,
             'created_by_user_id' => (int) $issuePayload['created_by_user_id'],
-            'issue_status' => $activeStatusId,
+            'issue_status' => $selectedStatusId,
             'resolved_date' => null,
             'resolved_by_user_id' => null,
             'resolution_description' => null,
@@ -290,7 +518,7 @@ class IssueWorkbench extends Component
 
         $validated = $this->validate([
             'solutionForm.resolution_date' => ['required', 'date_format:Y-m-d\\TH:i'],
-            'solutionForm.resolution_description' => ['required', 'string', 'max:1000'],
+            'solutionForm.resolution_description' => ['required', 'string', 'max:2000'],
             'solutionForm.resolved_by_user_id' => ['required', 'integer', 'exists:users,id'],
         ]);
 
@@ -410,6 +638,9 @@ class IssueWorkbench extends Component
 
     public function render()
     {
+        $this->filters = $this->buildFiltersConfig();
+        $this->normalizeColumnFilters();
+
         return view('livewire.pages.issues.issue-workbench');
     }
 }

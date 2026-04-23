@@ -55,7 +55,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="md:col-span-2">
                         <x-input-label for="problem" value="Description" />
-                        <x-text-input id="problem" type="text" wire:model="problem" class="mt-1 block w-full" />
+                        <textarea id="problem" wire:model="problem" rows="4" class="mt-1 block w-full min-h-[120px] resize-y rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                         <x-input-error :messages="$errors->get('problem')" class="mt-2" />
                     </div>
 

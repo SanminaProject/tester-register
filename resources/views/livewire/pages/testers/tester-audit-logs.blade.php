@@ -3,6 +3,7 @@
         type="tester-audit-logs"
         title="Tester Audit Logs"
         searchPlaceholder="Search audit logs..."
+        :search="(string) request('tester_id', '')"
         :showAddButton="false"
         :headers="[
             'id' => 'ID',
