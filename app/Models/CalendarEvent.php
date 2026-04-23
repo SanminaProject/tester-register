@@ -40,10 +40,15 @@ class CalendarEvent extends Model
     {
         return DB::table('tester_maintenance_schedules')
             ->join('testers', 'tester_maintenance_schedules.tester_id', '=', 'testers.id')
+            ->leftJoin('asset_statuses', 'testers.status', '=', 'asset_statuses.id')
             ->selectRaw("
                 CONCAT('maintenance-', tester_maintenance_schedules.id) as id,
                 testers.id as tester_id,
-                CONCAT('Maintenance - ', testers.name) as title,
+                CONCAT(
+                    '#', tester_maintenance_schedules.id,
+                    ' | ', COALESCE(testers.name, CONCAT('Tester #', testers.id)),
+                    ' | ', UPPER(COALESCE(asset_statuses.name, 'UNKNOWN'))
+                ) as title,
                 'maintenance' as type,
                 next_maintenance_due as start,
                 DATE_ADD(next_maintenance_due, INTERVAL 1 HOUR) as end
@@ -54,10 +59,15 @@ class CalendarEvent extends Model
     {
         return DB::table('tester_calibration_schedules')
             ->join('testers', 'tester_calibration_schedules.tester_id', '=', 'testers.id')
+            ->leftJoin('asset_statuses', 'testers.status', '=', 'asset_statuses.id')
             ->selectRaw("
                 CONCAT('calibration-', tester_calibration_schedules.id) as id,
                 testers.id as tester_id,
-                CONCAT('Calibration - ', testers.name) as title,
+                CONCAT(
+                    '#', tester_calibration_schedules.id,
+                    ' | ', COALESCE(testers.name, CONCAT('Tester #', testers.id)),
+                    ' | ', UPPER(COALESCE(asset_statuses.name, 'UNKNOWN'))
+                ) as title,
                 'calibration' as type,
                 next_calibration_due as start,
                 DATE_ADD(next_calibration_due, INTERVAL 1 HOUR) as end
@@ -69,11 +79,16 @@ class CalendarEvent extends Model
         return DB::table('tester_event_logs')
             ->join('event_types', 'tester_event_logs.event_type', '=', 'event_types.id')
             ->join('testers', 'tester_event_logs.tester_id', '=', 'testers.id')
-            ->where('event_types.name', '!=', 'issue')
+            ->leftJoin('asset_statuses', 'testers.status', '=', 'asset_statuses.id')
+            ->whereRaw('LOWER(event_types.name) NOT IN (?, ?, ?)', ['issue', 'problem', 'solution'])
             ->selectRaw("
                 CONCAT('event-', tester_event_logs.id) as id,
                 testers.id as tester_id,
-                CONCAT(event_types.name, ' - ', testers.name) as title,
+                CONCAT(
+                    '#', tester_event_logs.id,
+                    ' | ', COALESCE(testers.name, CONCAT('Tester #', testers.id)),
+                    ' | ', UPPER(COALESCE(asset_statuses.name, 'UNKNOWN'))
+                ) as title,
                 event_types.name as type,
                 date as start,
                 DATE_ADD(date, INTERVAL 1 HOUR) as end

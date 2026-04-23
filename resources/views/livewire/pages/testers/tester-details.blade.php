@@ -1,4 +1,4 @@
-<div class="flex flex-col w-full min-h-[calc(100vh-8rem)] mb-12 md:mb-0 rounded-[24px] md:rounded-2xl bg-white px-5 md:px-10 pt-6 md:pt-8 pb-10 md:pb-12 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:shadow-sm font-sans text-gray-800">
+<div class="flex flex-col w-full min-h-0 md:min-h-[calc(100vh-8rem)] mb-12 md:mb-0 rounded-[24px] md:rounded-2xl bg-white px-4 md:px-10 pt-6 md:pt-8 pb-10 md:pb-12 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:shadow-sm font-sans text-gray-800 overflow-x-hidden">
     <!-- 1. Header (Title & Edit Button) -->
     <div class="hidden md:flex items-center justify-between pb-6 mb-8 border-b border-gray-200">
         <div class="flex items-center gap-4">
@@ -71,9 +71,9 @@
             @endphp
             
             @foreach($rows as $label => $value)
-            <div class="grid grid-cols-[145px_1fr] md:grid-cols-[200px_1fr] gap-x-2 md:gap-x-4 items-start">
+            <div class="grid grid-cols-[108px_minmax(0,1fr)] md:grid-cols-[200px_1fr] gap-x-2 md:gap-x-4 items-start">
                 <div class="text-[#8c8c8c] md:text-dark-grey tracking-wide text-[14px] md:text-[16px]">{{ $label }}</div>
-                <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] whitespace-pre-line leading-[24px] md:leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-[14px] md:w-2.5 h-[14px] md:h-2.5 rounded-full {{ strtolower($tester->statusRelation?->name ?? '') === 'active' ? 'bg-[#31c03b]' : 'bg-red-500' }} ml-1.5 md:ml-1.5 align-text-bottom md:align-baseline mb-[3px] md:mb-0"></span>@endif</div>
+                <div class="min-w-0 break-words text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] whitespace-pre-line leading-[24px] md:leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-[14px] md:w-2.5 h-[14px] md:h-2.5 rounded-full {{ strtolower($tester->statusRelation?->name ?? '') === 'active' ? 'bg-[#31c03b]' : 'bg-red-500' }} ml-1.5 md:ml-1.5 align-text-bottom md:align-baseline mb-[3px] md:mb-0"></span>@endif</div>
             </div>
             @endforeach
         </div>
@@ -194,7 +194,7 @@
         <div class="flex flex-col gap-y-10 md:px-0">
             @forelse($issues as $issue)
             <div class="flex flex-col gap-y-4 {{ !$loop->last ? 'border-b md:border-gray-200 border-[#e8e8e8] pb-8' : '' }}">
-                <div class="grid grid-cols-[120px_1fr] md:grid-cols-[120px_1fr_100px_1fr] items-center gap-x-4">
+                <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr_100px_1fr] items-center gap-x-3 md:gap-x-4">
                     <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Log ID</span>
                     <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->id }}</span>
                     <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px] mt-2 md:mt-0">Status</span>
@@ -214,34 +214,34 @@
                 <div class="mx-3 border-t border-gray-100"></div>
 
                 <div class="flex flex-col gap-y-2">
-                    <div class="grid grid-cols-[120px_1fr] items-center gap-x-4">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-center gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Entry Date</span>
                         <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->date ? $issue->date->format('j.n.Y H:i') : '-' }}</span>
                     </div>
-                    <div class="grid grid-cols-[120px_1fr] items-center gap-x-4">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-center gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">User</span>
                         <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->createdBy?->full_name ?? 'Unknown' }}</span>
                     </div>
-                    <div class="grid grid-cols-[120px_1fr] items-start gap-x-4">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-start gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Problem</span>
-                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed break-words">{{ $issue->description ?? '-' }}</span>
+                        <span class="min-w-0 text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed break-words break-all">{{ $issue->description ?? '-' }}</span>
                     </div>
                 </div>
 
                 @foreach($issue->solutionEntries as $solution)
                 <div class="mx-6 border-t border-gray-100"></div>
                 <div class="flex flex-col gap-y-2">
-                    <div class="grid grid-cols-[120px_1fr] items-center gap-x-4">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-center gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Solved Date</span>
                         <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $solution->date ? $solution->date->format('j.n.Y H:i') : '-' }}</span>
                     </div>
-                    <div class="grid grid-cols-[120px_1fr] items-center gap-x-4">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-center gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">User</span>
                         <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $solution->resolvedBy?->full_name ?? $solution->createdBy?->full_name ?? 'Unknown' }}</span>
                     </div>
-                    <div class="grid grid-cols-[120px_1fr] items-start gap-x-4">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-start gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Solution</span>
-                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed break-words">{{ $solution->resolution_description ?? $solution->description ?? '-' }}</span>
+                        <span class="min-w-0 text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed break-words break-all">{{ $solution->resolution_description ?? $solution->description ?? '-' }}</span>
                     </div>
                 </div>
                 @endforeach
