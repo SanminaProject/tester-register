@@ -31,6 +31,14 @@ class InventoryPage extends Component
             return;
         }
 
+        if ($tab === 'add') {
+            if ($this->activeTab === 'spare-parts') {
+                $tab = 'add-spare-part';
+            } elseif ($this->activeTab === 'suppliers') {
+                $tab = 'add-supplier';
+            }
+        }
+
         $this->activeTab = $tab;
     }
 
