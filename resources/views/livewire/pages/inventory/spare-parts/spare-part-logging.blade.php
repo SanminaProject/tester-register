@@ -19,16 +19,19 @@
                     <div>
                         <x-input-label for="name" value="Name" />
                         <x-text-input label="Name" wire:model="form.name"/>
+                        <x-input-error :messages="$errors->get('form.name')" />
                     </div>
 
                     <div>
                         <x-input-label for="manufacturer_part_number" value="Manufacturer Part Number" />
                         <x-text-input label="Manufacturer Part Number" wire:model="form.manufacturer_part_number"/>
+                        <x-input-error :messages="$errors->get('form.manufacturer_part_number')" />
                     </div>
 
                     <div>
                         <x-input-label for="description" value="Description" />
                         <x-text-input label="Description" wire:model="form.description" />
+                        <x-input-error :messages="$errors->get('form.description')" />
                     </div>
                 </div>
 
@@ -36,16 +39,19 @@
                     <div>
                         <x-input-label value="Quantity In Stock" />
                         <x-text-input type="number" wire:model="form.quantity_in_stock" />
+                        <x-input-error :messages="$errors->get('form.quantity_in_stock')" />
                     </div>
 
                     <div>
                         <x-input-label value="Reorder Level" />
                         <x-text-input type="number" wire:model="form.reorder_level" />
+                        <x-input-error :messages="$errors->get('form.reorder_level')" />
                     </div>
 
                     <div>
                         <x-input-label value="Unit Price" />
                         <x-text-input type="number" step="0.01" wire:model="form.unit_price" />
+                        <x-input-error :messages="$errors->get('form.unit_price')" />
                     </div>
                 </div>
 
@@ -53,6 +59,7 @@
                     <div>
                         <x-input-label value="Last Order Date" />
                         <x-testers.date-field wire:model="form.last_order_date" />
+                        <x-input-error :messages="$errors->get('form.last_order_date')" />
                     </div>
                 </div>
 
@@ -63,6 +70,7 @@
                             wire:model="form.tester_id"
                             :options="$testers"
                         />
+                        <x-input-error :messages="$errors->get('form.tester_id')" />
                     </div>
 
                     <div>
@@ -71,6 +79,7 @@
                             wire:model="form.supplier_id"
                             :options="$suppliers"
                         />
+                        <x-input-error :messages="$errors->get('form.supplier_id')" />
                     </div>
                 </div>
             </div>
