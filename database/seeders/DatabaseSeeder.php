@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             EventTypesSeeder::class,
             IssueStatusesSeeder::class,
             TesterEventLogsSeeder::class,
+            ActiveIssuesSeeder::class,
             DataChangeLogsSeeder::class,
             UserTesterAssignmentsSeeder::class,
         ]);
