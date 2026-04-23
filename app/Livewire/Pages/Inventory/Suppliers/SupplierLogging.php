@@ -61,6 +61,7 @@ class SupplierLogging extends Component
                     DataChangeLog::create([
                         'changed_at' => now(),
                         'explanation' => "Edited supplier details:\n" . implode("\n", $changes),
+                        'spare_part_supplier_id' => $supplier->id,
                         'user_id' => auth()->id() ?? 1,
                     ]);
                 }
@@ -76,6 +77,7 @@ class SupplierLogging extends Component
                 DataChangeLog::create([
                     'changed_at' => now(),
                     'explanation' => "Added new supplier: {$supplier->supplier_name}",
+                    'spare_part_supplier_id' => $supplier->id,
                     'user_id' => auth()->id() ?? 1,
                 ]);
             }

@@ -71,7 +71,7 @@ class DataTable extends Component
             'spare-parts' => ['tester', 'supplier'],
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
-            'inventory-audit-logs' => ['spare_part', 'user'],
+            'inventory-audit-logs' => ['spare_part', 'spare_part_supplier', 'user'],
             default => [],
         };
     }
@@ -87,7 +87,7 @@ class DataTable extends Component
             'suppliers' => ['supplier_name', 'supplier_email'],
             'fixture-audit-logs' => ['explanation', 'fixture_id', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester_id', 'tester.name', 'user.email'],
-            'inventory-audit-logs' => ['explanation', 'spare_part_id', 'spare_part.name', 'user.email'],
+            'inventory-audit-logs' => ['explanation', 'spare_part_id', 'spare_part.name', 'spare_part_supplier_id', 'spare_part_supplier.supplier_name', 'user.email'],
             default => [],
         };
     }
@@ -145,6 +145,7 @@ class DataTable extends Component
             }),
             'inventory-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('spare_part_id')
+                  ->orWhereNotNull('spare_part_supplier_id')
                   ->orWhere('explanation', 'like', '%spare part%');
             }),
             default => $query,

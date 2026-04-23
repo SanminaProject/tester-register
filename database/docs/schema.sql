@@ -136,11 +136,13 @@ CREATE TABLE data_change_logs (
     tester_id INT, -- tester ID if the change is related to a tester
     fixture_id INT, -- fixture ID if the change is related to a fixture
     spare_part_id INT, -- spare part ID if the change is related to a spare part
+    spare_part_supplier_id INT, -- spare part supplier ID if the change is related to a supplier
     user_id INT, -- who made the change
 
     FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE SET NULL,
     FOREIGN KEY (fixture_id) REFERENCES fixtures(id) ON DELETE SET NULL,
     FOREIGN KEY (spare_part_id) REFERENCES tester_spare_parts(id) ON DELETE SET NULL,
+    FOREIGN KEY (spare_part_supplier_id) REFERENCES tester_spare_part_suppliers(id) ON DELETE SET NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 

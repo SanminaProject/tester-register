@@ -17,6 +17,7 @@ class DataChangeLog extends Model
         'tester_id',
         'fixture_id',
         'spare_part_id',
+        'spare_part_supplier_id',
         'user_id',
     ];
 
@@ -33,6 +34,11 @@ class DataChangeLog extends Model
     public function spare_part()
     {
         return $this->belongsTo(TesterSparePart::class);
+    }
+
+    public function spare_part_supplier(): BelongsTo
+    {
+        return $this->belongsTo(TesterSparePartSupplier::class);
     }
 
     public function user()
