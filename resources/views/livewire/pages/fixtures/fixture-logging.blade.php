@@ -22,6 +22,7 @@
                             label="Name"
                             wire:model="form.name"
                         />
+                        <x-input-error :messages="$errors->get('form.name')" />
                     </div>
 
                     <div>
@@ -30,6 +31,7 @@
                             label="Description"
                             wire:model="form.description"
                         />
+                        <x-input-error :messages="$errors->get('form.description')" />
                     </div>
 
                     <div>
@@ -38,6 +40,7 @@
                             wire:model="form.manufacturer"
                             :options="$manufacturers"
                         />
+                        <x-input-error :messages="$errors->get('form.manufacturers')" />
                     </div>
                 </div>
 
@@ -48,6 +51,7 @@
                             wire:model="form.tester_id"
                             :options="$testers"
                         />
+                        <x-input-error :messages="$errors->get('form.tester_id')" />
                     </div>
 
                     <div>
@@ -56,6 +60,7 @@
                             wire:model="form.location_id"
                             :options="$locations"
                         />
+                        <x-input-error :messages="$errors->get('form.location_id')" />
                     </div>
 
                     <div>
@@ -64,6 +69,7 @@
                             wire:model="form.fixture_status"
                             :options="$statuses"
                         />
+                        <x-input-error :messages="$errors->get('form.fixture_status')" />
                     </div>
                 </div>
             </div>
