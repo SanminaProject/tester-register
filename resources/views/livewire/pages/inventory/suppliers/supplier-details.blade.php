@@ -14,7 +14,7 @@
             <h2 class="text-xl font-extrabold text-black tracking-tight">Supplier Details</h2>
         </div>
 
-        <x-primary-button type="button" class="w-32" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $sparePartSupplier->id }} })">
+        <x-primary-button type="button" class="w-32" wire:click="$dispatch('switchTab', { tab: 'edit-suppliers', id: {{ $sparePartSupplier->id }} })">
             Edit
         </x-primary-button>
     </div>

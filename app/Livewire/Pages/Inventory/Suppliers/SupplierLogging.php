@@ -10,7 +10,7 @@ class SupplierLogging extends Component
 {
     public SupplierForm $form;
 
-    public ?int $supplierId = null;
+    public ?int $sparePartSupplierId = null;
     public bool $isEdit = false;
 
     public function render()
@@ -18,13 +18,13 @@ class SupplierLogging extends Component
         return view('livewire.pages.inventory.suppliers.supplier-logging');
     }
 
-    public function mount($supplierId = null)
+    public function mount($sparePartSupplierId = null)
     {
-        if ($supplierId) {
-            $this->supplierId = $supplierId;
+        if ($sparePartSupplierId) {
+            $this->sparePartSupplierId = $sparePartSupplierId;
             $this->isEdit = true;
 
-            $supplier = TesterSparePartSupplier::findOrFail($supplierId);
+            $supplier = TesterSparePartSupplier::findOrFail($sparePartSupplierId);
 
             $this->form->setSupplier($supplier);
         }
