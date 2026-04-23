@@ -30,5 +30,6 @@ docs/CQL-LearningNotes.md
 
 # Excluded by user
 .DS_Store
+database/.DS_Store
 sanmina_backup_20260422.sql
 database/schema/migrations-theory.sql
