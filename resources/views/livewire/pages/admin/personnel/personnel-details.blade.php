@@ -27,11 +27,14 @@
             @php
             $rows = [
                 'ID' => $user->id,
-                'Name' => $user->name,
+                'First Name' => $user->first_name,
+                'Last Name' => $user->last_name,
                 'Role' => $user->roles->pluck('name')->join(', '),
                 'Email' => $user->email,
                 'Phone' => $user->phone,
                 'Responsibilities' => $user->responsibilities,
+                'Tester Names' => $user->testers->pluck('name')->join(', ') ?: '-',
+                'Qualifications Certifications' => $user->qualifications_certifications,
             ];
             @endphp
             
