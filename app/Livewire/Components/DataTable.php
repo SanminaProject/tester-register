@@ -57,6 +57,7 @@ class DataTable extends Component
             'suppliers' => TesterSparePartSupplier::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
+            'inventory-audit-logs' => DataChangeLog::class,
             default => throw new \Exception("Invalid data type"),
         };
     }
@@ -70,6 +71,7 @@ class DataTable extends Component
             'spare-parts' => ['tester', 'supplier'],
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
+            'inventory-audit-logs' => ['spare_part', 'user'],
             default => [],
         };
     }
@@ -85,6 +87,7 @@ class DataTable extends Component
             'suppliers' => ['supplier_name', 'supplier_email'],
             'fixture-audit-logs' => ['explanation', 'fixture_id', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester_id', 'tester.name', 'user.email'],
+            'inventory-audit-logs' => ['explanation', 'spare_part_id', 'spare_part.name', 'user.email'],
             default => [],
         };
     }
@@ -140,7 +143,7 @@ class DataTable extends Component
                   ->whereNull('fixture_id')
                   ->whereNull('spare_part_id');
             }),
-            'spare-part-audit-logs' => $query->where(function($q) {
+            'inventory-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('spare_part_id')
                   ->orWhere('explanation', 'like', '%spare part%');
             }),
@@ -175,7 +178,7 @@ class DataTable extends Component
         // type-specific scopes
         $query = $this->applyTypeScopes($query);
 
-        if (in_array($this->type, ['fixture-audit-logs', 'tester-audit-logs', 'spare-part-audit-logs'])) {
+        if (in_array($this->type, ['fixture-audit-logs', 'tester-audit-logs', 'inventory-audit-logs'])) {
             $query->orderByDesc('changed_at')->orderByDesc('id');
         }
 
