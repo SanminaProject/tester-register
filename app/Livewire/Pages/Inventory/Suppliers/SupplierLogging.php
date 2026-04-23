@@ -36,17 +36,49 @@ class SupplierLogging extends Component
         if ($this->isEdit) {
             $supplier = TesterSparePartSupplier::findOrFail($this->sparePartSupplierId);
 
-            $this->form->update();
+            if ($supplier) {
+                $original = clone $supplier;
+                $this->form->update();
+                $supplier->refresh();
+                $changes = [];
 
-            DataChangeLog::create([
-                'changed_at' => now(),
-                'explanation' => "Updated spare part supplier [ID: {$supplier->id}] - Name: {$supplier->supplier_name}",
-                'user_id' => auth()->id() ?? 1,
-            ]);
+                foreach ($supplier->getAttributes() as $key => $newValue) {
+
+                    if ($key === 'updated_at') continue;
+
+                    $oldValue = $original->getOriginal($key);
+
+                    if ($oldValue != $newValue) {
+
+                        $oldStr = is_null($oldValue) ? 'empty' : $oldValue;
+                        $newStr = is_null($newValue) ? 'empty' : $newValue;
+
+                        $changes[] = "- {$key}: [{$oldStr}] -> [{$newStr}]";
+                    }
+                }
+
+                if (!empty($changes)) {
+                    DataChangeLog::create([
+                        'changed_at' => now(),
+                        'explanation' => "Edited supplier details:\n" . implode("\n", $changes),
+                        'user_id' => auth()->id() ?? 1,
+                    ]);
+                }
+            }
 
             session()->flash('success', 'Supplier updated successfully!');
         } else {
             $this->form->save();
+
+            $supplier = TesterSparePartSupplier::latest('id')->first();
+
+            if ($supplier) {
+                DataChangeLog::create([
+                    'changed_at' => now(),
+                    'explanation' => "Added new supplier: {$supplier->supplier_name}",
+                    'user_id' => auth()->id() ?? 1,
+                ]);
+            }
 
             session()->flash('success', 'Supplier created successfully!');
         }
