@@ -2,35 +2,48 @@
 
 namespace App\Livewire\Components;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\WithoutUrlPagination;
-use App\Models\Tester;
-use App\Models\Fixture;
-use App\Models\User;
-use Spatie\Permission\Models\Role;
 use App\Models\DataChangeLog;
+use App\Models\Fixture;
+use App\Models\Tester;
 use App\Models\TesterEventLog;
+use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Livewire\Component;
+use Livewire\WithoutUrlPagination;
+use Livewire\WithPagination;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Spatie\Permission\Models\Role;
 
 class DataTable extends Component
 {
     use WithPagination, WithoutUrlPagination;
 
-    public $headers = [];
-    public $type = 'testers'; // or fixtures etc.
+    public bool $goToLastPageOnRender = false;
 
-    public $search = '';
+    public array $headers = [];
+    public string $type = 'testers';
 
-    public $title = 'Data List';
-    public $searchPlaceholder = 'Search...';
-    public $addButtonLabel = 'Add';
-    public $showAddButton = true;
+    public string $search = '';
+    public array $columnFilters = [];
 
-    public $filters = [];
-    public $activeFilters = [];
+    public string $title = 'Data List';
+    public string $searchPlaceholder = 'Search...';
+    public string $addButtonLabel = 'Add';
+    public bool $showAddButton = true;
 
-    public function getHasDetailsProperty()
+    public array $filters = [];
+
+    public function mount(): void
+    {
+        if ($this->type === 'testers' && session()->pull('go_to_testers_last_page', false)) {
+            $this->goToLastPageOnRender = true;
+        }
+    }
+
+    public function getHasDetailsProperty(): bool
     {
         $plural = Str::plural($this->type);
         $singular = Str::singular($this->type);
@@ -42,7 +55,7 @@ class DataTable extends Component
         return view()->exists("livewire.pages.{$plural}.{$singular}-details");
     }
 
-    protected function getModelClass()
+    protected function getModelClass(): string
     {
         return match ($this->type) {
             'testers' => Tester::class,
@@ -51,27 +64,29 @@ class DataTable extends Component
             'roles' => Role::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
+            'spare-part-audit-logs' => DataChangeLog::class,
             'issues' => TesterEventLog::class,
             'issue-history' => TesterEventLog::class,
-            default => throw new \Exception("Invalid data type"),
+            default => throw new \Exception('Invalid data type'),
         };
     }
 
-    protected function getRelations()
+    protected function getRelations(): array
     {
         return match ($this->type) {
-            'testers' => ['owner', 'statusRelation'],
+            'testers' => ['owner', 'statusRelation', 'location'],
             'fixtures' => ['tester', 'location', 'status'],
             'personnel' => ['roles', 'testers'],
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
+            'spare-part-audit-logs' => ['sparePart', 'user'],
             'issues' => ['tester', 'createdBy', 'issueStatusRelation', 'eventType'],
             'issue-history' => ['tester', 'createdBy', 'issueStatusRelation', 'eventType'],
             default => [],
         };
     }
 
-    protected function getSearchColumns()
+    protected function getSearchColumns(): array
     {
         return match ($this->type) {
             'testers' => ['name', 'description', 'operating_system'],
@@ -80,59 +95,110 @@ class DataTable extends Component
             'roles' => ['name', 'guard_name'],
             'fixture-audit-logs' => ['explanation', 'fixture_id', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester_id', 'tester.name', 'user.email'],
+            'spare-part-audit-logs' => ['explanation', 'spare_part_id', 'sparePart.name', 'user.email'],
             'issues' => ['id', 'date', 'tester_id', 'eventType.name', 'description', 'createdBy.email', 'issueStatusRelation.name'],
             'issue-history' => ['id', 'date', 'tester_id', 'eventType.name', 'description', 'createdBy.email', 'issueStatusRelation.name'],
             default => [],
         };
     }
 
-    protected function getFiltersConfig()
+    protected function getFiltersConfig(): array
     {
-        return match ($this->type) {
-            'testers' => [
-                'id' => 'ID',
-                'name' => 'Name',
-                'description' => 'Description',
-                'operating_system' => 'OS',
-                'owner_id' => 'Owner',
-                'status_id' => 'Status',
-            ],
-            'fixtures' => [
-                'id' => 'ID',
-                'name' => 'Name',
-                'description' => 'Description',
-                'manufacturer' => 'Manufacturer',
-            ],
-            'issues' => [
-                'id' => 'Log ID',
-                'date' => 'Date',
-                'tester_id' => 'Test ID',
-                'eventType.name' => 'Type',
-                'description' => 'Description',
-                'createdBy.email' => 'User',
-                'issueStatusRelation.name' => 'Status',
-            ],
-            'issue-history' => [
-                'id' => 'Log ID',
-                'date' => 'Date',
-                'tester_id' => 'Test ID',
-                'eventType.name' => 'Type',
-                'description' => 'Description',
-                'createdBy.email' => 'User',
-                'issueStatusRelation.name' => 'Status',
-            ],
-            default => [],
-        };
-    }
+        $definitions = [];
 
-    public function toggleFilter($filter)
-    {
-        if (in_array($filter, $this->activeFilters)) {
-            $this->activeFilters = array_values(array_diff($this->activeFilters, [$filter]));
-        } else {
-            $this->activeFilters[] = $filter;
+        foreach ($this->headers as $column => $label) {
+            $filterType = $this->resolveFilterType($column);
+
+            $definitions[$column] = [
+                'column' => $column,
+                'label' => $label,
+                'stateKey' => $this->getFilterStateKey($column),
+                'type' => $filterType,
+                'options' => $filterType === 'multi' ? $this->getFilterOptions($column) : [],
+            ];
         }
 
+        return $definitions;
+    }
+
+    protected function getFilterStateKey(string $column): string
+    {
+        return 'filter_' . substr(md5($column), 0, 12);
+    }
+
+    protected function resolveFilterType(string $column): string
+    {
+        if ($column === 'id' || str_ends_with($column, '_id') || str_ends_with($column, '_count')) {
+            return 'range';
+        }
+
+        if ($column === 'date' || str_contains($column, 'date') || str_ends_with($column, '_at')) {
+            return 'date_range';
+        }
+
+        if ($this->isSelectableColumn($column)) {
+            return 'multi';
+        }
+
+        return 'text';
+    }
+
+    protected function isSelectableColumn(string $column): bool
+    {
+        $selectableColumns = match ($this->type) {
+            'testers' => ['product_family', 'owner.name', 'statusRelation.name', 'location.name', 'type', 'manufacturer', 'operating_system'],
+            'fixtures' => ['manufacturer', 'tester.name', 'location.name', 'status.name'],
+            'personnel' => ['roles.name'],
+            'roles' => ['guard_name'],
+            'fixture-audit-logs' => ['fixture.name', 'user.email'],
+            'tester-audit-logs' => ['tester.name', 'user.email'],
+            'spare-part-audit-logs' => ['sparePart.name', 'user.email'],
+            'issues' => ['eventType.name', 'createdBy.email', 'issueStatusRelation.name'],
+            'issue-history' => ['eventType.name', 'createdBy.email', 'issueStatusRelation.name'],
+            default => [],
+        };
+
+        return in_array($column, $selectableColumns, true);
+    }
+
+    protected function getFilterOptions(string $column): array
+    {
+        $modelClass = $this->getModelClass();
+        $model = new $modelClass();
+
+        if (str_contains($column, '.')) {
+            [$relation, $relatedColumn] = explode('.', $column, 2);
+
+            if (! method_exists($model, $relation)) {
+                return [];
+            }
+
+            $relationObject = $model->{$relation}();
+            $relatedModel = $relationObject->getRelated();
+
+            return $relatedModel::query()
+                ->whereNotNull($relatedColumn)
+                ->distinct()
+                ->orderBy($relatedColumn)
+                ->pluck($relatedColumn)
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        return $modelClass::query()
+            ->whereNotNull($column)
+            ->distinct()
+            ->orderBy($column)
+            ->pluck($column)
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    public function clearFilters(): void
+    {
+        $this->columnFilters = [];
         $this->resetPage();
     }
 
@@ -141,35 +207,284 @@ class DataTable extends Component
         $this->resetPage();
     }
 
+    public function updatedColumnFilters(): void
+    {
+        $this->resetPage();
+    }
+
+    protected function normalizeColumnFilters(): void
+    {
+        foreach ($this->filters as $definition) {
+            $stateKey = $definition['stateKey'];
+            $type = $definition['type'];
+            $current = $this->columnFilters[$stateKey] ?? null;
+
+            if ($type === 'multi') {
+                $this->columnFilters[$stateKey] = is_array($current)
+                    ? array_values(array_filter($current, fn ($item) => $item !== null && $item !== ''))
+                    : [];
+                continue;
+            }
+
+            if ($type === 'range') {
+                $this->columnFilters[$stateKey] = [
+                    'min' => is_array($current) ? ($current['min'] ?? null) : null,
+                    'max' => is_array($current) ? ($current['max'] ?? null) : null,
+                ];
+                continue;
+            }
+
+            if ($type === 'date_range') {
+                $this->columnFilters[$stateKey] = [
+                    'from' => is_array($current) ? ($current['from'] ?? null) : null,
+                    'to' => is_array($current) ? ($current['to'] ?? null) : null,
+                ];
+                continue;
+            }
+
+            if (is_array($current)) {
+                $this->columnFilters[$stateKey] = '';
+            }
+        }
+    }
+
+    protected function buildBaseQuery()
+    {
+        $model = $this->getModelClass();
+        $query = $model::query();
+
+        $relations = $this->getRelations();
+        if (! empty($relations)) {
+            $query->with($relations);
+        }
+
+        if ($this->type === 'roles') {
+            $query->withCount('users');
+        }
+
+        $query = $this->applyTypeScopes($query);
+
+        if (in_array($this->type, ['fixture-audit-logs', 'tester-audit-logs', 'spare-part-audit-logs'])) {
+            $query->orderByDesc('changed_at')->orderByDesc('id');
+        }
+
+        return $query;
+    }
+
+    protected function applyColumnFilters($query)
+    {
+        foreach ($this->filters as $column => $definition) {
+            $stateKey = $definition['stateKey'];
+            $value = $this->columnFilters[$stateKey] ?? null;
+
+            if ($definition['type'] === 'range') {
+                $minValue = is_array($value) ? ($value['min'] ?? null) : null;
+                $maxValue = is_array($value) ? ($value['max'] ?? null) : null;
+
+                if ($minValue !== null && $minValue !== '') {
+                    $query->where($column, '>=', $minValue);
+                }
+
+                if ($maxValue !== null && $maxValue !== '') {
+                    $query->where($column, '<=', $maxValue);
+                }
+
+                continue;
+            }
+
+            if ($definition['type'] === 'date_range') {
+                $from = is_array($value) ? ($value['from'] ?? null) : null;
+                $to = is_array($value) ? ($value['to'] ?? null) : null;
+
+                if ($from !== null && $from !== '') {
+                    $query->whereDate($column, '>=', $from);
+                }
+
+                if ($to !== null && $to !== '') {
+                    $query->whereDate($column, '<=', $to);
+                }
+
+                continue;
+            }
+
+            if ($definition['type'] === 'multi') {
+                if (! is_array($value)) {
+                    continue;
+                }
+
+                $selectedValues = array_values(array_filter($value, fn ($item) => $item !== null && $item !== ''));
+
+                if (empty($selectedValues)) {
+                    continue;
+                }
+
+                if (str_contains($column, '.')) {
+                    [$relation, $relatedColumn] = explode('.', $column, 2);
+                    $query->whereHas($relation, function ($relationQuery) use ($relatedColumn, $selectedValues) {
+                        $relationQuery->whereIn($relatedColumn, $selectedValues);
+                    });
+                } else {
+                    $query->whereIn($column, $selectedValues);
+                }
+
+                continue;
+            }
+
+            $keyword = trim((string) $value);
+            if ($keyword === '') {
+                continue;
+            }
+
+            if (str_contains($column, '.')) {
+                [$relation, $relatedColumn] = explode('.', $column, 2);
+                $query->whereHas($relation, function ($relationQuery) use ($relatedColumn, $keyword) {
+                    $relationQuery->where($relatedColumn, 'like', '%' . $keyword . '%');
+                });
+            } else {
+                $query->where($column, 'like', '%' . $keyword . '%');
+            }
+        }
+
+        return $query;
+    }
+
+    protected function buildFilteredQuery()
+    {
+        $query = $this->buildBaseQuery();
+        $query = $this->applyColumnFilters($query);
+
+        $keyword = trim($this->search);
+        $searchColumns = $this->getSearchColumns();
+
+        if ($keyword !== '') {
+            $query->where(function ($nestedQuery) use ($keyword, $searchColumns) {
+                foreach ($searchColumns as $column) {
+                    if (str_contains($column, '.')) {
+                        [$relation, $relatedColumn] = explode('.', $column, 2);
+                        $nestedQuery->orWhereHas($relation, function ($relationQuery) use ($relatedColumn, $keyword) {
+                            $relationQuery->where($relatedColumn, 'like', '%' . $keyword . '%');
+                        });
+                    } else {
+                        $nestedQuery->orWhere($column, 'like', '%' . $keyword . '%');
+                    }
+                }
+            });
+        }
+
+        return $query;
+    }
+
+    public function exportCurrentList()
+    {
+        $rows = $this->buildFilteredQuery()->get();
+        $headers = $this->headers;
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $columnIndex = 1;
+        foreach ($headers as $label) {
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($columnIndex) . '1', $label);
+            $columnIndex++;
+        }
+
+        $sheet->getStyle('1:1')->getFont()->setBold(true);
+
+        $rowNumber = 2;
+        foreach ($rows as $row) {
+            $columnIndex = 1;
+            foreach (array_keys($headers) as $key) {
+                $sheet->setCellValue(
+                    Coordinate::stringFromColumnIndex($columnIndex) . $rowNumber,
+                    $this->formatExportValue($row, $key)
+                );
+                $columnIndex++;
+            }
+            $rowNumber++;
+        }
+
+        foreach (range(1, count($headers)) as $columnNumber) {
+            $sheet->getColumnDimensionByColumn($columnNumber)->setAutoSize(true);
+        }
+
+        $fileName = Str::slug($this->title ?: $this->type) . '-' . now()->format('Y-m-d_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    protected function formatExportValue($row, string $key): string
+    {
+        $value = data_get($row, $key);
+
+        if ($value instanceof Collection) {
+            return $value->pluck('name')->filter()->implode(', ');
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'Yes' : 'No';
+        }
+
+        if ($value === null || $value === '') {
+            return '-';
+        }
+
+        if (is_array($value)) {
+            return implode(', ', array_map(fn ($item) => (string) $item, $value));
+        }
+
+        if (is_object($value)) {
+            foreach (['name', 'title', 'email', 'full_name', 'id'] as $property) {
+                $objectValue = data_get($value, $property);
+                if ($objectValue !== null && $objectValue !== '') {
+                    return (string) $objectValue;
+                }
+            }
+
+            if (method_exists($value, '__toString')) {
+                return (string) $value;
+            }
+
+            return '-';
+        }
+
+        return (string) $value;
+    }
+
     protected function applyTypeScopes($query)
     {
         return match ($this->type) {
-            'fixture-audit-logs' => $query->where(function($q) {
+            'fixture-audit-logs' => $query->where(function ($q) {
                 $q->whereNotNull('fixture_id')
-                  ->orWhere(function($q2) {
-                      $q2->whereNull('tester_id')->whereNull('spare_part_id')->where('explanation', 'like', '%fixture%');
-                  });
+                    ->orWhere(function ($q2) {
+                        $q2->whereNull('tester_id')->whereNull('spare_part_id')->where('explanation', 'like', '%fixture%');
+                    });
             }),
-            'tester-audit-logs' => $query->where(function($q) {
-                $q->where(function($subQ) {
+            'tester-audit-logs' => $query->where(function ($q) {
+                $q->where(function ($subQ) {
                     $subQ->whereNotNull('tester_id')
-                         ->whereNull('fixture_id')
-                         ->whereNull('spare_part_id');
+                        ->whereNull('fixture_id')
+                        ->whereNull('spare_part_id');
                 })->orWhere('explanation', 'like', 'Deleted tester details%');
             }),
-            'spare-part-audit-logs' => $query->where(function($q) {
+            'spare-part-audit-logs' => $query->where(function ($q) {
                 $q->whereNotNull('spare_part_id')
-                  ->orWhere('explanation', 'like', '%spare part%');
+                    ->orWhere('explanation', 'like', '%spare part%');
             }),
-            'issues' => $query
-                ->activeIssueRows()
-                ->orderByDesc('date'),
+            'issues' => $query->activeIssueRows()->orderByDesc('date'),
             'issue-history' => $query
                 ->where('description', 'not like', '[HISTORY]%')
                 ->where(function ($historyQuery) {
                     $historyQuery->where(function ($problemQuery) {
-                        $problemQuery->problems()
-                            ->whereNull('parent_event_log_id');
+                        $problemQuery->problems()->whereNull('parent_event_log_id');
                     })->orWhere(function ($solutionQuery) {
                         $solutionQuery->solutions();
                     });
@@ -181,59 +496,19 @@ class DataTable extends Component
 
     public function render()
     {
-        $model = $this->getModelClass();
         $this->filters = $this->getFiltersConfig();
+        $this->normalizeColumnFilters();
+        $query = $this->buildFilteredQuery();
 
-        // base query
-        $query = $model::query();
-
-        // relations if needed
-        $relations = $this->getRelations();
-        if (!empty($relations)) {
-            $query->with($relations);
+        if ($this->goToLastPageOnRender) {
+            $totalRows = (clone $query)->count();
+            $lastPage = max((int) ceil($totalRows / 10), 1);
+            $this->setPage($lastPage);
+            $this->goToLastPageOnRender = false;
         }
-
-        // count users for roles table
-        if ($this->type === 'roles') {
-            $query->withCount('users');
-        }
-
-        // type-specific scopes
-        $query = $this->applyTypeScopes($query);
-
-        if (in_array($this->type, ['fixture-audit-logs', 'tester-audit-logs', 'spare-part-audit-logs'])) {
-            $query->orderByDesc('changed_at')->orderByDesc('id');
-        }
-
-        $keyword = trim($this->search);
-        $searchColumns = $this->getSearchColumns();
-
-        if (! empty($this->activeFilters)) {
-            $filteredColumns = array_values(array_intersect($searchColumns, $this->activeFilters));
-            if (! empty($filteredColumns)) {
-                $searchColumns = $filteredColumns;
-            }
-        }
-
-        if ($keyword !== '') {
-            $query->where(function ($q) use ($keyword, $searchColumns) {
-                foreach ($searchColumns as $column) {
-                    if (str_contains($column, '.')) {
-                        [$relation, $relColumn] = explode('.', $column, 2);
-                        $q->orWhereHas($relation, function ($relQuery) use ($relColumn, $keyword) {
-                            $relQuery->where($relColumn, 'like', '%' . $keyword . '%');
-                        });
-                    } else {
-                        $q->orWhere($column, 'like', '%' . $keyword . '%');
-                    }
-                }
-            });
-        }
-
-        $data = $query->paginate(10);
 
         return view('livewire.components.data-table', [
-            'data' => $data
+            'data' => $query->paginate(10),
         ]);
     }
 }

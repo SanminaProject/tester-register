@@ -352,6 +352,9 @@ class AddNewTester extends Component
             'documents',
         ]);
         $this->asset_nos = [''];
+
+        session()->flash('go_to_testers_last_page', true);
+        $this->dispatch('switchTab', tab: 'all');
     }
 
     public function addAssetInput()

@@ -1,6 +1,6 @@
 <div class="flex min-h-[calc(100vh-8rem)] w-full min-w-0 flex-col rounded-xl bg-white px-8 pt-6 pb-8 shadow-sm">
-    <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-4">
-        <h3 class="text-[32px] font-bold pl-4 leading-none">Issue History</h3>
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold pl-8">Issue History</h3>
         <div class="flex items-center gap-3">
             <div class="relative">
                 <input
