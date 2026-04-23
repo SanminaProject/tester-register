@@ -14,7 +14,7 @@ class IssueEventLogHistoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_issue_create_update_delete_writes_history_rows(): void
+    public function test_issue_create_update_delete_do_not_write_history_rows(): void
     {
         $admin = User::factory()->create();
         Role::findOrCreate('Admin', 'web');
@@ -47,6 +47,7 @@ class IssueEventLogHistoryTest extends TestCase
         ]);
 
         $issueId = (int) $createResponse->json('data.id');
+        $expectedStartOfDay = now()->startOfDay()->format('Y-m-d H:i:s');
 
         $createResponse
             ->assertCreated()
@@ -56,9 +57,10 @@ class IssueEventLogHistoryTest extends TestCase
             'id' => $issueId,
             'tester_id' => $tester->id,
             'event_type' => $eventTypeId,
+            'date' => $expectedStartOfDay,
         ]);
 
-        $this->assertDatabaseHas('tester_event_logs', [
+        $this->assertDatabaseMissing('tester_event_logs', [
             'tester_id' => $tester->id,
             'event_type' => $eventTypeId,
             'description' => '[HISTORY] Created issue #' . $issueId,
@@ -76,7 +78,7 @@ class IssueEventLogHistoryTest extends TestCase
             ->assertOk()
             ->assertJsonPath('success', true);
 
-        $this->assertDatabaseHas('tester_event_logs', [
+        $this->assertDatabaseMissing('tester_event_logs', [
             'tester_id' => $tester->id,
             'event_type' => $eventTypeId,
             'description' => '[HISTORY] Updated issue #' . $issueId . ' | fields: description, resolution_description',
@@ -86,7 +88,7 @@ class IssueEventLogHistoryTest extends TestCase
             ->assertOk()
             ->assertJsonPath('success', true);
 
-        $this->assertDatabaseHas('tester_event_logs', [
+        $this->assertDatabaseMissing('tester_event_logs', [
             'tester_id' => $tester->id,
             'event_type' => $eventTypeId,
             'description' => '[HISTORY] Deleted issue #' . $issueId,

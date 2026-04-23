@@ -46,7 +46,11 @@ class AddSolution extends Component
             })
             ->toArray();
 
-        $this->statuses = IssueStatus::query()->select('id', 'name')->orderBy('id')->get();
+        $this->statuses = IssueStatus::query()
+            ->select('id', 'name')
+            ->whereRaw('LOWER(name) in (?, ?)', ['active', 'solved'])
+            ->orderBy('id')
+            ->get();
 
         $solvedId = (int) (IssueStatus::query()
             ->whereRaw('LOWER(name) = ?', ['solved'])
@@ -70,19 +74,25 @@ class AddSolution extends Component
             'resolution_date' => ['required', 'date'],
             'resolution_description' => ['required', 'string', 'max:1000'],
             'resolved_by_user_id' => ['required', 'integer', 'exists:users,id'],
-            'status_id' => ['required', 'integer', 'exists:issue_statuses,id'],
         ]);
 
         $solutionTypeId = TesterEventLog::resolveEventTypeId('solution');
-        $problemTypeId = TesterEventLog::resolveEventTypeId('problem') ?? TesterEventLog::resolveEventTypeId('issue');
+        $solvedStatusId = (int) (IssueStatus::query()
+            ->whereRaw('LOWER(name) = ?', ['solved'])
+            ->value('id') ?? 0);
 
-        if ($solutionTypeId === null || $problemTypeId === null) {
+        if ($solutionTypeId === null) {
             $this->addError('status_id', 'Event types problem/solution are not configured.');
             return;
         }
 
-        DB::transaction(function () use ($validated, $solutionTypeId, $problemTypeId) {
-            $resolvedAt = Carbon::parse($validated['resolution_date'])->endOfDay();
+        if ($solvedStatusId <= 0) {
+            $this->addError('status_id', 'Issue status Solved is not configured.');
+            return;
+        }
+
+        DB::transaction(function () use ($validated, $solutionTypeId, $solvedStatusId) {
+            $resolvedAt = Carbon::parse($validated['resolution_date'])->startOfDay();
 
             TesterEventLog::create([
                 'date' => $resolvedAt,
@@ -93,7 +103,7 @@ class AddSolution extends Component
                 'resolved_by_user_id' => (int) $validated['resolved_by_user_id'],
                 'resolved_date' => $resolvedAt,
                 'resolution_description' => $validated['resolution_description'],
-                'issue_status' => (int) $validated['status_id'],
+                'issue_status' => $solvedStatusId,
                 'parent_event_log_id' => $this->issue->id,
             ]);
 
@@ -101,22 +111,9 @@ class AddSolution extends Component
                 'resolved_date' => $resolvedAt,
                 'resolution_description' => $validated['resolution_description'],
                 'resolved_by_user_id' => (int) $validated['resolved_by_user_id'],
-                'issue_status' => (int) $validated['status_id'],
+                'issue_status' => $solvedStatusId,
             ]);
             $this->issue->save();
-
-            TesterEventLog::create([
-                'date' => now(),
-                'description' => '[HISTORY] Added solution for issue #' . $this->issue->id,
-                'tester_id' => $this->issue->tester_id,
-                'event_type' => (int) $problemTypeId,
-                'created_by_user_id' => Auth::id() ?? 1,
-                'issue_status' => null,
-                'resolution_description' => null,
-                'resolved_date' => null,
-                'resolved_by_user_id' => null,
-                'parent_event_log_id' => $this->issue->id,
-            ]);
         });
 
         $this->dispatch('saved');
@@ -126,7 +123,7 @@ class AddSolution extends Component
 
     public function getIssueTypeLabelProperty(): string
     {
-        return strtolower((string) ($this->issue->eventType?->name ?? 'problem'));
+        return ucfirst(strtolower((string) ($this->issue->eventType?->name ?? 'problem')));
     }
 
     public function getIssueUserLabelProperty(): string

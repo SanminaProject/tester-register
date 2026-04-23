@@ -165,9 +165,14 @@ class DataTable extends Component
                 ->activeIssueRows()
                 ->orderByDesc('date'),
             'issue-history' => $query
+                ->where('description', 'not like', '[HISTORY]%')
                 ->where(function ($historyQuery) {
-                    $historyQuery->where('description', 'like', '[HISTORY]%')
-                        ->orWhereNotNull('parent_event_log_id');
+                    $historyQuery->where(function ($problemQuery) {
+                        $problemQuery->problems()
+                            ->whereNull('parent_event_log_id');
+                    })->orWhere(function ($solutionQuery) {
+                        $solutionQuery->solutions();
+                    });
                 })
                 ->orderByDesc('date'),
             default => $query,

@@ -2,9 +2,7 @@
 
 namespace App\Livewire\Pages\Issues;
 
-use App\Models\EventType;
 use App\Models\TesterEventLog;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class IssueDetails extends Component
@@ -26,25 +24,6 @@ class IssueDetails extends Component
 
     public function deleteIssue(): void
     {
-        $actorId = Auth::id() ?? 1;
-        $eventTypeId = EventType::query()
-            ->whereRaw('LOWER(name) = ?', ['issue'])
-            ->value('id');
-
-        if ($eventTypeId) {
-            TesterEventLog::create([
-                'date' => now(),
-                'description' => '[HISTORY] Deleted issue #' . $this->issue->id,
-                'tester_id' => $this->issue->tester_id,
-                'event_type' => (int) $eventTypeId,
-                'created_by_user_id' => $actorId,
-                'issue_status' => null,
-                'resolution_description' => null,
-                'resolved_date' => null,
-                'resolved_by_user_id' => null,
-            ]);
-        }
-
         $this->issue->delete();
 
         session()->flash('message', 'Issue deleted successfully.');

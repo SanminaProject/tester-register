@@ -59,11 +59,15 @@ class IssueHistory extends Component
                 'issueStatusRelation',
                 'eventType',
                 'solutionEntries' => function ($builder): void {
-                    $builder->with(['createdBy', 'resolvedBy', 'issueStatusRelation', 'eventType'])
+                    $builder->solutions()
+                        ->where('description', 'not like', '[HISTORY]%')
+                        ->with(['createdBy', 'resolvedBy', 'issueStatusRelation', 'eventType'])
                         ->orderBy('date');
                 },
             ])
             ->problems()
+            ->whereNull('parent_event_log_id')
+            ->where('description', 'not like', '[HISTORY]%')
             ->orderByDesc('date');
 
         $searchColumns = [

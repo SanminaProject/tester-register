@@ -99,8 +99,9 @@
                         @php
                         $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
                         $isSolved = $statusName === 'solved';
+                        $isActive = $statusName === 'active';
                         @endphp
-                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : ($isActive ? 'bg-[#FFD8DE] text-[#FF4A5A]' : 'bg-gray-200 text-gray-700') }}">
                             {{ strtoupper($issue->issueStatusRelation?->name ?? '-') }}
                         </span>
                     </td>
@@ -131,7 +132,16 @@
                         </div>
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $solution->resolvedBy?->full_name ?? $solution->createdBy?->full_name ?? '-' }}</td>
-                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">&nbsp;</td>
+                    <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">
+                        @php
+                        $solutionStatusName = strtolower((string) ($solution->issueStatusRelation?->name ?? ''));
+                        $solutionIsSolved = $solutionStatusName === 'solved';
+                        $solutionIsActive = $solutionStatusName === 'active';
+                        @endphp
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $solutionIsSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : ($solutionIsActive ? 'bg-[#FFD8DE] text-[#FF4A5A]' : 'bg-gray-200 text-gray-700') }}">
+                            {{ strtoupper($solution->issueStatusRelation?->name ?? '-') }}
+                        </span>
+                    </td>
                 </tr>
                 @endforeach
                 @empty

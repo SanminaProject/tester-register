@@ -107,7 +107,7 @@
                         <span class="rounded-full bg-[#efefef] px-4 py-1.5 text-xs font-semibold text-[#777]">Auto</span>
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-text-input type="date" wire:model="issueForm.date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
+                        <x-text-input type="datetime-local" wire:model="issueForm.date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('issueForm.date')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
@@ -124,12 +124,9 @@
                         <x-input-error :messages="$errors->get('issueForm.created_by_user_id')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-testers.dropdown-field
-                            wire:model="issueForm.status_id"
-                            :options="$statuses"
-                            placeholder="Select status"
-                            class="rounded-full border-0 bg-[#efefef] shadow-none"
-                            error="issueForm.status_id" />
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-[#FFD8DE] text-[#FF4A5A]">
+                            ACTIVE
+                        </span>
                     </td>
                 </tr>
                 @endif
@@ -173,8 +170,9 @@
                         @php
                         $statusName = strtolower((string) ($row->issueStatusRelation?->name ?? ''));
                         $isSolved = $statusName === 'solved';
+                        $isActive = $statusName === 'active';
                         @endphp
-                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : 'bg-[#FFD8DE] text-[#FF4A5A]' }}">
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : ($isActive ? 'bg-[#FFD8DE] text-[#FF4A5A]' : 'bg-gray-200 text-gray-700') }}">
                             {{ strtoupper($row->issueStatusRelation?->name ?? '-') }}
                         </span>
                     </td>
@@ -186,7 +184,7 @@
                         <span class="rounded-full bg-[#efefef] px-4 py-1.5 text-xs font-semibold text-[#777]">Auto</span>
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-text-input type="date" wire:model="solutionForm.resolution_date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
+                        <x-text-input type="datetime-local" wire:model="solutionForm.resolution_date" class="w-full rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('solutionForm.resolution_date')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $row->tester_id }}</td>
@@ -200,8 +198,9 @@
                         <x-input-error :messages="$errors->get('solutionForm.resolved_by_user_id')" class="mt-2" />
                     </td>
                     <td class="px-5 py-3 text-sm text-gray-800 whitespace-nowrap align-top">
-                        <x-select-field wire:model="solutionForm.status_id" :options="$statuses" placeholder="Select status" class="rounded-full border-0 bg-[#efefef] shadow-none" />
-                        <x-input-error :messages="$errors->get('solutionForm.status_id')" class="mt-2" />
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-[#CFF3DA] text-[#2E9F57]">
+                            SOLVED
+                        </span>
                     </td>
                 </tr>
                 @endif
