@@ -4,6 +4,7 @@ namespace App\Livewire\Pages\Inventory\Suppliers;
 
 use App\Livewire\Forms\SupplierForm;
 use App\Models\TesterSparePartSupplier;
+use App\Models\DataChangeLog;
 use Livewire\Component;
 
 class SupplierLogging extends Component
@@ -33,7 +34,15 @@ class SupplierLogging extends Component
     public function save()
     {
         if ($this->isEdit) {
+            $supplier = TesterSparePartSupplier::findOrFail($this->sparePartSupplierId);
+
             $this->form->update();
+
+            DataChangeLog::create([
+                'changed_at' => now(),
+                'explanation' => "Updated spare part supplier [ID: {$supplier->id}] - Name: {$supplier->supplier_name}",
+                'user_id' => auth()->id() ?? 1,
+            ]);
 
             session()->flash('success', 'Supplier updated successfully!');
         } else {

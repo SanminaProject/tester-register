@@ -6,6 +6,7 @@ use App\Livewire\Forms\SparePartForm;
 use App\Models\TesterSparePart;
 use App\Models\Tester;
 use App\Models\TesterSparePartSupplier;
+use App\Models\DataChangeLog;
 use Livewire\Component;
 
 class SparePartLogging extends Component
@@ -42,6 +43,13 @@ class SparePartLogging extends Component
             $sparePart = TesterSparePart::findOrFail($this->sparePartId);
 
             $this->form->update($sparePart);
+
+            DataChangeLog::create([
+                'changed_at' => now(),
+                'explanation' => "Updated spare part [ID: {$sparePart->id}] - Name: {$sparePart->name}",
+                'spare_part_id' => $sparePart->id,
+                'user_id' => auth()->id() ?? 1,
+            ]);
 
             session()->flash('success', 'Spare part updated successfully!');
         } else {
