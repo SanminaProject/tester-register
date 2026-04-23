@@ -1,49 +1,54 @@
 <div class="flex flex-col w-full min-h-[calc(100vh-8rem)] mb-12 md:mb-0 rounded-[24px] md:rounded-2xl bg-white px-5 md:px-10 pt-6 md:pt-8 pb-10 md:pb-12 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:shadow-sm font-sans text-gray-800">
-        <div class="flex items-center justify-between pb-6 border-b border-gray-200">
-            <div class="flex items-center gap-4">
+        <div class="flex items-center justify-between pb-6 border-b border-gray-200 flex-wrap md:flex-nowrap gap-y-4">
+            <!-- Left: Title -->
+            <div class="flex items-center gap-4 w-full md:w-auto md:flex-1">
                 <button 
                     type="button" 
-                    wire:click="$dispatch('switchTab', { tab: '{{ $tester_id ? 'details' : 'all' }}'{{ $tester_id ? ', id: ' . $tester_id : '' }} })" 
+                    wire:click="$dispatch('switchTab', { tab: '{{ $isEditMode ? 'details' : 'all' }}'{{ $isEditMode ? ', id: ' . $original_tester_id : '' }} })" 
                     class="flex items-center justify-center w-8 h-8 rounded hover:bg-gray-100 transition-colors text-black">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <h2 class="text-xl font-extrabold text-black tracking-tight">
-                    {{ $tester_id ? 'Edit Tester Details' : 'Add New Tester' }}
+                <h2 class="text-xl font-extrabold text-black tracking-tight whitespace-nowrap">
+                    {{ $isEditMode ? 'Edit Tester Details' : 'Add New Tester' }}
                 </h2>
             </div>
-            
-            <button
-                class="bg-primary hover:bg-[#8A0028] text-white text-[15px] font-medium px-8 py-2 md:py-2.5 rounded-full transition-colors flex-shrink-0"
-                wire:click="save"
-                type="button">
-                Save
-            </button>
-        </div>
 
-        @if(!$tester_id)
-        <div class="relative flex max-w-md my-6 md:mb-8">
-            <div class="relative w-full lg:w-70">
-                <input type="text" wire:model.live.debounce.300ms="search_query" class="w-full pl-10 pr-4 py-2 bg-[#dddddd] rounded-full focus:outline-none focus:ring-2 focus:ring-pink-200 border-0 shadow-none text-sm" placeholder="Search..." style="box-shadow:none;">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#2C3E50]">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </span>
-            </div>
-            @if(!empty($search_results))
-            <div class="absolute z-10 top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
-                @foreach($search_results as $result)
-                <div class="px-4 py-2 hover:bg-gray-50 flex justify-between items-center border-b cursor-pointer" wire:click="selectAndCopyTester({{ $result['id'] }})">
-                    <span class="text-sm text-gray-700 font-medium">{{ $result['id'] }} - {{ $result['name'] }}</span>
-                    <span class="text-xs text-gray-400">Copy Data</span>
+            <!-- Center: Search Bar -->
+            @if(!$isEditMode)
+            <div class="relative w-full max-w-[320px] mx-auto order-last md:order-none">
+                <div class="relative w-full">
+                    <input type="text" wire:model.live.debounce.300ms="search_query" class="w-full pl-10 pr-4 py-2 bg-[#dddddd] rounded-full focus:outline-none focus:ring-2 focus:ring-pink-200 border-0 shadow-none text-sm" placeholder="Search..." style="box-shadow:none;">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#2C3E50]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
                 </div>
-                @endforeach
+                @if(!empty($search_results))
+                <div class="absolute z-10 top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+                    @foreach($search_results as $result)
+                    <div class="px-4 py-2 hover:bg-gray-50 flex justify-between items-center border-b cursor-pointer" wire:click="selectAndCopyTester({{ $result['id'] }})">
+                        <span class="text-sm text-gray-700 font-medium">{{ $result['id'] }} - {{ $result['name'] }}</span>
+                        <span class="text-xs text-gray-400">Copy Data</span>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
             </div>
             @endif
+            
+            <!-- Right: Action Button -->
+            <div class="flex w-full md:w-auto md:flex-1 justify-end order-2 md:order-none">
+                <button
+                    class="bg-primary hover:bg-[#8A0028] text-white text-[15px] font-medium px-8 py-2 md:py-2.5 rounded-full transition-colors flex-shrink-0"
+                    wire:click="save"
+                    type="button">
+                    Save
+                </button>
+            </div>
         </div>
-        @endif
 
     <!-- The Grid Layout -->
     <!-- Matches tester-details layout to maintain white space on the right side -->
@@ -55,7 +60,7 @@
                 
                 <!-- Row 1 -->
             <div>
-                <x-testers.input-field label="*ID" wire:model="tester_id" placeholder="" disabled />
+                <x-testers.input-field label="*ID" wire:model="tester_id" placeholder="" />
             </div>
             <div>
                 <x-testers.input-field label="*Name" wire:model="name" placeholder="" />
@@ -138,12 +143,22 @@
             </div>
             
             <div>
-                <x-testers.upload-field label="Documents" :multiple="true" model="documents" accept=".jpg,.jpeg,.png,.gif,.txt,.pdf,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx" placeholder="Upload Files" />
+                <x-testers.upload-field 
+                    label="Documents" 
+                    :multiple="true" 
+                    model="newDocuments" 
+                    accept=".jpg,.jpeg,.png,.gif,.webp,.txt,.pdf,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx" 
+                    placeholder="Upload Files" 
+                    allowedTypes="JPG, PNG, GIF, PDF, CSV, DOC, XLS, PPT, TXT"
+                />
                 
-                <div wire:loading wire:target="documents" class="text-xs text-blue-600 mt-1">
+                <div wire:loading wire:target="newDocuments" class="text-xs text-blue-600 mt-1">
                     Uploading files...
                 </div>
 
+                @error('newDocuments.*')
+                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
                 @error('documents.*')
                 <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                 @enderror
@@ -152,8 +167,33 @@
                 <div class="mt-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
                     <p class="text-xs font-semibold text-gray-700 mb-1">Selected files:</p>
                     <ul class="space-y-1">
-                        @foreach($documents as $document)
-                        <li class="text-xs text-gray-600">{{ $document->getClientOriginalName() }}</li>
+                        @foreach($documents as $index => $document)
+                        <li class="flex justify-between items-center text-xs text-gray-600">
+                            <span class="truncate pr-2">{{ $document->getClientOriginalName() }}</span>
+                            <button type="button" wire:click="removeSelectedDocument({{ $index }})" class="text-red-500 hover:text-red-700 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
+                @if($this->isEditMode && count($this->existingDocuments) > 0)
+                <div class="mt-4 rounded-md border border-gray-200 bg-white px-3 py-2">
+                    <p class="text-xs font-semibold text-gray-700 mb-2">Existing files:</p>
+                    <ul class="space-y-2">
+                        @foreach($this->existingDocuments as $doc)
+                        <li class="flex justify-between items-center text-xs text-gray-600">
+                            <span class="truncate max-w-[80%]" title="{{ $doc['name'] }}">{{ $doc['name'] }}</span>
+                            <button type="button" wire:click="deleteExistingDocument('{{ str_replace("'", "\'", $doc['name']) }}')" wire:confirm="Are you sure you want to delete this file?" class="text-red-500 hover:text-red-700 p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </li>
                         @endforeach
                     </ul>
                 </div>

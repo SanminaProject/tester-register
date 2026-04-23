@@ -15,9 +15,8 @@ class IssueStatusesSeeder extends Seeder
     public function run(): void
     {
         $issueStatuses = [
-            ['name' => 'open'],
-            ['name' => 'closed'],
-            ['name' => 'reopened'],
+            ['name' => 'Active'],
+            ['name' => 'Solved'],
         ];
 
         foreach ($issueStatuses as $status) {
@@ -28,4 +27,3 @@ class IssueStatusesSeeder extends Seeder
         }
     }
 }
-

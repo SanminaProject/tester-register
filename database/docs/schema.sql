@@ -147,14 +147,14 @@ CREATE TABLE data_change_logs (
 );
 
 -- holds definitions of different types of events that can be logged into tester_event_logs
--- includes ENUM('issue', 'maintenance', 'calibration', 'software_update', 'hardware_change')
+-- includes values such as problem, solution, issue, maintenance, calibration, software_update, hardware_change
 CREATE TABLE event_types (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
 -- holds definitions of different statuses for issues logged into tester_event_logs
--- includes ENUM('open', 'closed')
+-- includes values such as Active and Solved
 CREATE TABLE issue_statuses (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
@@ -261,12 +261,13 @@ CREATE TABLE tester_event_logs (
 
     -- references
     tester_id INT NOT NULL, -- which tester the event is related to
-    event_type INT NOT NULL, -- reference to the type of the event (issue, maintenance, calibration, software update or hardware change)
-    created_by_user_id INT, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
+    event_type INT NOT NULL, -- reference to the type of the event (problem, solution, issue, maintenance, calibration, software update or hardware change)
+    created_by_user_id INT NOT NULL, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
     resolved_by_user_id INT, -- who resolved the issue
-    issue_status INT, -- status of the issue (open or closed)
+    issue_status INT, -- status of the issue (Active or Solved)
     maintenance_schedule_id INT, -- reference to the maintenance schedule used
     calibration_schedule_id INT, -- reference to the calibration schedule used
+    parent_event_log_id INT, -- links a solution row to its original problem row
 
     FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE,
     FOREIGN KEY (event_type) REFERENCES event_types(id),
@@ -274,7 +275,8 @@ CREATE TABLE tester_event_logs (
     FOREIGN KEY (resolved_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (issue_status) REFERENCES issue_statuses(id),
     FOREIGN KEY (maintenance_schedule_id) REFERENCES tester_maintenance_schedules(id),
-    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(id)
+    FOREIGN KEY (calibration_schedule_id) REFERENCES tester_calibration_schedules(id),
+    FOREIGN KEY (parent_event_log_id) REFERENCES tester_event_logs(id) ON DELETE SET NULL
 );
 
 -- links users to testers they are responsible for

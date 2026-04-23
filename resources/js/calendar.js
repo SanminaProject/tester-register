@@ -17,6 +17,124 @@ document.addEventListener('calendar-ready', function () {
         console.error('Failed to parse calendar events', e);
     }
 
+    const formatEventTime = (date) => {
+        if (!date) return '-';
+
+        return new Intl.DateTimeFormat(undefined, {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        }).format(date);
+    };
+
+    const formatEventDateTime = (date) => {
+        if (!date) return '-';
+
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
+    const getEventSummary = (event) => {
+        const eventId = event.extendedProps.event_code || event.id || '-';
+        const date = formatEventDateTime(event.start);
+        const testerId = event.extendedProps.tester_id ?? '-';
+        const testerName = event.extendedProps.tester_name || `Tester #${event.extendedProps.tester_id || event._def?.publicId || '-'}`;
+        const typeLabel = event.extendedProps.maintenance_calibration || (event.extendedProps.type === 'calibration' ? 'Calibration' : 'Maintenance');
+        const userName = (event.extendedProps.user_name || '').trim() || 'Unassigned';
+        const status = (event.extendedProps.event_status || '').trim() || 'Unknown';
+        const time = formatEventTime(event.start);
+
+        return {
+            eventId,
+            date,
+            testerId,
+            testerName,
+            typeLabel,
+            userName,
+            status,
+            time,
+            line: `Event ID: ${eventId}  Tester: ${testerName}  Status: ${status}  Time: ${time}`,
+        };
+    };
+
+    const openEventPopup = (event) => {
+        const existing = document.getElementById('calendar-event-popup');
+        if (existing) existing.remove();
+
+        const summary = getEventSummary(event);
+        const overlay = document.createElement('div');
+        overlay.id = 'calendar-event-popup';
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.background = 'rgba(0,0,0,0.28)';
+        overlay.style.zIndex = '9999';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.padding = '16px';
+
+        const modal = document.createElement('div');
+        modal.style.width = 'min(520px, 100%)';
+        modal.style.background = '#fff';
+        modal.style.borderRadius = '12px';
+        modal.style.padding = '16px 18px';
+        modal.style.boxShadow = '0 12px 30px rgba(0,0,0,0.18)';
+
+        const title = document.createElement('div');
+        title.textContent = 'Event Details';
+        title.style.fontSize = '16px';
+        title.style.fontWeight = '700';
+        title.style.marginBottom = '10px';
+
+        const body = document.createElement('div');
+        body.style.display = 'grid';
+        body.style.gridTemplateColumns = '110px 1fr';
+        body.style.gap = '8px 10px';
+        body.style.fontSize = '14px';
+        body.style.color = '#1f2937';
+
+        const pushRow = (label, value) => {
+            const l = document.createElement('div');
+            l.textContent = label;
+            l.style.color = '#6b7280';
+            const v = document.createElement('div');
+            v.textContent = value;
+            v.style.wordBreak = 'break-word';
+            body.appendChild(l);
+            body.appendChild(v);
+        };
+
+        pushRow('ID', String(summary.eventId));
+        pushRow('Date', summary.date);
+        pushRow('Tester ID', String(summary.testerId));
+        pushRow('Tester Name', summary.testerName);
+        pushRow('Type', summary.typeLabel);
+        pushRow('User', summary.userName);
+        pushRow('Status', summary.status);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.textContent = 'Close';
+        closeBtn.style.marginTop = '14px';
+        closeBtn.style.padding = '7px 14px';
+        closeBtn.style.borderRadius = '999px';
+        closeBtn.style.border = '1px solid #e5e7eb';
+        closeBtn.style.background = '#f9fafb';
+        closeBtn.style.cursor = 'pointer';
+
+        const close = () => overlay.remove();
+        closeBtn.addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        modal.appendChild(title);
+        modal.appendChild(body);
+        modal.appendChild(closeBtn);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+    };
+
     const calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
 
@@ -37,6 +155,13 @@ document.addEventListener('calendar-ready', function () {
 
         events: events,
 
+        eventContent: function(arg) {
+            const eventLine = document.createElement('div');
+            eventLine.className = 'text-[11px] leading-tight whitespace-nowrap overflow-hidden text-ellipsis';
+            eventLine.textContent = getEventSummary(arg.event).eventId;
+            return { domNodes: [eventLine] };
+        },
+
         eventClassNames: function(arg) {
             return [arg.event.extendedProps.type];
         },
@@ -45,7 +170,8 @@ document.addEventListener('calendar-ready', function () {
         dayMaxEventRows: true,
 
         eventClick: function(info) {
-            console.log('Event clicked:', info.event);
+            info.jsEvent.preventDefault();
+            openEventPopup(info.event);
         },
     })
 

@@ -23,7 +23,7 @@ class StoreEventLogRequest extends FormRequest
     {
         return [
             'tester_id' => ['required', 'integer', 'exists:testers,id'],
-            'type' => ['required', 'in:maintenance,calibration,issue,repair,other'],
+            'type' => ['required', 'in:maintenance,calibration,issue,problem,solution,repair,other'],
             'event_date' => ['required', 'date', 'before_or_equal:now'],
             'description' => ['required', 'string', 'min:10', 'max:1000'],
             'performed_by' => ['nullable', 'string', 'max:100'],

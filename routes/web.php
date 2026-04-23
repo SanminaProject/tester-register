@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tester;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,6 +21,20 @@ Route::view('profile', 'profile')
 Route::view('scan', 'scan')
     ->middleware(['auth'])
     ->name('scan');
+
+Route::get('scan/tester/{id}', function (int $id) {
+    if (!Tester::whereKey($id)->exists()) {
+        return redirect()->route('scan')->with('scan_error', "Tester ID {$id} not found.");
+    }
+
+    return redirect()->route('testers', [
+        'activeTab' => 'details',
+        'selectedTesterId' => $id,
+    ]);
+})
+    ->middleware(['auth'])
+    ->whereNumber('id')
+    ->name('scan.tester');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';

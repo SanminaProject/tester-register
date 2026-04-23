@@ -4,9 +4,11 @@ namespace App\Livewire\Pages\Testers;
 
 use App\Models\TesterAsset;
 use Livewire\Component;
+use Livewire\Attributes\Computed;
 use Livewire\WithFileUploads;
 use App\Models\Tester;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +19,8 @@ class AddNewTester extends Component
     use WithFileUploads;
 
     public $tester_id;
+    public $original_tester_id;
+    public $isEditMode = false;
     public $name;
     public $description;
     public $id_number_by_customer;
@@ -30,6 +34,7 @@ class AddNewTester extends Component
     public $additional_info;
     public $implementation_date;
     public $documents = [];
+    public $newDocuments = [];
     public $asset_nos = [''];
 
     public $search_query = '';
@@ -39,14 +44,16 @@ class AddNewTester extends Component
     public $families = [], $types = [], $os_versions = [], $manufacturers = [];
 
     private array $documentRules = [
-        'documents.*' => ['nullable', 'file', 'mimes:txt,pdf,csv,doc,docx,xls,xlsx,ppt,pptx', 'max:10240'],
+        'documents.*' => ['nullable', 'file', 'mimes:txt,pdf,csv,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,webp', 'max:10240'],
     ];
 
     public function mount($testerId = null)
     {
         if ($testerId) {
             $tester = Tester::with('assets')->findOrFail($testerId);
+            $this->isEditMode = true;
             $this->tester_id = $tester->id;
+            $this->original_tester_id = $tester->id;
             $this->name = $tester->name;
             $this->description = $tester->description;
             $this->id_number_by_customer = $tester->id_number_by_customer;
@@ -63,6 +70,10 @@ class AddNewTester extends Component
             if ($tester->assets->count() > 0) {
                 $this->asset_nos = $tester->assets->pluck('asset_no')->toArray();
             }
+        } else {
+            $this->isEditMode = false;
+            $latest = Tester::latest('id')->first();
+            $this->tester_id = ($latest->id ?? 0) + 1;
         }
 
         $this->owners = \App\Models\TesterCustomer::all();
@@ -132,7 +143,12 @@ class AddNewTester extends Component
 
     public function save(): void
     {
+        $idRule = $this->isEditMode 
+            ? ['required', 'integer', 'unique:testers,id,' . $this->original_tester_id] 
+            : ['required', 'integer', 'unique:testers,id'];
+
         $validated = $this->validate([
+            'tester_id' => $idRule,
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string'],
             'id_number_by_customer' => ['nullable', 'string', 'max:50'],
@@ -151,8 +167,8 @@ class AddNewTester extends Component
         ]);
 
         DB::transaction(function () use ($validated): void {
-            if ($this->tester_id) {
-                $tester = Tester::with('assets')->findOrFail($this->tester_id);
+            if ($this->isEditMode) {
+                $tester = Tester::with('assets')->findOrFail($this->original_tester_id);
                 $original = $tester->getOriginal();
                 $originalAssets = $tester->assets->pluck('asset_no')->toArray();
 
@@ -174,6 +190,41 @@ class AddNewTester extends Component
                 $details = [];
                 $changes = $tester->getChanges();
                 unset($changes['updated_at']);
+
+                if ($validated['tester_id'] != $this->original_tester_id) {
+                    $newId = $validated['tester_id'];
+                    $oldId = $this->original_tester_id;
+
+                    // Disable foreign key checks to safely update the primary key across relations
+                    DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+                    // Update referencing tables
+                    DB::table('data_change_logs')->where('tester_id', $oldId)->update(['tester_id' => $newId]);
+                    DB::table('fixtures')->where('tester_id', $oldId)->update(['tester_id' => $newId]);
+                    DB::table('tester_assets')->where('tester_id', $oldId)->update(['tester_id' => $newId]);
+                    DB::table('tester_calibration_schedules')->where('tester_id', $oldId)->update(['tester_id' => $newId]);
+                    DB::table('tester_event_logs')->where('tester_id', $oldId)->update(['tester_id' => $newId]);
+                    DB::table('tester_maintenance_schedules')->where('tester_id', $oldId)->update(['tester_id' => $newId]);
+                    DB::table('tester_spare_parts')->where('tester_id', $oldId)->update(['tester_id' => $newId]);
+                    DB::table('user_tester_assignments')->where('tester_id', $oldId)->update(['tester_id' => $newId]);
+
+                    // Update main table
+                    DB::table('testers')->where('id', $oldId)->update(['id' => $newId]);
+
+                    DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+                    // Move document folder if it exists
+                    $oldPath = 'testers/' . $oldId . '/documents';
+                    $newPath = 'testers/' . $newId . '/documents';
+                    if (Storage::disk('local')->exists($oldPath)) {
+                        Storage::disk('local')->move($oldPath, $newPath);
+                    }
+
+                    $tester->id = $newId;
+                    $this->original_tester_id = $newId;
+
+                    $details[] = "- id: [{$oldId}] -> [{$newId}]";
+                }
 
                 foreach ($changes as $key => $newValue) {
                     $oldValue = $original[$key] ?? null;
@@ -203,7 +254,7 @@ class AddNewTester extends Component
                     ]);
                 }
             } else {
-                $tester = Tester::create([
+                $tester = new Tester([
                     'name' => $validated['name'],
                     'description' => $validated['description'] ?? null,
                     'id_number_by_customer' => $validated['id_number_by_customer'] ?? null,
@@ -217,8 +268,11 @@ class AddNewTester extends Component
                     'owner_id' => $validated['owner_id'] ?? null,
                     'status' => $validated['status_id'] ?? null,
                 ]);
+                $tester->id = $validated['tester_id'];
+                $tester->save();
 
                 $details = [
+                    "- id: [empty] -> [{$tester->id}]",
                     "- name: [empty] -> [{$tester->name}]",
                     "- description: [empty] -> [" . $this->formatLogValue($tester->description) . "]",
                     "- id_number_by_customer: [empty] -> [" . $this->formatLogValue($tester->id_number_by_customer) . "]",
@@ -251,7 +305,7 @@ class AddNewTester extends Component
 
             if (!empty($validated['asset_nos'])) {
                 // Delete old assets before inserting new ones to handle removals
-                if ($this->tester_id) {
+                if ($this->isEditMode) {
                     $tester->assets()->delete();
                 }
                 foreach ($validated['asset_nos'] as $asset_no) {
@@ -262,20 +316,21 @@ class AddNewTester extends Component
                         ]);
                     }
                 }
-            } else if ($this->tester_id) {
+            } else if ($this->isEditMode) {
                 $tester->assets()->delete();
             }
 
             if (!empty($this->documents)) {
                 foreach ($this->documents as $document) {
-                    $document->store('testers/' . $tester->id . '/documents');
+                    $originalName = $document->getClientOriginalName();
+                    $document->storeAs('testers/' . $tester->id . '/documents', $originalName);
                 }
             }
         });
 
         session()->flash('message', 'Tester saved successfully.');
 
-        if ($this->tester_id) {
+        if ($this->isEditMode) {
             $this->dispatch('switchTab', ['tab' => 'details', 'id' => $this->tester_id]);
             return;
         }
@@ -297,12 +352,69 @@ class AddNewTester extends Component
             'documents',
         ]);
         $this->asset_nos = [''];
+
+        session()->flash('go_to_testers_last_page', true);
+        $this->dispatch('switchTab', tab: 'all');
     }
 
     public function addAssetInput()
     {
         if (count($this->asset_nos) < 5) {
             $this->asset_nos[] = '';
+        }
+    }
+
+    public function updatedNewDocuments()
+    {
+        $this->validate([
+            'newDocuments.*' => ['nullable', 'file', 'mimes:txt,pdf,csv,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,webp', 'max:10240'],
+        ]);
+
+        foreach ($this->newDocuments as $doc) {
+            $this->documents[] = $doc;
+        }
+
+        // Reset so the user can select another file (or the same file again) if desired
+        $this->newDocuments = [];
+    }
+
+    #[Computed]
+    public function existingDocuments()
+    {
+        if (!$this->isEditMode) {
+            return collect([]);
+        }
+
+        $path = 'testers/' . $this->original_tester_id . '/documents';
+        
+        if (Storage::disk('local')->exists($path)) {
+            return collect(Storage::disk('local')->files($path))->map(function ($filePath) {
+                return [
+                    'name' => basename($filePath),
+                    'path' => $filePath,
+                ];
+            });
+        }
+
+        return collect([]);
+    }
+
+    public function deleteExistingDocument($filename)
+    {
+        if (!$this->isEditMode) return;
+        
+        $path = 'testers/' . $this->original_tester_id . '/documents/' . $filename;
+        if (Storage::disk('local')->exists($path)) {
+            Storage::disk('local')->delete($path);
+            session()->flash('message', 'Document deleted successfully.');
+        }
+    }
+
+    public function removeSelectedDocument($index)
+    {
+        if (isset($this->documents[$index])) {
+            unset($this->documents[$index]);
+            $this->documents = array_values($this->documents); // Reset keys so frontend indices match correctly
         }
     }
 

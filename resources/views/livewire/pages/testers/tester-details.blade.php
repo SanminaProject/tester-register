@@ -1,4 +1,4 @@
-<div class="flex flex-col w-full min-h-[calc(100vh-8rem)] mb-12 md:mb-0 rounded-[24px] md:rounded-2xl bg-white px-5 md:px-10 pt-6 md:pt-8 pb-10 md:pb-12 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:shadow-sm font-sans text-gray-800">
+<div class="flex flex-col w-full min-h-0 md:min-h-[calc(100vh-8rem)] mb-12 md:mb-0 rounded-[24px] md:rounded-2xl bg-white px-4 md:px-10 pt-6 md:pt-8 pb-10 md:pb-12 shadow-[0_2px_10px_rgba(0,0,0,0.02)] md:shadow-sm font-sans text-gray-800 overflow-x-hidden">
     <!-- 1. Header (Title & Edit Button) -->
     <div class="hidden md:flex items-center justify-between pb-6 mb-8 border-b border-gray-200">
         <div class="flex items-center gap-4">
@@ -14,9 +14,11 @@
             <h2 class="text-xl font-extrabold text-black tracking-tight">Tester Details</h2>
         </div>
 
-        <x-primary-button type="button" class="w-32" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $tester->id }} })">
-            Edit
-        </x-primary-button>
+        <div class="flex items-center gap-3">
+            <x-primary-button type="button" class="w-32 justify-center" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $tester->id }} })">
+                Edit
+            </x-primary-button>
+        </div>
     </div>
 
     <!-- Main Grid Content -->
@@ -69,15 +71,15 @@
             @endphp
             
             @foreach($rows as $label => $value)
-            <div class="grid grid-cols-[145px_1fr] md:grid-cols-[200px_1fr] gap-x-2 md:gap-x-4 items-start">
+            <div class="grid grid-cols-[108px_minmax(0,1fr)] md:grid-cols-[200px_1fr] gap-x-2 md:gap-x-4 items-start">
                 <div class="text-[#8c8c8c] md:text-dark-grey tracking-wide text-[14px] md:text-[16px]">{{ $label }}</div>
-                <div class="text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] whitespace-pre-line leading-[24px] md:leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-[14px] md:w-2.5 h-[14px] md:h-2.5 rounded-full {{ strtolower($tester->statusRelation?->name ?? '') === 'active' ? 'bg-[#31c03b]' : 'bg-red-500' }} ml-1.5 md:ml-1.5 align-text-bottom md:align-baseline mb-[3px] md:mb-0"></span>@endif</div>
+                <div class="min-w-0 break-words text-[#1a1a1a] md:text-black font-semibold md:font-extrabold text-[14px] md:text-[16px] whitespace-pre-line leading-[24px] md:leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-[14px] md:w-2.5 h-[14px] md:h-2.5 rounded-full {{ strtolower($tester->statusRelation?->name ?? '') === 'active' ? 'bg-[#31c03b]' : 'bg-red-500' }} ml-1.5 md:ml-1.5 align-text-bottom md:align-baseline mb-[3px] md:mb-0"></span>@endif</div>
             </div>
             @endforeach
         </div>
 
         <!-- 3. Right Blocks (Inventory & Links/Docs) -->
-        <div class="hidden md:flex flex-col gap-5 md:gap-6">
+        <div class="hidden md:flex flex-col gap-5 md:gap-6 h-full">
             
             <!-- Inventory Block -->
             <div class="bg-[#f8f8f8] md:bg-light-grey rounded-[16px] md:rounded-xl p-5 md:p-7 flex items-center justify-between">
@@ -100,44 +102,67 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                     </a>
-                    @foreach(['Spare Parts', 'Audit Logs'] as $link)
                     <button class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
-                        {{ $link }}
+                        Spare Parts
                         <svg class="h-[14px] w-[14px] md:h-4 md:w-4 text-[#8c8c8c] md:text-black group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
-                    @endforeach
+                    <a href="{{ route('testers', ['activeTab' => 'logs', 'tester_id' => $tester->id]) }}" wire:navigate class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
+                        Audit Logs
+                        <svg class="h-[14px] w-[14px] md:h-4 md:w-4 text-[#8c8c8c] md:text-black group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
                 </div>
 
                 <!-- Documents -->
                 <div class="flex flex-col gap-4 md:gap-5 pt-0 md:pt-1">
                     <div class="flex justify-between items-center">
                         <span class="text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black">Documents</span>
-                        <button class="text-[11px] text-[#8c8c8c] md:text-dark-grey hover:text-black flex items-center gap-1.5 transition uppercase md:capitalize tracking-wider md:tracking-normal font-semibold md:font-normal">
+                        @if(count($this->documents) > 0)
+                        <button wire:click="downloadAllDocuments" class="text-[11px] text-[#8c8c8c] md:text-dark-grey hover:text-black flex items-center gap-1.5 transition uppercase md:capitalize tracking-wider md:tracking-normal font-semibold md:font-normal">
                             <svg class="h-[14px] w-[14px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             Download All
                         </button>
+                        @endif
                     </div>
 
                     <div class="flex flex-col gap-3 md:gap-4">
-                        @for ($i = 1; $i <= 3; $i++)
+                        @forelse ($this->documents as $document)
                         <div class="flex justify-between items-center">
-                            <a href="#" class="font-semibold md:font-normal text-[13px] md:text-[12px] text-[#2c6ecb] md:text-gray-400 md:underline decoration-gray-300 underline-offset-[3px] hover:text-blue-800 md:hover:text-black hover:decoration-black transition">
-                                Document_{{ $i }}.pdf
-                            </a>
-                            <button class="text-[#8c8c8c] md:text-gray-400 hover:text-black transition">
+                            <button wire:click="downloadDocument('{{ $document['path'] }}')" class="max-w-[200px] md:max-w-[250px] truncate font-semibold md:font-normal text-[13px] md:text-[12px] text-[#2c6ecb] md:text-gray-400 md:underline decoration-gray-300 underline-offset-[3px] hover:text-blue-800 md:hover:text-black hover:decoration-black transition" title="{{ $document['name'] }}">
+                                {{ $document['name'] }}
+                            </button>
+                            <button wire:click="downloadDocument('{{ $document['path'] }}')" class="text-[#8c8c8c] md:text-gray-400 hover:text-black transition">
                                 <svg class="h-[15px] w-[15px] md:h-[15px] md:w-[15px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                             </button>
                         </div>
-                        @endfor
+                        @empty
+                        <span class="text-[13px] text-gray-400 italic">No documents available.</span>
+                        @endforelse
                     </div>
                 </div>
             </div>
+
+            @if(auth()->user() && auth()->user()->hasRole('Admin'))
+            <div class="mt-auto pt-4 flex justify-start pl-2">
+                <button 
+                    type="button" 
+                    wire:click="deleteTester"
+                    wire:confirm="Are you sure you want to delete this tester? This action cannot be undone."
+                    class="flex items-center justify-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg font-semibold text-[14px] transition-colors shadow-sm cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete Tester
+                </button>
+            </div>
+            @endif
         </div>
 
     </div>
@@ -149,42 +174,77 @@
         <div class="md:hidden border-t-[1px] border-[#e8e8e8] w-full mb-6"></div>
 
         @php
-            $issues = \App\Models\TesterEventLog::where('tester_id', $tester->id)->orderBy('date', 'desc')->get();
+            $issues = \App\Models\TesterEventLog::query()
+                ->with([
+                    'createdBy',
+                    'resolvedBy',
+                    'issueStatusRelation',
+                    'solutionEntries.resolvedBy',
+                    'solutionEntries.createdBy',
+                ])
+                ->where('tester_id', $tester->id)
+                ->whereNull('parent_event_log_id')
+                ->whereHas('eventType', function ($query) {
+                    $query->whereRaw('LOWER(name) = ?', ['problem']);
+                })
+                ->orderByDesc('date')
+                ->get();
         @endphp
 
         <div class="flex flex-col gap-y-10 md:px-0">
             @forelse($issues as $issue)
-            <div class="flex flex-col gap-y-3 {{ !$loop->last ? 'border-b md:border-gray-200 border-[#e8e8e8] pb-8' : '' }}">
-                <div class="grid grid-cols-[140px_1fr] md:grid-cols-[140px_1fr_100px_1fr] items-center gap-x-4 border-b border-[#e8e8e8] md:border-gray-100 pb-3">
+            <div class="flex flex-col gap-y-4 {{ !$loop->last ? 'border-b md:border-gray-200 border-[#e8e8e8] pb-8' : '' }}">
+                <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr_100px_1fr] items-center gap-x-3 md:gap-x-4">
                     <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Log ID</span>
                     <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->id }}</span>
-                    <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px] mt-2 md:mt-0">Detector</span>
-                    <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium mt-2 md:mt-0">{{ \App\Models\User::find($issue->created_by_user_id)?->name ?? 'Unknown' }}</span>
+                    <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px] mt-2 md:mt-0">Status</span>
+                    @php
+                        $statusName = strtolower((string) ($issue->issueStatusRelation?->name ?? ''));
+                        $statusClasses = $statusName === 'solved'
+                            ? 'bg-[#CFF3DA] text-[#2E9F57]'
+                            : 'bg-[#FFD8DE] text-[#FF4A5A]';
+                    @endphp
+                    <div class="mt-2 md:mt-0">
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $statusClasses }}">
+                            {{ strtoupper($issue->issueStatusRelation?->name ?? 'ACTIVE') }}
+                        </span>
+                    </div>
                 </div>
 
-                <div class="flex flex-col {{ ($issue->resolved_date || $issue->resolution_description) ? 'border-b border-[#e8e8e8] md:border-gray-100 pb-3' : '' }}">
-                    <div class="grid grid-cols-[140px_1fr] items-center gap-x-4 mb-2.5">
+                <div class="mx-3 border-t border-gray-100"></div>
+
+                <div class="flex flex-col gap-y-2">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-center gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Entry Date</span>
                         <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->date ? $issue->date->format('j.n.Y H:i') : '-' }}</span>
                     </div>
-                    <div class="grid grid-cols-[140px_1fr] items-start gap-x-4">
-                        <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Indication</span>
-                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed">{{ $issue->description ?? '-' }}</span>
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-center gap-x-3 md:gap-x-4">
+                        <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">User</span>
+                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->createdBy?->full_name ?? 'Unknown' }}</span>
+                    </div>
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-start gap-x-3 md:gap-x-4">
+                        <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Problem</span>
+                        <span class="min-w-0 text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed break-words break-all">{{ $issue->description ?? '-' }}</span>
                     </div>
                 </div>
 
-                @if($issue->resolved_date || $issue->resolution_description)
-                <div class="flex flex-col pt-1">
-                    <div class="grid grid-cols-[140px_1fr] items-center gap-x-4 mb-2.5">
+                @foreach($issue->solutionEntries as $solution)
+                <div class="mx-6 border-t border-gray-100"></div>
+                <div class="flex flex-col gap-y-2">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-center gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Solved Date</span>
-                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $issue->resolved_date ? $issue->resolved_date->format('j.n.Y H:i') : '-' }}</span>
+                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $solution->date ? $solution->date->format('j.n.Y H:i') : '-' }}</span>
                     </div>
-                    <div class="grid grid-cols-[140px_1fr] items-start gap-x-4">
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-center gap-x-3 md:gap-x-4">
+                        <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">User</span>
+                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium">{{ $solution->resolvedBy?->full_name ?? $solution->createdBy?->full_name ?? 'Unknown' }}</span>
+                    </div>
+                    <div class="grid grid-cols-[96px_minmax(0,1fr)] md:grid-cols-[120px_1fr] items-start gap-x-3 md:gap-x-4">
                         <span class="text-[#8c8c8c] md:text-dark-grey tracking-wide md:tracking-normal text-[13px] md:text-[15px]">Solution</span>
-                        <span class="text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed">{{ $issue->resolution_description ?? '-' }}</span>
+                        <span class="min-w-0 text-[#1a1a1a] md:text-black text-[13px] md:text-[16px] font-semibold md:font-medium whitespace-pre-line leading-[22px] md:leading-relaxed break-words break-all">{{ $solution->resolution_description ?? $solution->description ?? '-' }}</span>
                     </div>
                 </div>
-                @endif
+                @endforeach
             </div>
             @empty
             <div class="text-[13px] md:text-[16px] text-dark-grey py-4">No issues recorded for this tester.</div>

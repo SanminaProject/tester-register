@@ -16,6 +16,7 @@ class TesterSeeder extends Seeder
     {
         $testers = [
             [
+                'id' => 160,
                 'name' => 'TAKAYA FLYING PROBE APT 8400CE',
                 'description' => 'FLYING PROBE TESTER',
                 'id_number_by_customer' => 'SN 9708037',
@@ -30,6 +31,7 @@ class TesterSeeder extends Seeder
                 'owner' => 'SANMINA',
             ],
             [
+                'id' => 595,
                 'name' => 'TAKAYA FLYING PROBE APT 8400CE #2',
                 'description' => 'FLYING PROBE TESTER',
                 'id_number_by_customer' => 'S/N 96100233',
@@ -44,6 +46,7 @@ class TesterSeeder extends Seeder
                 'owner' => 'SANMINA',
             ],
             [
+                'id' => 628,
                 'name' => 'DIT1',
                 'description' => 'Dyna2 Fan/MotherBoard Tester',
                 'id_number_by_customer' => null,
@@ -58,6 +61,7 @@ class TesterSeeder extends Seeder
                 'owner' => 'SANMINA',
             ],
             [
+                'id' => 630,
                 'name' => 'DST1',
                 'description' => 'Dyna2 Trunk/Tributary Tester',
                 'id_number_by_customer' => null,
@@ -72,6 +76,7 @@ class TesterSeeder extends Seeder
                 'owner' => 'DWNP',
             ],
             [
+                'id' => 736,
                 'name' => '9S_SWDL1',
                 'description' => '9Solutions SWDL tester',
                 'id_number_by_customer' => null,
@@ -86,6 +91,7 @@ class TesterSeeder extends Seeder
                 'owner' => '9Solutions',
             ],
             [
+                'id' => 776,
                 'name' => '9S_SWDL2',
                 'description' => '9Solutions SWDL tester',
                 'id_number_by_customer' => null,
@@ -100,6 +106,7 @@ class TesterSeeder extends Seeder
                 'owner' => '9Solutions',
             ],
             [
+                'id' => 786,
                 'name' => 'EST2',
                 'description' => 'Electrical Safety Tester',
                 'id_number_by_customer' => null,
@@ -116,6 +123,7 @@ class TesterSeeder extends Seeder
 
             // adding new examples that have not been provided by Sanmina below!
             [
+                'id' => 787,
                 'name' => 'EST3',
                 'description' => 'Electrical Safety Tester',
                 'id_number_by_customer' => null,
@@ -130,6 +138,7 @@ class TesterSeeder extends Seeder
                 'owner' => 'SANMINA',
             ],
             [
+                'id' => 788,
                 'name' => 'EST4',
                 'description' => 'Electrical Safety Tester',
                 'id_number_by_customer' => null,
@@ -144,6 +153,7 @@ class TesterSeeder extends Seeder
                 'owner' => 'SANMINA',
             ],
             [
+                'id' => 789,
                 'name' => 'EST5',
                 'description' => 'Electrical Safety Tester',
                 'id_number_by_customer' => null,
@@ -158,6 +168,7 @@ class TesterSeeder extends Seeder
                 'owner' => 'SANMINA',
             ],
             [
+                'id' => 790,
                 'name' => 'EST6',
                 'description' => 'Electrical Safety Tester',
                 'id_number_by_customer' => null,
@@ -172,6 +183,7 @@ class TesterSeeder extends Seeder
                 'owner' => 'SANMINA',
             ],
             [
+                'id' => 791,
                 'name' => 'EST7',
                 'description' => 'Electrical Safety Tester',
                 'id_number_by_customer' => null,
@@ -203,9 +215,10 @@ class TesterSeeder extends Seeder
                 ->value('id');
 
             DB::table('testers')->updateOrInsert(
-                ['name' => $tester['name']],
+                ['id' => $tester['id']],
                 [
                     'description' => $tester['description'],
+                    'name' => $tester['name'],
                     'id_number_by_customer' => $tester['id_number_by_customer'],
                     'operating_system' => $tester['operating_system'],
                     'type' => $tester['type'],
