@@ -5,6 +5,8 @@
         :items="[
             ['label' => 'Spare Parts', 'tab' => 'spare-parts'], // list all spare parts
             ['label' => 'Suppliers', 'tab' => 'suppliers'], // list all suppliers
+            ['label' => 'Add Spare Part', 'tab' => 'add-spare-part'], // form to add a new spare part
+            ['label' => 'Add Supplier', 'tab' => 'add-supplier'], // form to add a new supplier
             ['label' => 'Audit Logs', 'tab' => 'logs']
         ]" 
     />
@@ -14,6 +16,10 @@
         <livewire:pages.inventory.spare-parts.spare-parts-table />
         @elseif ($activeTab === 'suppliers')
         <livewire:pages.inventory.suppliers.suppliers-table />
+        @elseif ($activeTab === 'add-spare-part')
+        <livewire:pages.inventory.spare-parts.spare-part-logging />
+        @elseif ($activeTab === 'add-supplier')
+        <livewire:pages.inventory.suppliers.supplier-logging />
         @elseif ($activeTab === 'logs')
         <livewire:pages.inventory.inventory-audit-logs />
         @elseif ($activeTab === 'spare-part-details')
