@@ -71,6 +71,12 @@ class ServiceSchedule extends Component
                 'start' => $event->start,
                 'end' => $event->end,
                 'type' => strtolower($event->type),
+                'event_code' => $event->event_code ?? $event->id,
+                'tester_id' => $event->tester_id,
+                'tester_name' => $event->tester_name,
+                'maintenance_calibration' => $event->maintenance_calibration,
+                'user_name' => $event->user_name,
+                'event_status' => $event->event_status,
             ];
         })->toArray();
 

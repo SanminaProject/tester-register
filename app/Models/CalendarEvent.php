@@ -40,16 +40,21 @@ class CalendarEvent extends Model
     {
         return DB::table('tester_maintenance_schedules')
             ->join('testers', 'tester_maintenance_schedules.tester_id', '=', 'testers.id')
-            ->leftJoin('asset_statuses', 'testers.status', '=', 'asset_statuses.id')
+            ->leftJoin('users', 'tester_maintenance_schedules.next_maintenance_by_user_id', '=', 'users.id')
+            ->leftJoin('schedule_statuses', 'tester_maintenance_schedules.maintenance_status', '=', 'schedule_statuses.id')
             ->selectRaw("
-                CONCAT('maintenance-', tester_maintenance_schedules.id) as id,
+                CONCAT('M-', LPAD(tester_maintenance_schedules.id, 4, '0')) as id,
                 testers.id as tester_id,
                 CONCAT(
-                    '#', tester_maintenance_schedules.id,
-                    ' | ', COALESCE(testers.name, CONCAT('Tester #', testers.id)),
-                    ' | ', UPPER(COALESCE(asset_statuses.name, 'UNKNOWN'))
+                    'M-', LPAD(tester_maintenance_schedules.id, 4, '0')
                 ) as title,
                 'maintenance' as type,
+                tester_maintenance_schedules.id as event_ref_id,
+                CONCAT('M-', LPAD(tester_maintenance_schedules.id, 4, '0')) as event_code,
+                COALESCE(testers.name, CONCAT('Tester #', testers.id)) as tester_name,
+                'Maintenance' as maintenance_calibration,
+                TRIM(CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, ''))) as user_name,
+                schedule_statuses.name as event_status,
                 next_maintenance_due as start,
                 DATE_ADD(next_maintenance_due, INTERVAL 1 HOUR) as end
             ");
@@ -59,16 +64,21 @@ class CalendarEvent extends Model
     {
         return DB::table('tester_calibration_schedules')
             ->join('testers', 'tester_calibration_schedules.tester_id', '=', 'testers.id')
-            ->leftJoin('asset_statuses', 'testers.status', '=', 'asset_statuses.id')
+            ->leftJoin('users', 'tester_calibration_schedules.next_calibration_by_user_id', '=', 'users.id')
+            ->leftJoin('schedule_statuses', 'tester_calibration_schedules.calibration_status', '=', 'schedule_statuses.id')
             ->selectRaw("
-                CONCAT('calibration-', tester_calibration_schedules.id) as id,
+                CONCAT('C-', LPAD(tester_calibration_schedules.id, 4, '0')) as id,
                 testers.id as tester_id,
                 CONCAT(
-                    '#', tester_calibration_schedules.id,
-                    ' | ', COALESCE(testers.name, CONCAT('Tester #', testers.id)),
-                    ' | ', UPPER(COALESCE(asset_statuses.name, 'UNKNOWN'))
+                    'C-', LPAD(tester_calibration_schedules.id, 4, '0')
                 ) as title,
                 'calibration' as type,
+                tester_calibration_schedules.id as event_ref_id,
+                CONCAT('C-', LPAD(tester_calibration_schedules.id, 4, '0')) as event_code,
+                COALESCE(testers.name, CONCAT('Tester #', testers.id)) as tester_name,
+                'Calibration' as maintenance_calibration,
+                TRIM(CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, ''))) as user_name,
+                schedule_statuses.name as event_status,
                 next_calibration_due as start,
                 DATE_ADD(next_calibration_due, INTERVAL 1 HOUR) as end
             ");
@@ -79,17 +89,24 @@ class CalendarEvent extends Model
         return DB::table('tester_event_logs')
             ->join('event_types', 'tester_event_logs.event_type', '=', 'event_types.id')
             ->join('testers', 'tester_event_logs.tester_id', '=', 'testers.id')
-            ->leftJoin('asset_statuses', 'testers.status', '=', 'asset_statuses.id')
-            ->whereRaw('LOWER(event_types.name) NOT IN (?, ?, ?)', ['issue', 'problem', 'solution'])
+            ->leftJoin('users', 'tester_event_logs.created_by_user_id', '=', 'users.id')
+            ->whereIn(DB::raw('LOWER(event_types.name)'), ['maintenance', 'calibration'])
             ->selectRaw("
-                CONCAT('event-', tester_event_logs.id) as id,
+                CONCAT('E-', LPAD(tester_event_logs.id, 4, '0')) as id,
                 testers.id as tester_id,
                 CONCAT(
-                    '#', tester_event_logs.id,
-                    ' | ', COALESCE(testers.name, CONCAT('Tester #', testers.id)),
-                    ' | ', UPPER(COALESCE(asset_statuses.name, 'UNKNOWN'))
+                    'E-', LPAD(tester_event_logs.id, 4, '0')
                 ) as title,
                 event_types.name as type,
+                tester_event_logs.id as event_ref_id,
+                CONCAT('E-', LPAD(tester_event_logs.id, 4, '0')) as event_code,
+                COALESCE(testers.name, CONCAT('Tester #', testers.id)) as tester_name,
+                CASE
+                    WHEN LOWER(event_types.name) = 'calibration' THEN 'Calibration'
+                    ELSE 'Maintenance'
+                END as maintenance_calibration,
+                TRIM(CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, ''))) as user_name,
+                'Completed' as event_status,
                 date as start,
                 DATE_ADD(date, INTERVAL 1 HOUR) as end
             ");
