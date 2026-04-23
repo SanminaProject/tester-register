@@ -45,4 +45,26 @@ class DataChangeLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
+    public function getTypeAttribute(): string
+    {
+        if ($this->spare_part_id) return 'Spare Part';
+        if ($this->spare_part_supplier_id) return 'Supplier';
+
+        return 'Unknown';
+    }
+
+    public function getEntityIdAttribute()
+    {
+        return $this->spare_part_id 
+            ?? $this->spare_part_supplier_id;
+    }
+
+    public function getEntityNameAttribute()
+    {
+        return $this->spare_part?->name
+            ?? $this->spare_part_supplier?->supplier_name
+            ?? '—';
+    }
 }

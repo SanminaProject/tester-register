@@ -6,9 +6,10 @@
         :showAddButton="false"
         :headers="[
             'id' => 'ID',
+            'type' => 'Type',
             'changed_at' => 'Changed At',
-            'spare_part.id' => 'Spare Part ID',
-            'spare_part.name' => 'Spare Part Name',
+            'entity_id' => 'ID', // show either part ID or supplier ID based on type
+            'entity_name' => 'Name', // show either part name or supplier name based on type
             'explanation' => 'Action Details',
             'user.name' => 'User',
             'user.email' => 'Email'
