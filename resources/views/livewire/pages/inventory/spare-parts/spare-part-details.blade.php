@@ -27,6 +27,7 @@
             @php
             $rows = [
                 'ID' => $sparePart->id,
+                'Needs Reordering' => $sparePart->needs_reorder,
                 'Name' => $sparePart->name,
                 'Description' => $sparePart->description,
                 'Manufacturer Part Number' => $sparePart->manufacturer_part_number,
@@ -40,12 +41,20 @@
                 'Reorder Level' => $sparePart->reorder_level,
             ];
             @endphp
+
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-center mb-4">
+                <div class="text-dark-grey tracking-wide text-[16px]">Needs Reordering</div>
+                <div>
+                    <x-status-badge :status="$sparePart->needs_reorder ? 'reorder' : 'in stock'" />
+                </div>
+            </div>
             
             @foreach($rows as $label => $value)
-            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
-                <div class="text-dark-grey tracking-wide text-[16px]">{{ $label }}</div>
-                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-2.5 h-2.5 rounded-full {{ strtolower($fixture->status?->name ?? '') === 'active' ? 'bg-[#31c03b]' : 'bg-red-500' }} ml-1.5 align-baseline"></span>@endif</div>
-            </div>
+                @continue($label === 'Needs Reordering')
+                <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                    <div class="text-dark-grey tracking-wide text-[16px]">{{ $label }}</div>
+                    <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-2.5 h-2.5 rounded-full {{ strtolower($fixture->status?->name ?? '') === 'active' ? 'bg-[#31c03b]' : 'bg-red-500' }} ml-1.5 align-baseline"></span>@endif</div>
+                </div>
             @endforeach
         </div>
 
