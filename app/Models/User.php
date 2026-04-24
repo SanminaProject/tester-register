@@ -85,11 +85,13 @@ class User extends Authenticatable
 
     public function getRoleNamesAttribute()
     {
-        return $this->roles->pluck('name')->implode(', ');
+        $roles = $this->roles->pluck('name')->implode(', ');
+        return $roles !== '' ? $roles : null;
     }
 
     public function getTesterNamesAttribute()
     {
-        return $this->testers->pluck('name')->implode(', ');
+        $testerNames = $this->testers->pluck('name')->implode(', ');
+        return $testerNames !== '' ? $testerNames : null;
     }
 }
