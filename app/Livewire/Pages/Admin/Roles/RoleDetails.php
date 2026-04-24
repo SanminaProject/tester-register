@@ -12,7 +12,7 @@ class RoleDetails extends Component
 
     public function mount($roleId)
     {
-        $this->role = Role::findOrFail($roleId);
+        $this->role = Role::withCount('users')->findOrFail($roleId);
     }
 
     public function deleteRole()
@@ -20,15 +20,6 @@ class RoleDetails extends Component
         if (!auth()->user() || !auth()->user()->hasRole('Admin')) {
             abort(403, 'Unauthorized action.');
         }
-
-        $roleId = $this->role->id;
-        $roleName = $this->role->name;
-
-        DataChangeLog::create([
-            'changed_at' => now(),
-            'explanation' => "Deleted role [ID: {$roleId}] - Name: {$roleName}",
-            'user_id' => auth()->id() ?? 1,
-        ]);
 
         $this->role->delete();
         session()->flash('message', 'Role deleted successfully.');

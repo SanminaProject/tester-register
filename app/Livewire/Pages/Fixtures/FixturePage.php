@@ -15,7 +15,7 @@ class FixturePage extends Component
         $this->activeTab = $tab;
     }
 
-     #[On('switchTab')]
+    #[On('switchTab')]
     public function switchTab($tab = 'all', $id = null)
     {
         if (is_array($tab)) {

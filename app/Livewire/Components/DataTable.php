@@ -17,6 +17,10 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Spatie\Permission\Models\Role;
+use App\Models\TesterSparePart;
+use App\Models\TesterSparePartSupplier;
+
+// TODO: clean up (especially role part)
 
 class DataTable extends Component
 {
@@ -51,8 +55,12 @@ class DataTable extends Component
 
         if (view()->exists("livewire.pages.admin.{$plural}.{$singular}-details") || view()->exists("livewire.pages.admin.{$singular}.{$singular}-details")) {
             return true;
-        }
+        } 
 
+        if (view()->exists("livewire.pages.inventory.{$plural}.{$singular}-details") || view()->exists("livewire.pages.inventory.{$singular}.{$singular}-details")) {
+            return true;
+        } 
+        
         return view()->exists("livewire.pages.{$plural}.{$singular}-details");
     }
 
@@ -63,9 +71,11 @@ class DataTable extends Component
             'fixtures' => Fixture::class,
             'personnel' => User::class,
             'roles' => Role::class,
+            'spare-parts' => TesterSparePart::class,
+            'suppliers' => TesterSparePartSupplier::class,
             'fixture-audit-logs' => DataChangeLog::class,
             'tester-audit-logs' => DataChangeLog::class,
-            'spare-part-audit-logs' => DataChangeLog::class,
+            'inventory-audit-logs' => DataChangeLog::class,
             'issues' => TesterEventLog::class,
             'issue-history' => TesterEventLog::class,
             default => throw new \Exception('Invalid data type'),
@@ -77,10 +87,11 @@ class DataTable extends Component
         return match ($this->type) {
             'testers' => ['owner', 'statusRelation', 'location'],
             'fixtures' => ['tester', 'location', 'status'],
-            'personnel' => ['roles', 'testers'],
+            'personnel' => ['roles', 'testers'], 
+            'spare-parts' => ['tester', 'supplier'],
             'fixture-audit-logs' => ['fixture', 'user'],
             'tester-audit-logs' => ['tester', 'user'],
-            'spare-part-audit-logs' => ['sparePart', 'user'],
+            'inventory-audit-logs' => ['spare_part', 'spare_part_supplier', 'user'],
             'issues' => ['tester', 'createdBy', 'issueStatusRelation', 'eventType'],
             'issue-history' => ['tester', 'createdBy', 'issueStatusRelation', 'eventType'],
             default => [],
@@ -97,10 +108,12 @@ class DataTable extends Component
             'testers' => ['name', 'description', 'operating_system'],
             'fixtures' => ['name', 'description', 'manufacturer'],
             'personnel' => ['first_name', 'last_name', 'email'],
-            'roles' => ['name', 'guard_name'],
+            'roles' => ['name', 'guard_name', 'supplier.supplier_name', 'tester.name'],
+            'spare-parts' => ['name', 'description'],
+            'suppliers' => ['supplier_name', 'supplier_email'],
             'fixture-audit-logs' => ['explanation', 'fixture_id', 'fixture.name', 'user.email'],
             'tester-audit-logs' => ['explanation', 'tester_id', 'tester.name', 'user.email'],
-            'spare-part-audit-logs' => ['explanation', 'spare_part_id', 'sparePart.name', 'user.email'],
+            'inventory-audit-logs' => ['explanation', 'spare_part_id', 'spare_part.name', 'spare_part_supplier_id', 'spare_part_supplier.supplier_name', 'user.email'],
             'issues' => ['id', 'date', 'tester_id', 'eventType.name', 'description', 'createdBy.email', 'issueStatusRelation.name'],
             'issue-history' => ['id', 'date', 'tester_id', 'eventType.name', 'description', 'createdBy.email', 'issueStatusRelation.name'],
             default => [],
@@ -281,9 +294,13 @@ class DataTable extends Component
             $query->withCount('users');
         }
 
+        if ($this->type === 'suppliers') {
+            $query->withCount('spareParts');
+        }
+
         $query = $this->applyTypeScopes($query);
 
-        if (in_array($this->type, ['fixture-audit-logs', 'tester-audit-logs', 'spare-part-audit-logs'])) {
+        if (in_array($this->type, ['fixture-audit-logs', 'tester-audit-logs', 'inventory-audit-logs'])) {
             $query->orderByDesc('changed_at')->orderByDesc('id');
         }
 
@@ -520,9 +537,10 @@ class DataTable extends Component
                         ->whereNull('spare_part_id');
                 })->orWhere('explanation', 'like', 'Deleted tester details%');
             }),
-            'spare-part-audit-logs' => $query->where(function ($q) {
+            'inventory-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('spare_part_id')
-                    ->orWhere('explanation', 'like', '%spare part%');
+                  ->orWhereNotNull('spare_part_supplier_id')
+                  ->orWhere('explanation', 'like', '%spare part%');
             }),
             'issues' => $query->activeIssueRows()->orderByDesc('date'),
             'issue-history' => $query

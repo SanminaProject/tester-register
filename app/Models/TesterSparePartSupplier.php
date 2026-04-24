@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class TesterSparePartSupplier extends Model
 {
     protected $table = 'tester_spare_part_suppliers';
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.

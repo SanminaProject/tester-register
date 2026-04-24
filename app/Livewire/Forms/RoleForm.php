@@ -12,7 +12,7 @@ class RoleForm extends Form
     public string $name = '';
     public string $guard_name = 'web'; 
 
-     protected function rules()
+    protected function rules()
     {
         return [
             'name' => 'required|string|max:255|unique:roles,name',

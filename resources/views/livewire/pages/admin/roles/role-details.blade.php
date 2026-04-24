@@ -27,7 +27,10 @@
             @php
             $rows = [
                 'ID' => $role->id,
-                'Name' => $role->name,
+                'Role Name' => $role->name,
+                'Guard' => $role->guard_name,
+                'Users' => $role->users_count,
+                'Created At' => $role->created_at
             ];
             @endphp
             

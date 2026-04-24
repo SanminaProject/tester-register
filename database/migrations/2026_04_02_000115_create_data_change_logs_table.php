@@ -20,12 +20,14 @@ return new class extends Migration
             $table->unsignedInteger('tester_id')->nullable();
             $table->unsignedInteger('fixture_id')->nullable();
             $table->unsignedInteger('spare_part_id')->nullable();
+            $table->unsignedInteger('spare_part_supplier_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
 
             // foreign key constraints
             $table->foreign('tester_id')->references('id')->on('testers')->nullOnDelete();
             $table->foreign('fixture_id')->references('id')->on('fixtures')->nullOnDelete();
             $table->foreign('spare_part_id')->references('id')->on('tester_spare_parts')->nullOnDelete();
+            $table->foreign('spare_part_supplier_id')->references('id')->on('tester_spare_part_suppliers')->nullOnDelete();
             $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
         });
     }
