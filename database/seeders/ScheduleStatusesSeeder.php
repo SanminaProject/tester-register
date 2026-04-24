@@ -17,6 +17,7 @@ class ScheduleStatusesSeeder extends Seeder
         $scheduleStatuses = [
             ['name' => 'scheduled'],
             ['name' => 'overdue'],
+            ['name' => 'completed'],
         ];
 
         foreach ($scheduleStatuses as $status) {
