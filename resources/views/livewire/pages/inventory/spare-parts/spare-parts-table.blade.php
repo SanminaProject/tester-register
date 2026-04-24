@@ -6,6 +6,7 @@
         addButtonLabel="Add Part"
         :headers="[
             'id' => 'ID',
+            'needs_reorder' => 'Needs Reordering',
             'name' => 'Name',
             'description' => 'Description',
             'manufacturer_part_number' => 'Manufacturer Part Number',

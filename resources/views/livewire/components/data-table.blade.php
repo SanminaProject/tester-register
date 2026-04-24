@@ -216,6 +216,18 @@
                                     <span x-show="expanded">Show less</span>
                                 </button>
                             </div>
+                        @elseif($key === 'needs_reorder')
+                            @php
+                                $needsReorder = (bool) data_get($row, $key)
+                            @endphp
+
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide 
+                                {{ $needsReorder 
+                                    ? 'bg-[#FFD8DE] text-[#FF4A5A]'   
+                                    : 'bg-[#CFF3DA] text-[#2E9F57]'  
+                                }}">
+                                {{ $needsReorder ? 'REORDER' : 'IN STOCK' }}
+                            </span>
                         @else
                             {{ data_get($row, $key) ?? '-' }}
                         @endif

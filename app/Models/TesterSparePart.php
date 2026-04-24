@@ -52,4 +52,11 @@ class TesterSparePart extends Model
     {
         return $this->belongsTo(TesterSparePartSupplier::class, 'supplier_id');
     }
+
+    public function getNeedsReorderAttribute()
+    {
+        return $this->quantity_in_stock !== null
+            && $this->reorder_level !== null
+            && $this->quantity_in_stock <= $this->reorder_level;
+    }
 }
