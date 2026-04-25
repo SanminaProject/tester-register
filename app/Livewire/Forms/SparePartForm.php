@@ -41,7 +41,7 @@ class SparePartForm extends Form
     {
         $this->validate();
 
-        TesterSparePart::create($this->only([
+        $sparePart = TesterSparePart::create($this->only([
             'name',
             'manufacturer_part_number',
             'quantity_in_stock',

@@ -47,6 +47,13 @@ class SparePartLogging extends Component
 
             if ($sparePart) {
                 $original = clone $sparePart;
+
+                $originalResponsibleUsers = $sparePart->responsibleUsers
+                    ->pluck('id')
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
                 $this->form->update($sparePart);
                 $sparePart->refresh();
 
@@ -67,6 +74,26 @@ class SparePartLogging extends Component
                         $newStr = is_null($newValue) ? 'empty' : $newValue;
                         $changes[] = "- {$key}: [{$oldStr}] -> [{$newStr}]";
                     }
+                }
+
+                $newResponsibleUsers = $sparePart->responsibleUsers
+                    ->pluck('id')
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                if ($originalResponsibleUsers !== $newResponsibleUsers) {
+                    $oldNames = User::whereIn('id', $originalResponsibleUsers)
+                        ->get()
+                        ->map(fn ($u) => "{$u->first_name} {$u->last_name}")
+                        ->join(', ');
+
+                    $newNames = User::whereIn('id', $newResponsibleUsers)
+                        ->get()
+                        ->map(fn ($u) => "{$u->first_name} {$u->last_name}")
+                        ->join(', ');
+
+                    $changes[] = "- responsible_users: [{$oldNames}] -> [{$newNames}]";
                 }
 
                 if (!empty($changes)) {
