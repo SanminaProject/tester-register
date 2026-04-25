@@ -146,6 +146,10 @@ class DataTable extends Component
 
     protected function resolveFilterType(string $column): string
     {
+        if ($column === 'needs_reorder') {
+            return 'multi';
+        }
+
         if ($column === 'id' || str_ends_with($column, '_id') || str_ends_with($column, '_count')) {
             return 'range';
         }
@@ -183,6 +187,10 @@ class DataTable extends Component
     {
         $modelClass = $this->getModelClass();
         $model = new $modelClass();
+
+        if ($column === 'needs_reorder') {
+            return ['REORDER', 'IN STOCK'];
+        }
 
         if (str_contains($column, '.')) {
             [$relation, $relatedColumn] = explode('.', $column, 2);
@@ -339,6 +347,26 @@ class DataTable extends Component
                 if ($to !== null && $to !== '') {
                     $query->whereDate($column, '<=', $to);
                 }
+
+                continue;
+            }
+
+            if ($column === 'needs_reorder' && is_array($value)) {
+                $selectedValues = array_values(array_filter($value));
+
+                if (empty($selectedValues)) {
+                    continue;
+                }
+
+                $query->where(function ($q) use ($selectedValues) {
+                    if (in_array('REORDER', $selectedValues)) {
+                        $q->orWhereColumn('quantity_in_stock', '<=', 'reorder_level');
+                    }
+
+                    if (in_array('IN STOCK', $selectedValues)) {
+                        $q->orWhereColumn('quantity_in_stock', '>', 'reorder_level');
+                    }
+                });
 
                 continue;
             }
