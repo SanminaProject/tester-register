@@ -18,7 +18,7 @@
             'supplier_id' => 'Supplier ID',
             'supplier.supplier_name' => 'Supplier Name',
             'responsible_user_names' => 'Responsible Users',
-            'tester_responsible_user_names' => 'Tester Responsible Users',
+            'tester_responsible_user_names' => 'Responsible Users for Associated Tester',
             'reorder_level' => 'Reorder Level'
         ]"
     />
