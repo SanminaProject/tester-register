@@ -7,6 +7,7 @@ use App\Models\AssetStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Tester extends Model
 {
@@ -74,34 +75,13 @@ class Tester extends Model
         return $this->hasMany(TesterAsset::class, 'tester_id');
     }
 
-
-
-
-    // -- Below values not needed for now, but should be taken into use if needed in the future --
-
-    /* 
-    public function customer(): BelongsTo
+    public function responsibleUsers(): BelongsToMany
     {
-        return $this->belongsTo(TesterCustomer::class, 'customer_id');
+        return $this->belongsToMany(
+            User::class,
+            'user_tester_assignments',
+            'tester_id',
+            'user_id'
+        );
     }
-
-    public function fixtures(): HasMany
-    {
-        return $this->hasMany(Fixture::class);
-    }
-
-    public function maintenanceSchedules(): HasMany
-    {
-        return $this->hasMany(TesterMaintenanceSchedule::class);
-    }
-
-    public function calibrationSchedules(): HasMany
-    {
-        return $this->hasMany(TesterCalibrationSchedule::class);
-    }
-
-    public function eventLogs(): HasMany
-    {
-        return $this->hasMany(EventLog::class);
-    } */
 }

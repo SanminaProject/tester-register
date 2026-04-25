@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TesterSparePart extends Model
 {
@@ -58,5 +59,33 @@ class TesterSparePart extends Model
         return $this->quantity_in_stock !== null
             && $this->reorder_level !== null
             && $this->quantity_in_stock <= $this->reorder_level;
+    }
+
+    public function responsibleUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'user_spare_part_assignments',
+            'spare_part_id',
+            'user_id'
+        );
+    }
+
+    public function getResponsibleUserNamesAttribute(): ?string
+    {
+        $names = $this->responsibleUsers
+            ->map(fn ($user) => $user->first_name . ' ' . $user->last_name)
+            ->join(', ');
+        
+        return $names !== '' ? $names : null;
+    }
+
+    public function getTesterResponsibleUserNamesAttribute(): ?string
+    {
+        $names = $this->tester?->responsibleUsers
+            ->map(fn ($user) => $user->first_name . ' ' . $user->last_name)
+            ->join(', ');
+        
+        return $names !== '' ? $names : null;
     }
 }

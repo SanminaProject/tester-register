@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// TODO: delete this file? Unused?
+
 class SparePart extends Model
 {
     use HasFactory;
