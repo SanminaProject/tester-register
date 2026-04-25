@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             ActiveIssuesSeeder::class,
             DataChangeLogsSeeder::class,
             UserTesterAssignmentsSeeder::class,
+            UserSparePartAssignmentsSeeder::class,
         ]);
     }
 }
