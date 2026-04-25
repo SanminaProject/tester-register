@@ -5,6 +5,7 @@ namespace App\Livewire\Pages\Inventory\SpareParts;
 use App\Livewire\Forms\SparePartForm;
 use App\Models\TesterSparePart;
 use App\Models\Tester;
+use App\Models\User;
 use App\Models\TesterSparePartSupplier;
 use App\Models\DataChangeLog;
 use Livewire\Component;
@@ -22,6 +23,7 @@ class SparePartLogging extends Component
         return view('livewire.pages.inventory.spare-parts.spare-part-logging', [
             'testers' => Tester::select('name', 'id')->get(),
             'suppliers' => TesterSparePartSupplier::select('supplier_name as name', 'id')->get(),
+            'users' => User::orderBy('first_name')->get(),
         ]);
     }
 

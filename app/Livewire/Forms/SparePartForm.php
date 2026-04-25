@@ -19,6 +19,7 @@ class SparePartForm extends Form
     public string $description = '';
     public ?int $tester_id = null;
     public ?int $supplier_id = null;
+    public array $responsible_user_ids = [];
 
     protected function rules()
     {
@@ -32,6 +33,7 @@ class SparePartForm extends Form
             'description' => 'nullable|string',
             'tester_id' => 'required|exists:testers,id',
             'supplier_id' => 'required|exists:tester_spare_part_suppliers,id',
+            'responsible_user_ids' => 'array|exists:users,id',
         ];
     }
 
@@ -51,6 +53,8 @@ class SparePartForm extends Form
             'supplier_id',
         ]));
 
+        $sparePart->responsibleUsers()->sync($this->responsible_user_ids);
+
         $this->reset();
     }
 
@@ -64,6 +68,8 @@ class SparePartForm extends Form
                 ? $sparePart->last_order_date->format('Y-m-d')
                 : null,
         ]);
+
+        $this->responsible_user_ids = $sparePart->responsibleUsers()->pluck('id')->toArray();
     }
 
     public function update()
@@ -81,5 +87,7 @@ class SparePartForm extends Form
             'tester_id',
             'supplier_id',
         ]));
+
+        $this->sparePart->responsibleUsers()->sync($this->responsible_user_ids);
     }
 }
