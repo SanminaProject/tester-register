@@ -12,8 +12,8 @@ class SparePartForm extends Form
 
     public string $name = '';
     public string $manufacturer_part_number = '';
-    public int $quantity_in_stock = 0;
-    public int $reorder_level = 0;
+    public ?int $quantity_in_stock = null;
+    public ?int $reorder_level = null;
     public ?string $last_order_date = null;
     public float $unit_price = 0;
     public string $description = '';
