@@ -290,6 +290,17 @@ CREATE TABLE user_tester_assignments (
     FOREIGN KEY (tester_id) REFERENCES testers(id) ON DELETE CASCADE
 );
 
+-- links users to spare parts they are responsible for
+CREATE TABLE user_spare_part_assignments (
+    user_id INT NOT NULL,
+    spare_part_id INT NOT NULL,
+
+    PRIMARY KEY (user_id, spare_part_id),
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (spare_part_id) REFERENCES tester_spare_parts(id) ON DELETE CASCADE
+);
+
 -- BELOW TABLES BASED ON SPATIE LARAVEL PERMISSION LIBRARY
 -- holds info on roles that users can have
 CREATE TABLE roles (

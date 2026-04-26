@@ -82,6 +82,18 @@
                         <x-input-error :messages="$errors->get('form.supplier_id')" />
                     </div>
                 </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Responsible Users</label>
+                        <livewire:components.multiple-choice-selector
+                            :selectedIds="$form->responsible_user_ids"
+                            :users="$users"
+                            placeholder="Select responsible user"
+                        />
+                        <x-input-error :messages="$errors->get('form.responsible_user_ids')" />
+                    </div>
+                </div>
             </div>
         </form>
     </div>

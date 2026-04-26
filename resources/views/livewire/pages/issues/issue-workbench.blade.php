@@ -228,9 +228,7 @@
                         $isSolved = $statusName === 'solved';
                         $isActive = $statusName === 'active';
                         @endphp
-                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide {{ $isSolved ? 'bg-[#CFF3DA] text-[#2E9F57]' : ($isActive ? 'bg-[#FFD8DE] text-[#FF4A5A]' : 'bg-gray-200 text-gray-700') }}">
-                            {{ strtoupper($row->issueStatusRelation?->name ?? '-') }}
-                        </span>
+                        <x-status-badge :status="$row->issueStatusRelation?->name" />
                     </td>
                 </tr>
 

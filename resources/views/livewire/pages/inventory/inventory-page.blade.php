@@ -22,6 +22,8 @@
         <livewire:pages.inventory.suppliers.supplier-logging />
         @elseif ($activeTab === 'logs')
         <livewire:pages.inventory.inventory-audit-logs />
+        @elseif ($activeTab === 'email-form')
+        <livewire:pages.inventory.spare-parts.email-form :sparePartId="$selectedSparePartId" wire:key="email-form-{{ $selectedSparePartId }}" />
         @elseif ($activeTab === 'spare-part-details')
         <livewire:pages.inventory.spare-parts.spare-part-details :sparePartId="$selectedSparePartId" wire:key="spare-part-details-{{ $selectedSparePartId }}" />
         @elseif ($activeTab === 'supplier-details')

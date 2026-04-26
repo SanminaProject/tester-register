@@ -21,6 +21,12 @@
 
     <!-- Main Content -->
     <div class="grid grid-cols-1 gap-y-10">
+
+        @if (session()->has('error'))
+        <div class="rounded-md bg-red-100 px-4 py-3 text-sm text-red-800">
+            {{ session('error') }}
+        </div>
+        @endif
         
         <!-- 2. Main Info Block -->
         <div class="flex flex-col gap-y-3.5 pl-12 w-full max-w-4xl">

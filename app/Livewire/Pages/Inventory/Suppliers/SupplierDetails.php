@@ -21,6 +21,13 @@ class SupplierDetails extends Component
             abort(403, 'Unauthorized action.');
         }
 
+        $linkedSparePartsCount = $this->sparePartSupplier->spareParts()->count();
+
+        if ($linkedSparePartsCount > 0) {
+            session()->flash('error', "This supplier cannot be deleted because it is associated with {$linkedSparePartsCount} spare part(s). Please remove or reassign those spare parts first.");
+            return;
+        }
+
         $sparePartSupplierId = $this->sparePartSupplier->id;
         $sparePartSupplierName = $this->sparePartSupplier->supplier_name;
 

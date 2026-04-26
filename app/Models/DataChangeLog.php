@@ -52,6 +52,14 @@ class DataChangeLog extends Model
         if ($this->spare_part_id) return 'Spare Part';
         if ($this->spare_part_supplier_id) return 'Supplier';
 
+        // Check explanation for deleted entities (foreign keys become null after deletion)
+        if (str_contains(strtolower($this->explanation), 'spare part')) {
+            return 'Spare Part';
+        }
+        if (str_contains(strtolower($this->explanation), 'supplier')) {
+            return 'Supplier';
+        }
+
         return 'Unknown';
     }
 

@@ -29,11 +29,11 @@
                 'ID' => $user->id,
                 'First Name' => $user->first_name,
                 'Last Name' => $user->last_name,
-                'Role' => $user->roles->pluck('name')->join(', '),
+                'Role' => $user->role_names,
                 'Email' => $user->email,
                 'Phone' => $user->phone,
                 'Responsibilities' => $user->responsibilities,
-                'Tester Names' => $user->testers->pluck('name')->join(', ') ?: '-',
+                'Tester Names' => $user->tester_names,
                 'Qualifications Certifications' => $user->qualifications_certifications,
             ];
             @endphp

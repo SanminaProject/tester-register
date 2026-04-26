@@ -5,6 +5,7 @@ namespace App\Livewire\Pages\Inventory\SpareParts;
 use App\Livewire\Forms\SparePartForm;
 use App\Models\TesterSparePart;
 use App\Models\Tester;
+use App\Models\User;
 use App\Models\TesterSparePartSupplier;
 use App\Models\DataChangeLog;
 use Livewire\Component;
@@ -17,11 +18,18 @@ class SparePartLogging extends Component
     public ?int $sparePartId = null;
     public bool $isEdit = false;
 
+    #[\Livewire\Attributes\On('recipientsUpdated')]
+    public function updateResponsibleUsers($selectedIds)
+    {
+        $this->form->responsible_user_ids = $selectedIds;
+    }
+
     public function render()
     {
         return view('livewire.pages.inventory.spare-parts.spare-part-logging', [
             'testers' => Tester::select('name', 'id')->get(),
             'suppliers' => TesterSparePartSupplier::select('supplier_name as name', 'id')->get(),
+            'users' => User::orderBy('first_name')->get(),
         ]);
     }
 
@@ -45,6 +53,13 @@ class SparePartLogging extends Component
 
             if ($sparePart) {
                 $original = clone $sparePart;
+
+                $originalResponsibleUsers = $sparePart->responsibleUsers
+                    ->pluck('id')
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
                 $this->form->update($sparePart);
                 $sparePart->refresh();
 
@@ -65,6 +80,26 @@ class SparePartLogging extends Component
                         $newStr = is_null($newValue) ? 'empty' : $newValue;
                         $changes[] = "- {$key}: [{$oldStr}] -> [{$newStr}]";
                     }
+                }
+
+                $newResponsibleUsers = $sparePart->responsibleUsers
+                    ->pluck('id')
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                if ($originalResponsibleUsers !== $newResponsibleUsers) {
+                    $oldNames = User::whereIn('id', $originalResponsibleUsers)
+                        ->get()
+                        ->map(fn ($u) => "{$u->first_name} {$u->last_name}")
+                        ->join(', ');
+
+                    $newNames = User::whereIn('id', $newResponsibleUsers)
+                        ->get()
+                        ->map(fn ($u) => "{$u->first_name} {$u->last_name}")
+                        ->join(', ');
+
+                    $changes[] = "- responsible_users: [{$oldNames}] -> [{$newNames}]";
                 }
 
                 if (!empty($changes)) {

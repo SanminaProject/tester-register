@@ -27,30 +27,41 @@
             @php
             $rows = [
                 'ID' => $sparePart->id,
+                'Stock Status' => $sparePart->needs_reorder,
                 'Name' => $sparePart->name,
                 'Description' => $sparePart->description,
                 'Manufacturer Part Number' => $sparePart->manufacturer_part_number,
-                'Quantity in Stock' => $sparePart->quantity_in_stock,
+                'In Stock' => $sparePart->quantity_in_stock,
                 'Unit Price' => $sparePart->unit_price,
-                'Last Order Date' => $sparePart->last_order_date,
+                'Last Ordered' => $sparePart->last_order_date,
                 'Tester ID' => $sparePart->tester_id,
                 'Tester Name' => $sparePart->tester?->name,
                 'Supplier ID' => $sparePart->supplier_id,
                 'Supplier Name' => $sparePart->supplier?->supplier_name,
+                'Responsible Users' => $sparePart->responsible_user_names,
+                'Responsible Users for Associated Tester' => $sparePart->tester_responsible_user_names,
                 'Reorder Level' => $sparePart->reorder_level,
             ];
             @endphp
+
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-center mb-4">
+                <div class="text-dark-grey tracking-wide text-[16px]">Stock Status</div>
+                <div>
+                    <x-status-badge :status="$sparePart->needs_reorder ? 'reorder' : 'in stock'" />
+                </div>
+            </div>
             
             @foreach($rows as $label => $value)
-            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
-                <div class="text-dark-grey tracking-wide text-[16px]">{{ $label }}</div>
-                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-2.5 h-2.5 rounded-full {{ strtolower($fixture->status?->name ?? '') === 'active' ? 'bg-[#31c03b]' : 'bg-red-500' }} ml-1.5 align-baseline"></span>@endif</div>
-            </div>
+                @continue($label === 'Stock Status')
+                <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                    <div class="text-dark-grey tracking-wide text-[16px]">{{ $label }}</div>
+                    <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $value ?? '-' }}@if($label === 'Status')<span class="inline-block w-2.5 h-2.5 rounded-full {{ strtolower($fixture->status?->name ?? '') === 'active' ? 'bg-[#31c03b]' : 'bg-red-500' }} ml-1.5 align-baseline"></span>@endif</div>
+                </div>
             @endforeach
         </div>
 
         @if(auth()->user() && auth()->user()->hasRole('Admin'))
-        <div class="mt-16 pl-10 flex justify-start">
+        <div class="mt-16 pl-10 flex justify-start gap-4">
             <button 
                 type="button" 
                 wire:click="deleteSparePart"
@@ -61,6 +72,13 @@
                 </svg>
                 Delete Part
             </button>
+
+            <x-primary-button
+                type="button"
+                wire:click="$dispatch('switchTab', { tab: 'email-form', sparePartId: {{ $sparePart->id }} })"
+                class="w-32">
+                Send Email
+            </x-primary-button>
         </div>
         @endif
     </div>
