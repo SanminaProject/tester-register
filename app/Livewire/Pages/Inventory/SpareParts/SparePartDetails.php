@@ -4,15 +4,22 @@ namespace App\Livewire\Pages\Inventory\SpareParts;
 
 use App\Models\TesterSparePart;
 use Livewire\Component;
+use App\Models\User;
 use App\Models\DataChangeLog;
 
 class SparePartDetails extends Component
 {
     public TesterSparePart $sparePart;
 
+    public bool $showEmailModal = false;
+    public string $selectedRecipient = '';
+
+    public $availableRecipients = [];
+
     public function mount($sparePartId)
     {
         $this->sparePart = TesterSparePart::with(['tester', 'supplier'])->findOrFail($sparePartId);
+        $this->availableRecipients = User::all();
     }
 
     public function deleteSparePart()

@@ -85,9 +85,9 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <x-select-field
+                        <x-checkbox-list
                             label="Responsible Users"
-                            wire:model="form.responsible_user_ids"
+                            model="form.responsible_user_ids"
                             :options="$users"
                             multiple
                         />

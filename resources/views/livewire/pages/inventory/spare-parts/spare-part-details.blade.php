@@ -72,6 +72,13 @@
                 </svg>
                 Delete Part
             </button>
+
+            <x-primary-button
+                type="button"
+                wire:click="$dispatch('switchTab', { tab: 'email-form', sparePartId: {{ $sparePart->id }} })"
+                class="w-32">
+                Send Email
+            </x-primary-button>
         </div>
         @endif
     </div>
