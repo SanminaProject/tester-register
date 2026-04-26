@@ -11,9 +11,9 @@ class MultipleChoiceSelector extends Component
 
     public $users = [];
 
-    public function mount($selectedIds = [])
+    public function mount($selectedIds = [], $users = null)
     {
-        $this->users = User::all();
+        $this->users = $users ?? User::all();
         $this->selectedIds = $selectedIds;
     }
 

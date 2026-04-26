@@ -61,7 +61,7 @@
         </div>
 
         @if(auth()->user() && auth()->user()->hasRole('Admin'))
-        <div class="mt-16 pl-10 flex justify-start">
+        <div class="mt-16 pl-10 flex justify-start gap-4">
             <button 
                 type="button" 
                 wire:click="deleteSparePart"

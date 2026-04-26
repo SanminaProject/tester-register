@@ -24,6 +24,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
                     <livewire:components.multiple-choice-selector
                         :selectedIds="$form->responsible_user_ids"
+                        :users="$users"
                     />
                     <x-input-error :messages="$errors->get('form.responsible_user_ids')" />
                     <p class="mt-2 text-sm text-gray-500"> Recipients are pre-selected based on possible users assigned as responsible for this spare part.</p>

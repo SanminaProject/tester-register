@@ -18,6 +18,12 @@ class SparePartLogging extends Component
     public ?int $sparePartId = null;
     public bool $isEdit = false;
 
+    #[\Livewire\Attributes\On('recipientsUpdated')]
+    public function updateResponsibleUsers($selectedIds)
+    {
+        $this->form->responsible_user_ids = $selectedIds;
+    }
+
     public function render()
     {
         return view('livewire.pages.inventory.spare-parts.spare-part-logging', [
