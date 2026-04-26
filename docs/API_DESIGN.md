@@ -1,32 +1,62 @@
-# Tester Register API Design
+# Tester Register API Design (Code-Accurate)
 
-## 1. Overview
+## 1. Scope and Base Path
 
-## 1.1 Authentication & Authorization
+This document describes the implemented API under `/api/v1`.
 
-All endpoints except register and login require authentication via Laravel Sanctum (`auth:sanctum`).
-
-- Register and login endpoints are rate-limited (6 requests/minute).
-- Use `Authorization: Bearer <token>` header for all protected endpoints.
-- Role-based access control is enforced via middleware and policies (see Permission Matrix).
-- Logout, resource management, and all sensitive actions require a valid token and appropriate role.
-
-**Authorization Flow:**
-
-1. Register or login to obtain a token.
-2. Include the token in the `Authorization` header for all subsequent requests.
-3. Access is granted or denied based on user role and endpoint policy.
-
-- Base URL: `http://localhost:8000`
-- Prefix: `/api/v1`
-- Authentication: Bearer Token (Laravel Sanctum)
+- Base URL example: `http://localhost:8000`
+- API prefix: `/api/v1`
 - Content type: `application/json`
 
-## 2. Response Envelope
+## 2. Authentication and Security
 
-All API responses are wrapped in a standard envelope. On success, the `data` field contains the result. On error, `errors` is present for validation failures.
+- Public endpoints:
+    - `POST /api/v1/auth/register`
+    - `POST /api/v1/auth/login`
+- Both public auth endpoints are rate-limited with `throttle:6,1`.
+- All other endpoints are protected by `auth:sanctum`.
+- Protected calls must send: `Authorization: Bearer <token>`.
 
-### 2.1 Success
+### 2.1 Register Request (implemented fields)
+
+```json
+{
+    "first_name": "API",
+    "last_name": "User",
+    "phone": "+358401234567",
+    "email": "api-user@example.com",
+    "password": "password123",
+    "password_confirmation": "password123"
+}
+```
+
+### 2.2 Login Request
+
+```json
+{
+    "email": "api-user@example.com",
+    "password": "password123"
+}
+```
+
+### 2.3 Auth Response Data
+
+Successful register/login returns token payload:
+
+```json
+{
+    "token": "<plain-text-token>",
+    "token_type": "Bearer",
+    "user": {},
+    "roles": []
+}
+```
+
+Token expiration is based on Sanctum config (`SANCTUM_TOKEN_EXPIRATION`, default 1440 minutes).
+
+## 3. Standard Response Envelope
+
+### 3.1 Success
 
 ```json
 {
@@ -37,12 +67,33 @@ All API responses are wrapped in a standard envelope. On success, the `data` fie
 }
 ```
 
-### 2.2 Error
+Note: for some successful actions (for example delete/logout), `data` may be omitted.
+
+### 3.2 Paginated Success
+
+```json
+{
+    "success": true,
+    "message": "...",
+    "data": {
+        "items": [],
+        "pagination": {
+            "current_page": 1,
+            "per_page": 15,
+            "total": 0,
+            "last_page": 1
+        }
+    },
+    "code": 200
+}
+```
+
+### 3.3 Error
 
 ```json
 {
     "success": false,
-    "message": "Error message",
+    "message": "Validation failed",
     "code": 422,
     "errors": {
         "field": ["Validation message"]
@@ -50,65 +101,30 @@ All API responses are wrapped in a standard envelope. On success, the `data` fie
 }
 ```
 
-`errors` is only included for validation failures.
+`errors` is returned for validation failures.
 
-## 3. HTTP Status Codes
-
-The API uses standard HTTP status codes. Notable cases:
-
-- `409 Conflict` is returned when deleting a customer with linked testers.
-- `422 Validation failed` includes a detailed `errors` object.
+## 4. Status Codes Used by the API
 
 - `200` OK
 - `201` Created
 - `401` Unauthenticated
 - `403` Forbidden
 - `404` Resource not found
-- `409` Conflict
+- `405` Method not allowed
+- `409` Conflict (customer cannot be deleted when testers are linked)
 - `422` Validation failed
+- `429` Too Many Requests
 - `500` Internal server error
 
-## 4. Authentication Endpoints
+## 5. Endpoint Inventory
 
-### Register
+## 5.1 Authentication
 
 - `POST /api/v1/auth/register`
-- Body:
-
-```json
-{
-    "name": "API User",
-    "email": "api-user@example.com",
-    "password": "password123",
-    "password_confirmation": "password123"
-}
-```
-
-### Login
-
 - `POST /api/v1/auth/login`
-- Body:
+- `POST /api/v1/auth/logout` (auth required)
 
-```json
-{
-    "email": "api-user@example.com",
-    "password": "password123"
-}
-```
-
-### Logout
-
-- `POST /api/v1/auth/logout`
-- Auth required
-
-## 5. Resource Endpoints
-
-Each resource supports filtering and pagination as described below. List endpoints return `data.items` (array) and `data.pagination` (object with page info).
-
-## 5.1 Customers
-
-**Description:**
-Customers represent organizations or individuals who own or use testers. This resource allows for listing, creating, viewing, updating, and deleting customer records. Deletion is blocked if linked testers exist.
+## 5.2 Customers
 
 - `GET /api/v1/customers`
 - `POST /api/v1/customers`
@@ -116,37 +132,48 @@ Customers represent organizations or individuals who own or use testers. This re
 - `PATCH /api/v1/customers/{customer}`
 - `DELETE /api/v1/customers/{customer}`
 
-**Filter parameters:**
+List filters:
 
-- `page`: Page number (integer)
-- `per_page`: Items per page (integer)
-- `search`: Search by customer name or other fields
+- `page`
+- `per_page`
+- `search`
 
-## 5.2 Testers
-
-**Description:**
-Testers are devices or systems managed in the platform. Endpoints allow for listing, creating, viewing, updating, deleting testers, and updating their status (e.g., active, inactive, maintenance). Status changes are handled via a dedicated endpoint.
+## 5.3 Testers
 
 - `GET /api/v1/testers`
 - `POST /api/v1/testers`
 - `GET /api/v1/testers/{tester}`
 - `PATCH /api/v1/testers/{tester}`
 - `DELETE /api/v1/testers/{tester}`
-- `PATCH /api/v1/testers/{tester}/status`  
-   (Status update, body: `{ "status": "maintenance" }`)
+- `PATCH /api/v1/testers/{tester}/status`
 
-**Filter parameters:**
+List filters:
 
-- `page`: Page number
-- `per_page`: Items per page
-- `status`: Filter by tester status (`active`, `inactive`, `maintenance`)
-- `customer_id`: Filter by customer
-- `search`: Search by tester name or fields
+- `page`
+- `per_page`
+- `status` (`active|inactive|maintenance`)
+- `customer_id`
+- `search`
 
-## 5.3 Fixtures
+Create/update payload shape:
 
-**Description:**
-Fixtures are hardware components associated with testers. These endpoints support listing, creating, viewing, updating, and deleting fixture records. Filtering by tester and status is supported.
+- `customer_id`
+- `model`
+- `serial_number`
+- `purchase_date`
+- `status`
+- `location`
+- `notes`
+
+Status endpoint payload:
+
+```json
+{
+    "status": "maintenance"
+}
+```
+
+## 5.4 Fixtures
 
 - `GET /api/v1/fixtures`
 - `POST /api/v1/fixtures`
@@ -154,78 +181,119 @@ Fixtures are hardware components associated with testers. These endpoints suppor
 - `PATCH /api/v1/fixtures/{fixture}`
 - `DELETE /api/v1/fixtures/{fixture}`
 
-**Filter parameters:**
+List filters:
 
-- `page`: Page number
-- `per_page`: Items per page
-- `tester_id`: Filter by tester
-- `status`: Filter by fixture status
-- `search`: Search by fixture fields
+- `page`
+- `per_page`
+- `tester_id`
+- `status` (`active|inactive|maintenance`)
+- `search`
 
-## 5.4 Maintenance Schedules
+Create/update payload shape:
 
-**Description:**
-Maintenance schedules define planned or completed maintenance activities for testers. Endpoints allow for full CRUD operations and marking a schedule as complete. Filtering by tester, status, and date range is supported.
+- `tester_id`
+- `name`
+- `serial_number`
+- `purchase_date`
+- `status`
+- `location`
+- `notes`
+
+## 5.5 Maintenance Schedules
 
 - `GET /api/v1/maintenance-schedules`
 - `POST /api/v1/maintenance-schedules`
 - `GET /api/v1/maintenance-schedules/{maintenanceSchedule}`
 - `PATCH /api/v1/maintenance-schedules/{maintenanceSchedule}`
 - `DELETE /api/v1/maintenance-schedules/{maintenanceSchedule}`
-  -- `POST /api/v1/maintenance-schedules/{maintenanceSchedule}/complete`  
-   (Mark as complete, body: `{ "completed_date": "2026-04-02", "performed_by": "Tech User", "notes": "Routine preventive maintenance complete" }`)
+- `POST /api/v1/maintenance-schedules/{maintenanceSchedule}/complete`
 
-**Filter parameters:**
+List filters:
 
-- `page`: Page number
-- `per_page`: Items per page
-- `tester_id`: Filter by tester
-- `status`: `scheduled`, `completed`, `overdue`
-- `start_date`, `end_date`: Filter by date range
+- `page`
+- `per_page`
+- `tester_id`
+- `status` (`scheduled|completed|overdue`)
+- `start_date`
+- `end_date`
 
-## 5.5 Calibration Schedules
+Create payload:
 
-**Description:**
-Calibration schedules track calibration events for testers. Endpoints support CRUD operations and marking calibration as complete. Filtering by tester, status, and date range is available.
+- `tester_id` (required)
+- `scheduled_date` (required)
+- `procedure` (required)
+- `notes` (optional)
+
+Complete payload:
+
+```json
+{
+    "completed_date": "2026-04-02",
+    "performed_by": "Tech User",
+    "notes": "Routine preventive maintenance complete"
+}
+```
+
+## 5.6 Calibration Schedules
 
 - `GET /api/v1/calibration-schedules`
 - `POST /api/v1/calibration-schedules`
 - `GET /api/v1/calibration-schedules/{calibrationSchedule}`
 - `PATCH /api/v1/calibration-schedules/{calibrationSchedule}`
 - `DELETE /api/v1/calibration-schedules/{calibrationSchedule}`
-  -- `POST /api/v1/calibration-schedules/{calibrationSchedule}/complete`  
-   (Mark as complete, body same as maintenance completion)
+- `POST /api/v1/calibration-schedules/{calibrationSchedule}/complete`
 
-**Filter parameters:**
+List filters:
 
-- `page`: Page number
-- `per_page`: Items per page
-- `tester_id`: Filter by tester
-- `status`: `scheduled`, `completed`, `overdue`
-- `start_date`, `end_date`: Filter by date range
+- `page`
+- `per_page`
+- `tester_id`
+- `status` (`scheduled|completed|overdue`)
+- `start_date`
+- `end_date`
 
-## 5.6 Event Logs
+Create payload:
 
-**Description:**
-Event logs record significant actions or issues related to testers, such as maintenance, calibration, repairs, or other events. Only listing, creation, and viewing of logs are supported. Filtering by tester, type, and date range is available.
+- `tester_id` (required)
+- `scheduled_date` (required)
+- `procedure` (required)
+- `notes` (optional)
+
+Complete payload is the same shape as maintenance complete.
+
+## 5.7 Event Logs
 
 - `GET /api/v1/event-logs`
 - `POST /api/v1/event-logs`
+- `GET /api/v1/event-logs/{eventLog}`
+- `PATCH /api/v1/event-logs/{eventLog}`
+- `DELETE /api/v1/event-logs/{eventLog}`
 
-    (Only supports index, store, show)
+List filters:
 
-**Filter parameters:**
+- `page`
+- `per_page`
+- `tester_id`
+- `type` (`maintenance|calibration|issue|problem|solution|repair|other`)
+- `start_date`
+- `end_date`
 
-- `page`: Page number
-- `per_page`: Items per page
-- `tester_id`: Filter by tester
-- `type`: `maintenance`, `calibration`, `issue`, `repair`, `other`
-- `start_date`, `end_date`: Filter by date range
+Create/update payload:
 
-## 5.7 Spare Parts
+- `tester_id` (required)
+- `type` (required)
+- `event_date` (required)
+- `description` (required)
+- `performed_by` (optional)
+- `metadata` (optional object)
 
-**Description:**
-Spare parts are inventory items used for tester maintenance or repair. Endpoints allow for listing, creating, viewing, updating, and deleting spare part records. Filtering by stock status and search is supported.
+`metadata` may include keys such as:
+
+- `maintenance_schedule_id`
+- `calibration_schedule_id`
+- `resolution_description`
+
+## 5.8 Spare Parts
 
 - `GET /api/v1/spare-parts`
 - `POST /api/v1/spare-parts`
@@ -233,65 +301,57 @@ Spare parts are inventory items used for tester maintenance or repair. Endpoints
 - `PATCH /api/v1/spare-parts/{sparePart}`
 - `DELETE /api/v1/spare-parts/{sparePart}`
 
-**Filter parameters:**
+List filters:
 
-- `page`: Page number
-- `per_page`: Items per page
-- `search`: Search by part name or fields
-- `stock_status`: `low`, `normal`, `full`
+- `page`
+- `per_page`
+- `search`
+- `stock_status` (`low|normal|full`)
 
-## 6. Permission Matrix
+Create/update payload fields:
 
-### Roles
+- `name`
+- `part_number`
+- `quantity_in_stock`
+- `unit_cost`
+- `supplier`
+- `notes`
 
-- `Admin`
-- `Manager` (alias: Maintenance Technician)
-- `Technician` (alias: Calibration Specialist)
-- `Guest`
+## 6. Authorization Matrix (Policies)
 
-### Permission Matrix
+Role aliases are supported in policy checks:
 
-| Resource / Action            | Admin | Manager | Technician | Guest |
-| ---------------------------- | ----- | ------- | ---------- | ----- |
-| Auth register/login/logout   | Yes   | Yes     | Yes        | Yes   |
-| Customers list/show          | Yes   | Yes     | No         | No    |
-| Customers create/update      | Yes   | Yes     | No         | No    |
-| Customers delete             | Yes   | No      | No         | No    |
-| Testers list/show            | Yes   | Yes     | Yes        | Yes   |
-| Testers create/update/status | Yes   | Yes     | No         | No    |
-| Testers delete               | Yes   | No      | No         | No    |
-| Fixtures list/show           | Yes   | Yes     | Yes        | Yes   |
-| Fixtures create/update       | Yes   | Yes     | No         | No    |
-| Fixtures delete              | Yes   | No      | No         | No    |
-| Maintenance list/show        | Yes   | Yes     | Yes        | No    |
-| Maintenance create           | Yes   | Yes     | No         | No    |
-| Maintenance update/complete  | Yes   | Yes     | Yes        | No    |
-| Calibration list/show        | Yes   | Yes     | Yes        | No    |
-| Calibration create           | Yes   | Yes     | No         | No    |
-| Calibration update/complete  | Yes   | Yes     | Yes        | No    |
-| Event logs list/show/create  | Yes   | Yes     | Yes        | No    |
-| Spare parts list/show        | Yes   | Yes     | Yes        | Yes   |
-| Spare parts create/update    | Yes   | Yes     | No         | No    |
-| Spare parts delete           | Yes   | No      | No         | No    |
+- admin aliases: `admin`, `Admin`
+- manager aliases: `manager`, `Manager`, `Maintenance Technician`
+- technician aliases: `technician`, `Technician`, `Calibration Specialist`
+- guest aliases: `guest`, `Guest`
 
-**Note:**
+| Resource / Action | Admin | Manager | Technician | Guest |
+| --- | --- | --- | --- | --- |
+| Auth register/login/logout | Yes | Yes | Yes | Yes |
+| Customers view/list | Yes | Yes | No | No |
+| Customers create/update | Yes | Yes | No | No |
+| Customers delete | Yes | No | No | No |
+| Testers view/list | Yes | Yes | Yes | Yes |
+| Testers create/update/updateStatus | Yes | Yes | No | No |
+| Testers delete | Yes | No | No | No |
+| Fixtures view/list | Yes | Yes | Yes | Yes |
+| Fixtures create/update | Yes | Yes | No | No |
+| Fixtures delete | Yes | No | No | No |
+| Maintenance view/list | Yes | Yes | Yes | No |
+| Maintenance create | Yes | Yes | No | No |
+| Maintenance update/complete | Yes | Yes | Yes | No |
+| Maintenance delete | Yes | Yes | No | No |
+| Calibration view/list | Yes | Yes | Yes | No |
+| Calibration create | Yes | Yes | No | No |
+| Calibration update/complete | Yes | Yes | Yes | No |
+| Calibration delete | Yes | Yes | No | No |
+| Event logs list/show/create/update/delete | Yes | Yes | Yes | No |
+| Spare parts list/show | Yes | Yes | Yes | Yes |
+| Spare parts create/update | Yes | Yes | No | No |
+| Spare parts delete | Yes | No | No | No |
 
-- All endpoints except register/login require authentication (`auth:sanctum`).
-- Some management endpoints require specific roles (see above).
-- The permission matrix is enforced via Laravel policies and middleware (e.g., `role:Admin`).
+## 7. Notes About API Shape
 
-## 7. Integration Notes
-
-See above for authentication, rate limiting, pagination, and error handling notes.
-
-## 8. Frontend Page to API Mapping (Optional)
-
-| Frontend Page | Related API Endpoints                                        |
-| ------------- | ------------------------------------------------------------ |
-| Dashboard     | /api/v1/event-logs, /api/v1/testers                          |
-| Testers       | /api/v1/testers                                              |
-| Fixtures      | /api/v1/fixtures                                             |
-| Issues        | /api/v1/event-logs (type=issue)                              |
-| Services      | /api/v1/maintenance-schedules, /api/v1/calibration-schedules |
-| User Roles    | /api/v1/auth/\* (role management is internal)                |
-| Profile       | /api/v1/auth/logout, user info endpoints                     |
+- API endpoints expose a modern request contract while mapping to a legacy schema internally (for example tester `model` maps to database column `name`).
+- Some resources normalize date values to day boundaries before storage (notably event logs and completion actions).
