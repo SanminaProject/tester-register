@@ -177,6 +177,12 @@
                     @endif
                 >
                     @foreach ($headers as $key => $label)
+                    @php
+                        $cellValue = data_get($row, $key);
+                        $cellText = is_null($cellValue) || (is_string($cellValue) && trim($cellValue) === '' || (is_string($cellValue) && trim($cellValue) === '—'))
+                            ? '-'
+                            : $cellValue;
+                    @endphp
                     <td class="px-5 py-3 text-sm text-gray-800 align-top {{ ($key === 'explanation' || ($type === 'issues' && $key === 'description') || ($type === 'issue-history' && $key === 'description')) ? '' : 'whitespace-nowrap' }}">
                         @if($type === 'issues' && $key === 'description')
                             <div class="max-w-[340px]">
@@ -185,7 +191,7 @@
                                      class="relative pr-2">
                                     <div x-ref="text"
                                          :class="expanded ? '' : 'line-clamp-2'"
-                                         class="whitespace-pre-line text-gray-800 break-words">{{ data_get($row, $key) ?? '-' }}</div>
+                                         class="whitespace-pre-line text-gray-800 break-words">{{ $cellText }}</div>
                                     <button x-show="showButton"
                                             @click.stop="expanded = !expanded"
                                             class="text-blue-600 hover:text-blue-800 text-xs font-semibold mt-1 focus:outline-none hover:underline"
@@ -207,7 +213,7 @@
                                  class="relative pr-2" style="max-width: 300px;">
                                 <div x-ref="text"
                                      :class="expanded ? '' : 'line-clamp-2'"
-                                     class="whitespace-pre-line text-gray-800 break-words">{{ data_get($row, $key) ?? '-' }}</div>
+                                     class="whitespace-pre-line text-gray-800 break-words">{{ $cellText }}</div>
                                 <button x-show="showButton" 
                                         @click.stop="expanded = !expanded" 
                                         class="text-blue-600 hover:text-blue-800 text-xs font-semibold mt-1 focus:outline-none hover:underline"
@@ -219,7 +225,7 @@
                         @elseif($key === 'needs_reorder')
                             <x-status-badge :status="data_get($row, $key) ? 'reorder' : 'in stock'" />
                         @else
-                            {{ data_get($row, $key) ?? '-' }}
+                            {{ $cellText }}
                         @endif
                     </td>
                     @endforeach
