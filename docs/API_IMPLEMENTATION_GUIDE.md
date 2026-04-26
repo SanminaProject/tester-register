@@ -1,136 +1,182 @@
-# API Implementation Guide
+# API Implementation Guide (Code-Accurate)
 
 ## 1. Goal
 
-This guide explains how the API is implemented in the project and where to extend it safely.
+This guide explains how the current API is implemented in this repository and how to extend it without breaking existing behavior.
 
-## 2. Architecture Layers
+## 2. Runtime Architecture
 
-### 2.1 Models
+## 2.1 Routing and Middleware
 
-Domain models are located in `app/Models`:
+API routes are defined in `routes/api.php` under `Route::prefix('v1')`.
+
+- Public auth routes (`register`, `login`) are inside `throttle:6,1` middleware.
+- All other routes are inside `auth:sanctum` middleware.
+
+Implemented API controllers:
+
+- `AuthController`
+- `TesterCustomerController`
+- `TesterController`
+- `FixtureController`
+- `MaintenanceScheduleController`
+- `CalibrationScheduleController`
+- `EventLogController`
+- `SparePartController`
+
+## 2.2 Response Layer
+
+All API controllers extend `ApiController`.
+
+`ApiController` centralizes three response helpers:
+
+- `success(message, data, code)`
+- `error(message, code, errors)`
+- `paginated(message, paginator, code)`
+
+Paginated responses always use:
+
+- `data.items`
+- `data.pagination.current_page`
+- `data.pagination.per_page`
+- `data.pagination.total`
+- `data.pagination.last_page`
+
+## 2.3 Validation Layer
+
+FormRequest classes exist in `app/Http/Requests/Api` for list/store/update/complete actions.
+
+Important implementation detail:
+
+- Most resources use FormRequest directly in controller method signatures.
+- `TesterController` and `FixtureController` use inline `$request->validate(...)` for store/update, while still using FormRequest for list/status where applicable.
+
+## 2.4 Authorization Layer
+
+Policies are mapped in `AppServiceProvider` using `Gate::policy(...)`.
+
+Policy classes used by API:
+
+- `TesterCustomerPolicy`
+- `TesterPolicy`
+- `FixturePolicy`
+- `MaintenanceSchedulePolicy`
+- `CalibrationSchedulePolicy`
+- `EventLogPolicy`
+- `SparePartPolicy`
+
+`BasePolicy` provides alias-aware role checks through `hasAnyRole()`.
+
+## 2.5 Exception Rendering
+
+`bootstrap/app.php` defines API-specific JSON exception handlers for requests matching `api/*`:
+
+- `ValidationException` -> `422` with `errors`
+- `AuthenticationException` -> `401`
+- `AuthorizationException` -> `403`
+- `ModelNotFoundException` and `NotFoundHttpException` -> `404`
+- Fallback `Throwable` -> HTTP status from exception or `500`
+
+Fallback mapping also includes user-facing messages for `405` and `429`.
+
+## 3. Domain Models Used by API
+
+Core models used by controllers:
 
 - `TesterCustomer`
 - `Tester`
 - `Fixture`
-- `MaintenanceSchedule`
-- `CalibrationSchedule`
-- `EventLog`
+- `TesterMaintenanceSchedule`
+- `TesterCalibrationSchedule`
+- `TesterEventLog`
 - `SparePart`
+- `User`
 
-Each model defines:
+Notable implementation characteristics:
 
-- fillable fields
-- casts
-- relationships
+- Several models run with `public $timestamps = false` due legacy schema.
+- Controllers map API-facing fields into legacy column names, for example:
+	- tester `customer_id` -> `owner_id`
+	- tester `model` -> `name`
+	- tester `serial_number` -> `id_number_by_customer`
+	- fixture `serial_number/purchase_date/notes` are stored in `fixtures.description` as JSON metadata
+- Lookup tables are used at runtime (`asset_statuses`, `schedule_statuses`, `event_types`, procedure tables, location table).
 
-### 2.2 Controllers
+## 4. Implemented Business Flows
 
-API controllers are in `app/Http/Controllers/Api` and extend `ApiController`.
+## 4.1 Auth Flow
 
-`ApiController` provides:
+- Register creates a `User`, assigns `Guest` role if that role exists, creates Sanctum token, and returns token + user + roles.
+- Login validates credentials, creates Sanctum token, and returns the same envelope shape.
+- Logout deletes the current access token.
 
-- standardized success responses
-- standardized error responses
-- standardized paginated responses
+## 4.2 Customer CRUD
 
-### 2.3 Request Validation
+- Create/update uses validated payload from FormRequest.
+- Delete checks for linked testers (`owner_id`) and returns `409` conflict if linked rows exist.
 
-FormRequest classes are in `app/Http/Requests/Api`.
+## 4.3 Tester CRUD and Status
 
-Rules are split by operation:
+- List endpoint supports filters and transforms DB rows into legacy-compatible API payloads.
+- Store/update map modern request keys to legacy columns.
+- Serial number uniqueness is enforced by custom controller check against `id_number_by_customer`.
+- Location names are resolved to `tester_and_fixture_locations`; missing location names are inserted automatically.
+- `PATCH /testers/{tester}/status` resolves status name to lookup ID and updates tester status.
+- Delete writes a `DataChangeLog` entry after deletion.
 
-- list requests for query params
-- store requests for create payloads
-- update requests for patch payloads
-- custom action requests (status/complete)
+## 4.4 Fixture CRUD
 
-### 2.4 Policies
+- Similar mapping pattern to testers.
+- Serial number uniqueness is checked by searching serialized metadata in `fixtures.description`.
+- Metadata helper methods:
+	- `decodeFixtureLegacyMeta()`
+	- `encodeFixtureLegacyMeta()`
 
-Policies are in `app/Policies` and mapped in `AppServiceProvider`.
+## 4.5 Maintenance Schedule Flow
 
-`BasePolicy` centralizes alias-compatible role checks:
+- List supports tester/status/date filters.
+- Store resolves maintenance procedure by name; inserts a new procedure if missing.
+- Update supports partial payload updates and status transitions.
+- Complete action:
+	- resolves actor user
+	- marks schedule as completed
+	- writes a `tester_event_logs` row with event type `maintenance`
 
-- `admin` <-> `Admin`
-- `manager` <-> `Manager` and `Maintenance Technician`
-- `technician` <-> `Technician` and `Calibration Specialist`
-- `guest` <-> `Guest`
+## 4.6 Calibration Schedule Flow
 
-## 3. Request Lifecycle
+- Mirrors maintenance flow with calibration tables/columns.
+- Complete action writes event log with event type `calibration`.
 
-1. Route receives request (`routes/api.php`, `/api/v1`)
-2. Middleware checks rate limits / token auth
-3. FormRequest validates input
-4. Controller calls policy authorization
-5. Controller executes business logic
-6. API returns envelope response
+## 4.7 Event Log CRUD
 
-## 4. Error Handling
+- Supported operations are `index`, `store`, `show`, `update`, `destroy`.
+- Event type is resolved from `event_types` table.
+- `event_date` normalization:
+	- `issue`/`problem` types use start-of-day timestamp
+	- other types use end-of-day timestamp
+- `performed_by` is optional when authenticated user exists; otherwise controller attempts mapping by full name or email.
+- Metadata currently maps these optional DB fields:
+	- `maintenance_schedule_id`
+	- `calibration_schedule_id`
+	- `resolution_description`
 
-`bootstrap/app.php` defines API-only exception rendering:
+## 4.8 Spare Part CRUD
 
-- `ValidationException` -> 422 + `errors`
-- `AuthenticationException` -> 401
-- `AuthorizationException` -> 403
-- `ModelNotFoundException`/`NotFoundHttpException` -> 404
-- fallback `Throwable` -> 500
+- Standard FormRequest-backed CRUD.
+- List supports search and stock bucket filter (`low|normal|full`).
+- Model appends computed `stock_status` attribute.
 
-All responses keep the same envelope contract.
+## 5. Roles and Permissions in Seed Data
 
-## 5. Business Flows
+`RoleSeeder` creates these roles:
 
-### 5.1 Tester Status Transition
+- `Admin`
+- `Manager`
+- `Maintenance Technician`
+- `Calibration Specialist`
+- `Guest`
 
-Endpoint: `PATCH /api/v1/testers/{tester}/status`
-
-Validation:
-
-- `status` required
-- values: `active|inactive|maintenance`
-
-Authorization:
-
-- admin or manager only
-
-### 5.2 Complete Maintenance
-
-Endpoint: `POST /api/v1/maintenance-schedules/{maintenanceSchedule}/complete`
-
-Behavior:
-
-- updates schedule status to `completed`
-- stores completed date, performer, notes
-- writes an `event_logs` record of type `maintenance`
-
-### 5.3 Complete Calibration
-
-Endpoint: `POST /api/v1/calibration-schedules/{calibrationSchedule}/complete`
-
-Behavior:
-
-- updates schedule status to `completed`
-- stores completed date, performer, notes
-- writes an `event_logs` record of type `calibration`
-
-## 6. Database and Seeders
-
-### 6.1 New Tables
-
-- `personal_access_tokens`
-- `tester_customers`
-- `testers`
-- `fixtures`
-- `maintenance_schedules`
-- `calibration_schedules`
-- `event_logs`
-- `spare_parts`
-
-### 6.2 Seeders
-
-- `RoleSeeder` creates roles and default users
-- `DatabaseSeeder` ensures a default test account exists
-
-Default role-compatible accounts:
+`RoleSeeder` also creates default users:
 
 - `admin@example.com`
 - `manager@example.com`
@@ -138,26 +184,38 @@ Default role-compatible accounts:
 - `guest@example.com`
 - `test@example.com`
 
-## 7. Extension Checklist
+## 6. Test Coverage Relevant to API
+
+Current API-focused feature tests include:
+
+- `ApiSmokeTest`
+	- register returns token envelope
+	- protected endpoint requires auth
+	- admin customer CRUD
+	- guest cannot create customer
+	- completing maintenance creates event log row
+- `IssueEventLogHistoryTest`
+	- issue create/update/delete flows do not write legacy history rows
+
+## 7. Extension Checklist (Aligned to Current Code)
 
 When adding a new API resource:
 
-1. Create migration and model with relationships
-2. Create FormRequest classes for list/store/update/custom actions
-3. Create policy and map it in `AppServiceProvider`
-4. Add controller with `authorize()` checks
-5. Add routes under `/api/v1` with `auth:sanctum`
-6. Update `docs/API_DESIGN.md`
-7. Add request examples to Postman collection
+1. Add/adjust database schema and model mapping for legacy column names if needed.
+2. Create FormRequest classes (or follow existing inline validation pattern intentionally).
+3. Add policy class and register it in `AppServiceProvider`.
+4. Implement controller methods with explicit `$this->authorize(...)` calls.
+5. Add route definitions in `routes/api.php` under `/api/v1` and correct middleware groups.
+6. Return responses only through `ApiController` helper methods to keep envelope consistency.
+7. Update both API documents and add/extend feature tests in `tests/Feature/Api`.
 
-## 8. Local Verification Commands
+## 8. Verification Commands
 
 ```bash
 php artisan migrate
 php artisan db:seed
 php artisan route:list --path=api
 php artisan test --filter=ApiSmokeTest
+php artisan test --filter=IssueEventLogHistoryTest
 php artisan test
 ```
-
-If full test suite cannot run due environment limitations, at minimum run route list and migration checks.
