@@ -89,6 +89,7 @@
                         <livewire:components.multiple-choice-selector
                             :selectedIds="$form->responsible_user_ids"
                             :users="$users"
+                            placeholder="Select responsible user"
                         />
                         <x-input-error :messages="$errors->get('form.responsible_user_ids')" />
                     </div>

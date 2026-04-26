@@ -10,11 +10,13 @@ class MultipleChoiceSelector extends Component
     public array $selectedIds = [];
 
     public $users = [];
+    public string $placeholder = 'Select recipient';
 
-    public function mount($selectedIds = [], $users = null)
+    public function mount($selectedIds = [], $users = null, $placeholder = null)
     {
         $this->users = $users ?? User::all();
         $this->selectedIds = $selectedIds;
+        $this->placeholder = $placeholder ?? $this->placeholder;
     }
 
     public function addRecipient($userId)

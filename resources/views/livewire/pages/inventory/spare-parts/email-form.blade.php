@@ -25,6 +25,7 @@
                     <livewire:components.multiple-choice-selector
                         :selectedIds="$form->responsible_user_ids"
                         :users="$users"
+                        placeholder="Select recipient"
                     />
                     <x-input-error :messages="$errors->get('form.responsible_user_ids')" />
                     <p class="mt-2 text-sm text-gray-500"> Recipients are pre-selected based on possible users assigned as responsible for this spare part.</p>
