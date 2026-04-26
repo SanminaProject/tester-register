@@ -34,7 +34,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
                     <input type="text"
                         wire:model="form.subject"
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200" />
+                        class="w-full border-gray-300 rounded-md shadow-smfocus:outline-none focus:ring-gray-400 focus:border-none" />
                     <x-input-error :messages="$errors->get('form.subject')" />
                 </div>
 
@@ -44,7 +44,7 @@
                     <textarea
                         wire:model="form.body"
                         rows="8"
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200"
+                        class="w-full border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-400 focus:border-none"
                     ></textarea>
                     <x-input-error :messages="$errors->get('form.body')" />
                 </div>
