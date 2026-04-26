@@ -94,7 +94,7 @@ class ActiveIssuesSeeder extends Seeder
 
             $rows[] = [
                 'date' => $occurredAt->format('Y-m-d H:i:s'),
-                'description' => '[SEED][ACTIVE] ' . $templates[$i],
+                'description' => $templates[$i],
                 'tester_id' => $testerId,
                 'event_type' => $problemTypeId,
                 'created_by_user_id' => $userId,
