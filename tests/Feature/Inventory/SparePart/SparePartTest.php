@@ -5,6 +5,7 @@ namespace Tests\Feature\Inventory\SparePart;
 use App\Livewire\Pages\Inventory\SpareParts\SparePartDetails;
 use App\Livewire\Pages\Inventory\SpareParts\SparePartLogging;
 use App\Livewire\Pages\Inventory\SpareParts\SparePartsTable;
+use App\Livewire\Pages\Inventory\InventoryPage;
 use App\Models\TesterSparePart;
 use App\Models\TesterSparePartSupplier;
 use App\Models\Tester;
@@ -34,6 +35,15 @@ class SparePartTest extends TestCase
         $this->supplier = TesterSparePartSupplier::factory()->create();
 
         $this->adminUser->assignRole('Admin');
+    }
+
+    public function test_inventory_page_loads(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        $this->get('/inventory')
+            ->assertOk()
+            ->assertSeeLivewire(InventoryPage::class);
     }
 
     public function test_spare_parts_table_displays_spare_part_data(): void
