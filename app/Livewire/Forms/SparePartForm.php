@@ -11,12 +11,12 @@ class SparePartForm extends Form
     public ?TesterSparePart $sparePart = null;
 
     public string $name = '';
-    public string $manufacturer_part_number = '';
+    public ?string $manufacturer_part_number = null;
     public ?int $quantity_in_stock = null;
     public ?int $reorder_level = null;
     public ?string $last_order_date = null;
-    public float $unit_price = 0;
-    public string $description = '';
+    public ?float $unit_price = null;
+    public ?string $description = null;
     public ?int $tester_id = null;
     public ?int $supplier_id = null;
     public array $responsible_user_ids = [];
@@ -29,11 +29,12 @@ class SparePartForm extends Form
             'quantity_in_stock' => 'required|integer|min:0',
             'reorder_level' => 'required|integer|min:0',
             'last_order_date' => 'nullable|date',
-            'unit_price' => 'required|numeric|min:0',
+            'unit_price' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'tester_id' => 'required|exists:testers,id',
-            'supplier_id' => 'required|exists:tester_spare_part_suppliers,id',
-            'responsible_user_ids' => 'array|exists:users,id',
+            'supplier_id' => 'nullable|exists:tester_spare_part_suppliers,id',
+            'responsible_user_ids' => 'array',
+            'responsible_user_ids.*' => 'exists:users,id',
         ];
     }
 

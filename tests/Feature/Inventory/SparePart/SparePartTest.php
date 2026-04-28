@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Inventory;
+namespace Tests\Feature\Inventory\SparePart;
 
 use App\Livewire\Pages\Inventory\SpareParts\SparePartDetails;
 use App\Livewire\Pages\Inventory\SpareParts\SparePartLogging;
@@ -79,19 +79,77 @@ class SparePartTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_edit_spare_part(): void
+    public function test_spare_part_form_validates_required_fields_with_min(): void
     {
         $this->actingAs($this->adminUser);
 
+        Livewire::test(SparePartLogging::class)
+            ->set('form.name', 'Name')
+            ->set('form.quantity_in_stock', -1)
+            ->set('form.reorder_level', -1)
+            ->set('form.unit_price', -10)
+            ->set('form.tester_id', $this->tester->id)
+            ->call('save')
+            ->assertHasErrors([
+                'form.quantity_in_stock' => 'min',
+                'form.reorder_level' => 'min',
+                'form.unit_price' => 'min',
+            ]);
+    }
+
+    public function test_spare_part_form_validates_required_fields(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        Livewire::test(SparePartLogging::class)
+            ->set('form.name', '')
+            ->set('form.quantity_in_stock', null)
+            ->set('form.reorder_level', null)
+            ->set('form.tester_id', null)
+            ->call('save')
+            ->assertHasErrors([
+                'form.name' => 'required',
+                'form.quantity_in_stock' => 'required',
+                'form.reorder_level' => 'required',
+                'form.tester_id' => 'required',
+            ]);
+    }
+
+    public function test_nullable_fields_can_be_null(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        Livewire::test(SparePartLogging::class)
+            ->set('form.name', 'Test Part')
+            ->set('form.quantity_in_stock', 1)
+            ->set('form.reorder_level', 1)
+            ->set('form.tester_id', $this->tester->id)
+            ->set('form.manufacturer_part_number', null)
+            ->set('form.last_order_date', null)
+            ->set('form.unit_price', null)
+            ->set('form.description', null)
+            ->set('form.supplier_id', null)
+            ->call('save')
+            ->assertHasNoErrors();
+    }
+
+    public function test_admin_can_edit_spare_part(): void
+    {
+        $sparePart = TesterSparePart::factory()->create([
+            'name' => 'Old Name',
+        ]);
+
+        $this->actingAs($this->adminUser);
+
         Livewire::test(SparePartLogging::class, [
-            'sparePartId' => $this->sparePart->id,
+            'sparePartId' => $sparePart->id,
         ])
             ->set('form.name', 'Updated Name')
             ->call('save')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('tester_spare_parts', [
-            'id' => $this->sparePart->id,
+            'id' => $sparePart->id,
             'name' => 'Updated Name',
         ]);
     }
@@ -114,14 +172,15 @@ class SparePartTest extends TestCase
     public function test_non_admin_cannot_delete_spare_part(): void
     {
         $this->actingAs($this->normalUser);
+        $sparePart = TesterSparePart::factory()->create();
 
         Livewire::test(SparePartDetails::class, [
-            'sparePartId' => $this->sparePart->id,
+            'sparePartId' => $sparePart->id,
         ])
             ->call('deleteSparePart');
 
         $this->assertDatabaseHas('tester_spare_parts', [
-            'id' => $this->sparePart->id,
+            'id' => $sparePart->id,
         ]);
     }
 }
