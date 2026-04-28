@@ -13,10 +13,10 @@ class TesterSparePartSupplierFactory extends Factory
     {
         return [
             'supplier_name' => fake()->company(),
-            'contact_person' => fake()->name(),
-            'contact_email' => fake()->email(),
-            'contact_phone' => fake()->phoneNumber(),
-            'address' => fake()->address(),
+            'contact_person' => fake()->optional()->name(),
+            'contact_email' => fake()->optional()->email(),
+            'contact_phone' => fake()->optional()->phoneNumber(),
+            'address' => fake()->optional()->address(),
         ];
     }
 }

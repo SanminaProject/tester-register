@@ -10,10 +10,10 @@ class SupplierForm extends Form
     public ?TesterSparePartSupplier $supplier = null;
 
     public string $supplier_name = '';
-    public string $contact_person = '';
-    public string $contact_email = '';
-    public string $contact_phone = '';
-    public string $address = '';
+    public ?string $contact_person = null;
+    public ?string $contact_email = null;
+    public ?string $contact_phone = null;
+    public ?string $address = null;
 
     protected function rules()
     {

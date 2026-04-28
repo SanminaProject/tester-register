@@ -97,6 +97,8 @@ class SparePartTest extends TestCase
             ]);
     }
 
+    // test about what fields are required and checking that they are required?
+
     public function test_spare_part_form_validates_required_fields(): void
     {
         $this->actingAs($this->adminUser);
@@ -181,6 +183,65 @@ class SparePartTest extends TestCase
 
         $this->assertDatabaseHas('tester_spare_parts', [
             'id' => $sparePart->id,
+        ]);
+    }
+
+    public function test_creating_spare_part_creates_data_change_log(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        Livewire::test(SparePartLogging::class)
+            ->set('form.name', 'Logged Spare Part')
+            ->set('form.quantity_in_stock', 10)
+            ->set('form.reorder_level', 2)
+            ->set('form.tester_id', $this->tester->id)
+            ->call('save');
+
+        $this->assertDatabaseHas('data_change_logs', [
+            'explanation' => 'Added new spare part: Logged Spare Part',
+        ]);
+    }
+
+    public function test_updating_spare_part_creates_data_change_log(): void
+    {
+        $sparePart = TesterSparePart::factory()->create([
+            'name' => 'Original Part',
+            'quantity_in_stock' => 5,
+            'reorder_level' => 1,
+            'tester_id' => $this->tester->id,
+        ]);
+
+        $this->actingAs($this->adminUser);
+
+        Livewire::test(SparePartLogging::class, [
+            'sparePartId' => $sparePart->id,
+        ])
+            ->set('form.name', 'Updated Part')
+            ->call('save');
+
+        $this->assertDatabaseHas('data_change_logs', [
+            'spare_part_id' => $sparePart->id,
+            'explanation' => 'Edited spare part details:' . "\n" . '- name: [Original Part] -> [Updated Part]',
+        ]);
+
+        $this->assertDatabaseCount('data_change_logs', 1);
+    }
+
+    public function test_deleting_spare_part_creates_data_change_log(): void
+    {
+        $sparePart = TesterSparePart::factory()->create([
+            'name' => 'Delete Me',
+        ]);
+
+        $this->actingAs($this->adminUser);
+
+        Livewire::test(SparePartDetails::class, [
+            'sparePartId' => $sparePart->id,
+        ])
+            ->call('deleteSparePart');
+
+        $this->assertDatabaseHas('data_change_logs', [
+            'explanation' => 'Deleted spare part [ID: ' . $sparePart->id . '] - Name: Delete Me',
         ]);
     }
 }

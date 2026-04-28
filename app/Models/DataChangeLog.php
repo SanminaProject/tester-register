@@ -68,14 +68,34 @@ class DataChangeLog extends Model
 
     public function getEntityIdAttribute()
     {
-        return $this->spare_part_id 
-            ?? $this->spare_part_supplier_id;
+        if ($this->spare_part_id) return $this->spare_part_id;
+        if ($this->spare_part_supplier_id) return $this->spare_part_supplier_id;
+
+        if (preg_match('/Deleted (spare part|supplier) \\[ID: (\\d+)\\]/i', $this->explanation, $matches)) {
+            return $matches[2];
+        }
+
+        return null;
     }
 
     public function getEntityNameAttribute()
     {
-        return $this->spare_part?->name
-            ?? $this->spare_part_supplier?->supplier_name
-            ?? '—';
+        if ($this->spare_part?->name) {
+            return $this->spare_part->name;
+        }
+
+        if ($this->spare_part_supplier?->supplier_name) {
+            return $this->spare_part_supplier->supplier_name;
+        }
+
+        if (preg_match('/Deleted supplier \[ID: \d+\] - Name: (.+)/i', $this->explanation, $matches)) {
+            return $matches[1];
+        }
+
+        if (preg_match('/Deleted spare part \[ID: \d+\] - Name: (.+)/i', $this->explanation, $matches)) {
+            return $matches[1];
+        }
+
+        return '—';
     }
 }

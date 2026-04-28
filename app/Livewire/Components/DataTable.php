@@ -568,7 +568,8 @@ class DataTable extends Component
             'inventory-audit-logs' => $query->where(function($q) {
                 $q->whereNotNull('spare_part_id')
                   ->orWhereNotNull('spare_part_supplier_id')
-                  ->orWhere('explanation', 'like', '%spare part%');
+                  ->orWhere('explanation', 'like', '%spare part%')
+                  ->orWhere('explanation', 'like', '%supplier%');
             }),
             'issues' => $query->activeIssueRows()->orderByDesc('date'),
             'issue-history' => $query
