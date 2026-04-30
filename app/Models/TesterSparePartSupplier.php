@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TesterSparePartSupplier extends Model
 {
+    use HasFactory;
+
     protected $table = 'tester_spare_part_suppliers';
     public $timestamps = false;
 

@@ -33,7 +33,7 @@ class SupplierDetails extends Component
 
         DataChangeLog::create([
             'changed_at' => now(),
-            'explanation' => "Deleted spare part supplier [ID: {$sparePartSupplierId}] - Name: {$sparePartSupplierName}",
+            'explanation' => "Deleted supplier [ID: {$sparePartSupplierId}] - Name: {$sparePartSupplierName}",
             'spare_part_supplier_id' => $sparePartSupplierId,
             'user_id' => auth()->id() ?? 1,
         ]);
