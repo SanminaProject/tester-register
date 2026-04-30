@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Fixtures;
+namespace Tests\Feature;
 
 use App\Livewire\Pages\Fixtures\FixturePage;
 use App\Livewire\Pages\Fixtures\FixtureTable;

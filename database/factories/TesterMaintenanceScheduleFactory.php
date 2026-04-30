@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\TesterMaintenanceSchedule;
+use App\Models\TesterMaintenanceProcedure;
+use App\Models\ScheduleStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Carbon\Carbon;
 use App\Models\Tester;
@@ -24,8 +26,8 @@ class TesterMaintenanceScheduleFactory extends Factory
 
             // relationships
             'tester_id' => Tester::factory(),
-            'maintenance_id' => DB::table('tester_maintenance_procedures')->inRandomOrder()->value('id'),
-            'maintenance_status' => DB::table('schedule_statuses')->inRandomOrder()->value('id'),
+            'maintenance_id' => TesterMaintenanceProcedure::factory(),
+            'maintenance_status' => ScheduleStatus::factory(),
             'last_maintenance_by_user_id' => User::factory(),
             'next_maintenance_by_user_id' => User::factory(),
         ];
