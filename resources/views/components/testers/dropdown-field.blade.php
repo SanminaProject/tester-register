@@ -10,9 +10,7 @@
 <div>
     <label class="block text-[15px] font-semibold text-gray-800 mb-2">{{ $label }}</label>
     <select {{ $attributes->merge(['class' => 'w-full bg-light-grey border-none text-black focus:border-highlight focus:ring-highlight rounded-[30px] shadow-sm px-5 py-2.5 text-sm transition']) }}>
-        @if($placeholder !== '')
-        <option value="">{{ $placeholder }}</option>
-        @endif
+        <option value="">-</option>
 
         @php
         $optionItems = is_iterable($options) ? $options : [];

@@ -48,24 +48,23 @@
 
         @if($editing)
         <div class="mt-8 pl-12">
-            <x-select-field
+            <x-testers.dropdown-field
                 label="Role"
                 wire:model="selectedRoleName"
                 :options="$roles"
                 valueKey="name"
                 labelKey="name"
+                class="w-64"
             />
 
-            <div class="mt-4 flex gap-2">
+            <div class="mt-8 flex items-center gap-6">
                 <x-primary-button wire:click="updatePersonnelRole">
                     Save
                 </x-primary-button>
 
-                <x-primary-button 
-                    wire:click="removePersonnelRole"
-                    class="bg-gray-300 text-black hover:bg-gray-400">
+                <button type="button" wire:click="removePersonnelRole" class="text-red-600 underline font-medium bg-transparent p-0 hover:text-red-800">
                     Remove Role
-                </x-primary-button>
+                </button>
             </div>
         </div>
         @endif
