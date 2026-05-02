@@ -11,4 +11,12 @@ class TesterAndFixtureLocation extends Model
 
     protected $table = 'tester_and_fixture_locations';
     public $timestamps = false;
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+    ];
 }

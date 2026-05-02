@@ -125,7 +125,16 @@ $displayPlaceholder = filled($placeholder) ? $placeholder : '-';
                 setSelected(value, closeList = true) {
                     this.selectedValue = value === null || value === undefined ? '' : String(value);
                     this.$refs.modelInput.value = this.selectedValue;
-                    this.$refs.modelInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    
+                    // Use Livewire's direct property update to ensure wire:model syncs
+                    const inputName = this.$refs.modelInput.getAttribute('wire:model') || 
+                                     this.$refs.modelInput.getAttribute('name');
+                    if (inputName && typeof $wire !== 'undefined') {
+                        $wire.set(inputName, this.selectedValue);
+                    } else {
+                        // Fallback: dispatch input event
+                        this.$refs.modelInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
 
                     if (closeList) {
                         this.open = false;

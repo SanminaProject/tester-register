@@ -19,9 +19,12 @@
                 Saved.
             </x-action-message>
 
-            <x-primary-button type="submit" class="bg-primary hover:bg-[#8A0028] text-white text-[15px] font-medium px-8 py-2 md:py-2.5 rounded-full transition-colors flex-shrink-0">
+            <button
+                class="bg-primary hover:bg-[#8A0028] text-white text-[15px] font-medium px-8 py-2 md:py-2.5 rounded-full transition-colors flex-shrink-0"
+                wire:click="save"
+                type="button">
                 Save
-            </x-primary-button>
+            </button>
         </div>
     </div>
 
