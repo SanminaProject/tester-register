@@ -7,6 +7,10 @@ use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\WithFileUploads;
 use App\Models\Tester;
+use App\Models\Fixture;
+use App\Models\TesterCustomer;
+use App\Models\TesterAndFixtureLocation;
+use App\Models\AssetStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -65,7 +69,9 @@ class AddNewTester extends Component
             $this->location_id = $tester->location_id;
             $this->status_id = $tester->status;
             $this->additional_info = $tester->additional_info;
-            $this->implementation_date = $tester->implementation_date ? $tester->implementation_date->format('Y-m-d') : null;
+            $this->implementation_date = $tester->implementation_date instanceof \DateTimeInterface
+                ? $tester->implementation_date->format('Y-m-d')
+                : null;
 
             if ($tester->assets->count() > 0) {
                 $this->asset_nos = $tester->assets->pluck('asset_no')->toArray();
@@ -76,9 +82,9 @@ class AddNewTester extends Component
             $this->tester_id = ($latest->id ?? 0) + 1;
         }
 
-        $this->owners = \App\Models\TesterCustomer::all();
-        $this->locations = \App\Models\TesterAndFixtureLocation::all();
-        $this->statuses = \App\Models\AssetStatus::all();
+        $this->owners = TesterCustomer::all();
+        $this->locations = TesterAndFixtureLocation::all();
+        $this->statuses = AssetStatus::all();
         $this->families = $this->getDistinctTesterOptions('product_family');
         $this->types = $this->getDistinctTesterOptions('type');
         $this->manufacturers = $this->getDistinctTesterOptions('manufacturer');
@@ -94,6 +100,283 @@ class AddNewTester extends Component
             ->orderBy($column)
             ->pluck($column)
             ->toArray();
+    }
+
+    public function createOwnerOption(string $value): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $value = trim($value);
+
+        if ($value === '') {
+            return;
+        }
+
+        $owner = TesterCustomer::firstOrCreate(['name' => $value]);
+
+        $this->owners = TesterCustomer::orderBy('name')->get();
+        $this->owner_id = $owner->id;
+
+        $this->dispatch('dropdown-option-created',
+            optionId: (string) $owner->id,
+            optionLabel: $owner->name,
+            createMethod: 'createOwnerOption'
+        );
+
+        session()->flash('message', 'Owner added successfully.');
+    }
+
+    public function deleteOwnerOption(int $id): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $owner = TesterCustomer::find($id);
+        if (! $owner) {
+            return;
+        }
+
+        // Prevent deletion if any tester is using this owner
+        if (Tester::where('owner_id', $id)->exists()) {
+            $this->dispatch('dropdown-option-delete-failed',
+                deleteMethod: 'deleteOwnerOption',
+                message: 'This option is already used by tester(s), so it cannot be deleted.'
+            );
+            session()->flash('error', 'Option is in use and cannot be deleted.');
+            return;
+        }
+
+        try {
+            $owner->delete();
+            $this->owners = TesterCustomer::orderBy('name')->get();
+
+            if ($this->owner_id == $id) {
+                $this->owner_id = null;
+            }
+
+            $this->dispatch('dropdown-option-deleted',
+                optionId: (string) $id,
+                deleteMethod: 'deleteOwnerOption'
+            );
+
+            session()->flash('message', 'Owner deleted successfully.');
+        } catch (\Throwable $e) {
+            $this->dispatch('dropdown-option-delete-failed',
+                deleteMethod: 'deleteOwnerOption',
+                message: 'Delete failed. Please try again.'
+            );
+            session()->flash('error', 'Failed to delete option.');
+        }
+    }
+
+    public function createLocationOption(string $value): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        $location = TesterAndFixtureLocation::firstOrCreate(['name' => $value]);
+        $this->locations = TesterAndFixtureLocation::orderBy('name')->get();
+        $this->location_id = $location->id;
+
+        $this->dispatch('dropdown-option-created',
+            optionId: (string) $location->id,
+            optionLabel: $location->name,
+            createMethod: 'createLocationOption'
+        );
+    }
+
+    public function deleteLocationOption(int $id): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $location = TesterAndFixtureLocation::find($id);
+        if (! $location) {
+            return;
+        }
+
+        if (Tester::where('location_id', $id)->exists() || Fixture::where('location_id', $id)->exists()) {
+            $this->dispatch('dropdown-option-delete-failed',
+                deleteMethod: 'deleteLocationOption',
+                message: 'This option is already in use and cannot be deleted.'
+            );
+            return;
+        }
+
+        $location->delete();
+        $this->locations = TesterAndFixtureLocation::orderBy('name')->get();
+
+        if ($this->location_id == $id) {
+            $this->location_id = null;
+        }
+
+        $this->dispatch('dropdown-option-deleted',
+            optionId: (string) $id,
+            deleteMethod: 'deleteLocationOption'
+        );
+    }
+
+    public function createStatusOption(string $value): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        $status = AssetStatus::firstOrCreate(['name' => $value]);
+        $this->statuses = AssetStatus::orderBy('name')->get();
+        $this->status_id = $status->id;
+
+        $this->dispatch('dropdown-option-created',
+            optionId: (string) $status->id,
+            optionLabel: $status->name,
+            createMethod: 'createStatusOption'
+        );
+    }
+
+    public function deleteStatusOption(int $id): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $status = AssetStatus::find($id);
+        if (! $status) {
+            return;
+        }
+
+        if (Tester::where('status', $id)->exists() || Fixture::where('fixture_status', $id)->exists()) {
+            $this->dispatch('dropdown-option-delete-failed',
+                deleteMethod: 'deleteStatusOption',
+                message: 'This option is already in use and cannot be deleted.'
+            );
+            return;
+        }
+
+        $status->delete();
+        $this->statuses = AssetStatus::orderBy('name')->get();
+
+        if ($this->status_id == $id) {
+            $this->status_id = null;
+        }
+
+        $this->dispatch('dropdown-option-deleted',
+            optionId: (string) $id,
+            deleteMethod: 'deleteStatusOption'
+        );
+    }
+
+    public function createProductFamilyOption(string $value): void
+    {
+        $this->createDistinctStringOption($value, 'families', 'createProductFamilyOption');
+        $this->product_family = trim($value);
+    }
+
+    public function deleteProductFamilyOption(string $value): void
+    {
+        $this->deleteDistinctStringOption($value, 'families', 'product_family', 'deleteProductFamilyOption');
+    }
+
+    public function createTypeOption(string $value): void
+    {
+        $this->createDistinctStringOption($value, 'types', 'createTypeOption');
+        $this->type = trim($value);
+    }
+
+    public function deleteTypeOption(string $value): void
+    {
+        $this->deleteDistinctStringOption($value, 'types', 'type', 'deleteTypeOption');
+    }
+
+    public function createManufacturerOption(string $value): void
+    {
+        $this->createDistinctStringOption($value, 'manufacturers', 'createManufacturerOption');
+        $this->manufacturer = trim($value);
+    }
+
+    public function deleteManufacturerOption(string $value): void
+    {
+        $this->deleteDistinctStringOption($value, 'manufacturers', 'manufacturer', 'deleteManufacturerOption');
+    }
+
+    public function createOperatingSystemOption(string $value): void
+    {
+        $this->createDistinctStringOption($value, 'os_versions', 'createOperatingSystemOption');
+        $this->operating_system = trim($value);
+    }
+
+    public function deleteOperatingSystemOption(string $value): void
+    {
+        $this->deleteDistinctStringOption($value, 'os_versions', 'operating_system', 'deleteOperatingSystemOption');
+    }
+
+    private function createDistinctStringOption(string $value, string $listProperty, string $createMethod): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        $list = $this->{$listProperty};
+        $exists = collect($list)->contains(fn ($item) => strcasecmp((string) $item, $value) === 0);
+        if (! $exists) {
+            $list[] = $value;
+            usort($list, fn ($a, $b) => strcasecmp((string) $a, (string) $b));
+            $this->{$listProperty} = $list;
+        }
+
+        $this->dispatch('dropdown-option-created',
+            optionId: $value,
+            optionLabel: $value,
+            createMethod: $createMethod
+        );
+    }
+
+    private function deleteDistinctStringOption(string $value, string $listProperty, string $column, string $deleteMethod): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        if (Tester::where($column, $value)->exists()) {
+            $this->dispatch('dropdown-option-delete-failed',
+                deleteMethod: $deleteMethod,
+                message: 'This option is already in use and cannot be deleted.'
+            );
+            return;
+        }
+
+        $this->{$listProperty} = array_values(array_filter($this->{$listProperty}, function ($item) use ($value) {
+            return strcasecmp((string) $item, $value) !== 0;
+        }));
+
+        $this->dispatch('dropdown-option-deleted',
+            optionId: $value,
+            deleteMethod: $deleteMethod
+        );
     }
 
     public function updatedSearchQuery()
@@ -125,7 +408,7 @@ class AddNewTester extends Component
             $this->type                = $existing->type;
             $this->manufacturer        = $existing->manufacturer;
             $this->operating_system    = $existing->operating_system;
-            $this->implementation_date = $existing->implementation_date
+            $this->implementation_date = $existing->implementation_date instanceof \DateTimeInterface
                 ? $existing->implementation_date->format('Y-m-d')
                 : null;
             $this->additional_info     = $existing->additional_info;

@@ -47,17 +47,17 @@
                     </div>
 
                     <div>
-                        <x-testers.dropdown-field label="Manufacturer" :options="$manufacturers" placeholder="" wire:model="form.manufacturer" />
+                        <x-testers.dropdown-field label="Manufacturer" :options="$manufacturers" placeholder="" wire:model="form.manufacturer" :manageOptions="true" :allowCreate="true" createMethod="createManufacturerOption" deleteMethod="deleteManufacturerOption" />
                         <x-input-error :messages="$errors->get('form.manufacturer')" />
                     </div>
 
                     <div>
-                        <x-testers.dropdown-field label="Location" :options="$locations" placeholder="" wire:model="form.location_id" />
+                        <x-testers.dropdown-field label="Location" :options="$locations" placeholder="" wire:model="form.location_id" :manageOptions="true" :allowCreate="true" createMethod="createLocationOption" deleteMethod="deleteLocationOption" />
                         <x-input-error :messages="$errors->get('form.location_id')" />
                     </div>
 
                     <div>
-                        <x-testers.dropdown-field label="Status" :options="$statuses" placeholder="" wire:model="form.fixture_status" />
+                        <x-testers.dropdown-field label="Status" :options="$statuses" placeholder="" wire:model="form.fixture_status" :manageOptions="true" :allowCreate="true" createMethod="createStatusOption" deleteMethod="deleteStatusOption" />
                         <x-input-error :messages="$errors->get('form.fixture_status')" />
                     </div>
                 </div>

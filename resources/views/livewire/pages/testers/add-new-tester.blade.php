@@ -76,31 +76,31 @@
                 <x-testers.input-field label="*Customer ID" wire:model="id_number_by_customer" placeholder="" />
             </div>
             <div>
-                <x-testers.dropdown-field label="*Owner" :options="$owners" placeholder="" wire:model="owner_id" />
+                <x-testers.dropdown-field label="*Owner" :options="$owners" placeholder="" wire:model="owner_id" :manageOptions="true" :allowCreate="true" createMethod="createOwnerOption" deleteMethod="deleteOwnerOption" />
             </div>
 
             <!-- Row 4 -->
             <div>
-                <x-testers.dropdown-field label="*Location" :options="$locations" placeholder="" wire:model="location_id" />
+                <x-testers.dropdown-field label="*Location" :options="$locations" placeholder="" wire:model="location_id" :manageOptions="true" :allowCreate="true" createMethod="createLocationOption" deleteMethod="deleteLocationOption" />
             </div>
             <div>
-                <x-testers.dropdown-field label="*Status" :options="$statuses" placeholder="" wire:model="status_id" />
+                <x-testers.dropdown-field label="*Status" :options="$statuses" placeholder="" wire:model="status_id" :manageOptions="true" :allowCreate="true" createMethod="createStatusOption" deleteMethod="deleteStatusOption" />
             </div>
 
             <!-- Row 5 -->
             <div>
-                <x-testers.dropdown-field label="*Product Family" :options="$families" placeholder="" wire:model="product_family" />
+                <x-testers.dropdown-field label="*Product Family" :options="$families" placeholder="" wire:model="product_family" :manageOptions="true" :allowCreate="true" createMethod="createProductFamilyOption" deleteMethod="deleteProductFamilyOption" />
             </div>
             <div>
-                <x-testers.dropdown-field label="*Type" :options="$types" placeholder="" wire:model="type" />
+                <x-testers.dropdown-field label="*Type" :options="$types" placeholder="" wire:model="type" :manageOptions="true" :allowCreate="true" createMethod="createTypeOption" deleteMethod="deleteTypeOption" />
             </div>
 
             <!-- Row 6 -->
             <div>
-                <x-testers.dropdown-field label="*Manufacturer" :options="$manufacturers" placeholder="" wire:model="manufacturer" />
+                <x-testers.dropdown-field label="*Manufacturer" :options="$manufacturers" placeholder="" wire:model="manufacturer" :manageOptions="true" :allowCreate="true" createMethod="createManufacturerOption" deleteMethod="deleteManufacturerOption" />
             </div>
             <div>
-                <x-testers.dropdown-field label="*Operating System" :options="$os_versions" placeholder="" wire:model="operating_system" />
+                <x-testers.dropdown-field label="*Operating System" :options="$os_versions" placeholder="" wire:model="operating_system" :manageOptions="true" :allowCreate="true" createMethod="createOperatingSystemOption" deleteMethod="deleteOperatingSystemOption" />
             </div>
 
             <!-- Row 7 -->

@@ -95,7 +95,7 @@
                     </div>
 
                     <div>
-                        <x-testers.dropdown-field label="Supplier" :options="$suppliers" placeholder="" wire:model="form.supplier_id" />
+                        <x-testers.dropdown-field label="Supplier" :options="$suppliers" placeholder="" wire:model="form.supplier_id" :manageOptions="true" :allowCreate="true" createMethod="createSupplierOption" deleteMethod="deleteSupplierOption" />
                         <x-input-error :messages="$errors->get('form.supplier_id')" />
                     </div>
 

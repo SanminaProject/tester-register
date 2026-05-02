@@ -18,7 +18,7 @@ class PersonnelDetails extends Component
     public function mount($userId)
     {
         $this->user = User::with('roles')->findOrFail($userId);
-        $this->roles = Role::all();
+        $this->roles = Role::orderBy('name')->get();
 
         $this->selectedRoleName = $this->user->roles->first()?->name;
     }
@@ -48,6 +48,65 @@ class PersonnelDetails extends Component
         $this->user->load('roles');
         $this->selectedRoleName = null;
         $this->editing = false;
+    }
+
+    public function createRoleOption(string $value): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        $role = Role::firstOrCreate(['name' => $value, 'guard_name' => 'web']);
+        $this->roles = Role::orderBy('name')->get();
+        $this->selectedRoleName = $role->name;
+
+        $this->dispatch('dropdown-option-created',
+            optionId: $role->name,
+            optionLabel: $role->name,
+            createMethod: 'createRoleOption'
+        );
+    }
+
+    public function deleteRoleOption(string $value): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        $role = Role::where('name', $value)->first();
+        if (! $role instanceof Role) {
+            return;
+        }
+
+        if (User::role($value)->exists()) {
+            $this->dispatch('dropdown-option-delete-failed',
+                deleteMethod: 'deleteRoleOption',
+                message: 'This option is already in use and cannot be deleted.'
+            );
+            return;
+        }
+
+        $role->delete();
+        $this->roles = Role::orderBy('name')->get();
+
+        if ((string) $this->selectedRoleName === $value) {
+            $this->selectedRoleName = null;
+        }
+
+        $this->dispatch('dropdown-option-deleted',
+            optionId: $value,
+            deleteMethod: 'deleteRoleOption'
+        );
     }
 
     public function deletePersonnel()

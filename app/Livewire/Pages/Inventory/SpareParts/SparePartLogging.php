@@ -60,7 +60,7 @@ class SparePartLogging extends Component
                     ->values()
                     ->toArray();
 
-                $this->form->update($sparePart);
+                $this->form->update();
                 $sparePart->refresh();
 
                 $changes = [];
@@ -131,5 +131,57 @@ class SparePartLogging extends Component
 
         $this->dispatch('saved');
         $this->dispatch('switchTab', tab: 'spare-parts');
+    }
+
+    public function createSupplierOption(string $value): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $value = trim($value);
+        if ($value === '') {
+            return;
+        }
+
+        $supplier = TesterSparePartSupplier::firstOrCreate(['supplier_name' => $value]);
+        $this->form->supplier_id = $supplier->id;
+
+        $this->dispatch('dropdown-option-created',
+            optionId: (string) $supplier->id,
+            optionLabel: $supplier->supplier_name,
+            createMethod: 'createSupplierOption'
+        );
+    }
+
+    public function deleteSupplierOption(int $id): void
+    {
+        if (! auth()->check() || ! auth()->user()->hasRole('Admin')) {
+            return;
+        }
+
+        $supplier = TesterSparePartSupplier::find($id);
+        if (! $supplier) {
+            return;
+        }
+
+        if (TesterSparePart::where('supplier_id', $id)->exists()) {
+            $this->dispatch('dropdown-option-delete-failed',
+                deleteMethod: 'deleteSupplierOption',
+                message: 'This option is already in use and cannot be deleted.'
+            );
+            return;
+        }
+
+        $supplier->delete();
+
+        if ((int) ($this->form->supplier_id ?? 0) === $id) {
+            $this->form->supplier_id = null;
+        }
+
+        $this->dispatch('dropdown-option-deleted',
+            optionId: (string) $id,
+            deleteMethod: 'deleteSupplierOption'
+        );
     }
 }
