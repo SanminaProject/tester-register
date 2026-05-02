@@ -1,4 +1,4 @@
-<div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+<div class="flex flex-col min-h-[calc(100vh-8rem)] bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
     <div class="mb-6 flex items-center justify-between border-b border-gray-200 pb-4">
         <div class="flex items-center gap-3">
             <button
@@ -12,10 +12,7 @@
             <h2 class="text-xl font-extrabold text-black">Issue Details</h2>
         </div>
 
-        <div class="flex items-center gap-2">
-            <x-primary-button type="button" wire:click="editIssue">Edit</x-primary-button>
-            <x-danger-button type="button" wire:click="deleteIssue">Delete</x-danger-button>
-        </div>
+        <x-primary-button type="button" wire:click="editIssue" class="w-32 justify-center">Edit</x-primary-button>
     </div>
 
     @if (session()->has('message'))
@@ -57,4 +54,12 @@
             </span>
         </div>
     </div>
+
+    @if(auth()->user() && auth()->user()->hasRole('Admin'))
+    <div class="mt-auto pt-8 flex justify-end">
+        <x-danger-button type="button" wire:click="deleteIssue" class="w-32 justify-center">
+            Delete
+        </x-danger-button>
+    </div>
+    @endif
 </div>
