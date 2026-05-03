@@ -66,7 +66,34 @@ $displayPlaceholder = filled($placeholder) ? $placeholder : '-';
                     return ['value' => $optionValue, 'label' => $optionLabel];
                 })->values()->all()),
                 init() {
+                    // Read initial value from hidden input
                     this.selectedValue = String(this.$refs.modelInput.value ?? '');
+                    
+                    // Wait for Livewire to populate the value in edit mode
+                    this.$nextTick(() => {
+                        this.selectedValue = String(this.$refs.modelInput.value ?? '');
+                    });
+                    
+                    // Listen to Livewire updates to sync selectedValue
+                    this.$refs.modelInput.addEventListener('input', (e) => {
+                        this.selectedValue = String(e.target.value ?? '');
+                    });
+
+                    // When a tester is copied, Livewire dispatches a browser event
+                    // with updated fields. If the event contains a value for this
+                    // dropdown's model, update the selected value.
+                    document.addEventListener('copied-tester', (ev) => {
+                        try {
+                            const inputName = this.$refs.modelInput.getAttribute('wire:model') || this.$refs.modelInput.getAttribute('name');
+                            const fields = ev?.detail?.fields ?? {};
+                            if (inputName && Object.prototype.hasOwnProperty.call(fields, inputName)) {
+                                // Use setSelected so hidden input + wire:model get updated
+                                this.setSelected(fields[inputName], false);
+                            }
+                        } catch (err) {
+                            // ignore
+                        }
+                    });
                 },
                 onOptionCreated(event) {
                     const detail = event?.detail ?? {};
@@ -87,7 +114,6 @@ $displayPlaceholder = filled($placeholder) ? $placeholder : '-';
                         this.options.push({ value: id, label });
                     }
 
-                    // Keep dropdown list open; only fold the add-new panel.
                     this.setSelected(id, false);
                     this.cancelCreate();
                 },
@@ -119,29 +145,22 @@ $displayPlaceholder = filled($placeholder) ? $placeholder : '-';
                     }
                 },
                 selectedLabel() {
+                    if (!this.selectedValue) return @js($displayPlaceholder);
                     const selected = this.options.find((option) => String(option.value) === String(this.selectedValue));
                     return selected ? selected.label : @js($displayPlaceholder);
                 },
-                setSelected(value, closeList = true) {
+                setSelected(value, closeDropdown = true) {
                     this.selectedValue = value === null || value === undefined ? '' : String(value);
                     this.$refs.modelInput.value = this.selectedValue;
-                    
-                    // Use Livewire's direct property update to ensure wire:model syncs
-                    const inputName = this.$refs.modelInput.getAttribute('wire:model') || 
-                                     this.$refs.modelInput.getAttribute('name');
-                    if (inputName && typeof $wire !== 'undefined') {
-                        $wire.set(inputName, this.selectedValue);
-                    } else {
-                        // Fallback: dispatch input event
-                        this.$refs.modelInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    }
-
-                    if (closeList) {
+                    // Dispatch input/change events so wire:model picks up the change
+                    this.$refs.modelInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    this.$refs.modelInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (closeDropdown) {
                         this.open = false;
                     }
                 },
                 choose(value) {
-                    this.setSelected(value, true);
+                    this.setSelected(value);
                     this.creating = false;
                     this.newOptionValue = '';
                 },

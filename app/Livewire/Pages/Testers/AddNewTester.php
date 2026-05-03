@@ -421,6 +421,19 @@ class AddNewTester extends Component
             $this->search_results = [];
 
             session()->flash('message', 'Data copied successfully! ');
+
+            // Notify front-end components (dropdowns) that fields have been updated
+            $this->dispatch('copied-tester',
+                fields: [
+                    'owner_id' => $this->owner_id,
+                    'location_id' => $this->location_id,
+                    'status_id' => $this->status_id,
+                    'product_family' => $this->product_family,
+                    'type' => $this->type,
+                    'manufacturer' => $this->manufacturer,
+                    'operating_system' => $this->operating_system,
+                ]
+            );
         }
     }
 
