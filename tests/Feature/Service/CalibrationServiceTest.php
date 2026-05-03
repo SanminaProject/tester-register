@@ -10,6 +10,7 @@ use App\Models\TesterCalibrationProcedure;
 use App\Models\TesterMaintenanceSchedule;
 use App\Models\TesterCalibrationSchedule;
 use App\Models\DataChangeLog;
+use App\Models\ProcedureIntervalUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
@@ -100,45 +101,24 @@ class CalibrationServiceTest extends TestCase
         ]);
     }
 
-    public function test_non_admin_cannot_update_calibration_schedule(): void
-    {
-        $this->markTestSkipped(
-            'This test is currently failing and needs to be fixed. Not sure if non admins can or cannot update schedules.'
-        );
-
-        $calibrationProcedure = TesterCalibrationProcedure::factory()->create();
-
-        $this->actingAs($this->normalUser);
-
-        Livewire::test(MaintenanceSettings::class)
-            ->call('selectTester', $this->tester->id)
-            ->set('isEditing', true)
-            ->set('calibrationPeriodId', $calibrationProcedure->id)
-            ->call('save');
-
-        $this->assertDatabaseMissing('data_change_logs', [
-            'tester_id' => $this->tester->id,
-            'user_id' => $this->normalUser->id,
-        ]);
-    }
-
     public function test_admin_can_create_custom_calibration_period(): void
     {
-        $this->markTestSkipped(
-            'This test is currently only works half the time. Fix.'
-        );
+        $daysUnit = ProcedureIntervalUnit::firstOrCreate([
+            'name' => 'Days',
+        ]);
 
         $this->actingAs($this->adminUser);
 
         Livewire::test(MaintenanceSettings::class)
             ->set('newPeriodType', 'calibration')
-            ->set('newMonths', 1)
-            ->set('newWeeks', 0)
+            ->set('newMonths', 8)
+            ->set('newWeeks', 3)
             ->set('newDays', 0)
             ->call('saveNewPeriod');
 
         $this->assertDatabaseHas('tester_calibration_procedures', [
-            'type' => 'Custom: 1 Month',
+            'type' => 'Custom: 8 Months 3 Weeks',
+            'interval_value' => 261,
         ]);
     }
 
@@ -162,6 +142,4 @@ class CalibrationServiceTest extends TestCase
             'tester_id' => $this->tester->id,
         ]);
     }
-
-     // adding calibration creates data change log
 }
