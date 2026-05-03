@@ -10,6 +10,7 @@ use App\Models\TesterCalibrationProcedure;
 use App\Models\TesterMaintenanceSchedule;
 use App\Models\TesterCalibrationSchedule;
 use App\Models\DataChangeLog;
+use App\Models\ProcedureIntervalUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
@@ -104,9 +105,9 @@ class MaintenanceServiceTest extends TestCase
 
     public function test_admin_can_create_custom_maintenance_period(): void
     {
-        $this->markTestSkipped(
-            'This test is currently failing and needs to be fixed.'
-        );
+        $daysUnit = ProcedureIntervalUnit::firstOrCreate([
+            'name' => 'Days',
+        ]);
 
         $this->actingAs($this->adminUser);
 
@@ -142,6 +143,4 @@ class MaintenanceServiceTest extends TestCase
             'tester_id' => $this->tester->id,
         ]);
     }
-
-    // adding maintenance creates data change log
 }

@@ -199,4 +199,31 @@ class CreateTesterTest extends TestCase
             ->assertSet('description', 'Copied Description')
             ->assertSet('product_family', 'Copied Family');
     }
+
+    public function test_creating_tester_creates_audit_log(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        Livewire::test(AddNewTester::class)
+            ->set('tester_id', 1005)
+            ->set('name', 'Audit Log Tester')
+            ->call('save');
+
+        $log = DataChangeLog::where('tester_id', 1005)->latest('id')->first();
+
+        $this->assertStringContainsString(
+            "Added new tester details:",
+            $log->explanation
+        );
+
+        $this->assertStringContainsString(
+            "- id: [empty] -> [1005]",
+            $log->explanation
+        );
+
+        $this->assertStringContainsString(
+            "- name: [empty] -> [Audit Log Tester]",
+            $log->explanation
+        );
+    }
 }
