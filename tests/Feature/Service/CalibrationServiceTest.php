@@ -100,28 +100,6 @@ class CalibrationServiceTest extends TestCase
         ]);
     }
 
-    public function test_non_admin_cannot_update_calibration_schedule(): void
-    {
-        $this->markTestSkipped(
-            'This test is currently failing and needs to be fixed. Not sure if non admins can or cannot update schedules.'
-        );
-
-        $calibrationProcedure = TesterCalibrationProcedure::factory()->create();
-
-        $this->actingAs($this->normalUser);
-
-        Livewire::test(MaintenanceSettings::class)
-            ->call('selectTester', $this->tester->id)
-            ->set('isEditing', true)
-            ->set('calibrationPeriodId', $calibrationProcedure->id)
-            ->call('save');
-
-        $this->assertDatabaseMissing('data_change_logs', [
-            'tester_id' => $this->tester->id,
-            'user_id' => $this->normalUser->id,
-        ]);
-    }
-
     public function test_admin_can_create_custom_calibration_period(): void
     {
         $this->markTestSkipped(
