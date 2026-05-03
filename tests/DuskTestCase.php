@@ -36,10 +36,6 @@ abstract class DuskTestCase extends BaseTestCase
             '--disable-notifications',
             '--disable-extensions',
             '--disable-infobars',
-            '--disable-gpu',
-            '--headless=new',
-            '--no-sandbox',
-            '--disable-dev-shm-usage',
         ])->unless($this->hasHeadlessDisabled(), function (Collection $items) {
             return $items->merge([
                 '--disable-gpu',
