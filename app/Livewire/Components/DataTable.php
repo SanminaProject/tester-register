@@ -106,7 +106,16 @@ class DataTable extends Component
     protected function getSearchColumns(): array
     {
         if (! empty($this->headers)) {
-            return array_keys($this->headers);
+            $nonSearchableColumns = [
+                'needs_reorder',
+                'responsible_user_names',
+                'tester_responsible_user_names',
+            ];
+
+            return array_values(array_filter(
+                array_keys($this->headers),
+                fn ($column) => ! in_array($column, $nonSearchableColumns, true)
+            ));
         }
 
         return match ($this->type) {
@@ -426,6 +435,14 @@ class DataTable extends Component
     {
         $query = $this->buildBaseQuery();
         $query = $this->applyColumnFilters($query);
+
+        if ($this->type === 'spare-parts') {
+            $testerId = request()->integer('tester_id');
+
+            if ($testerId > 0) {
+                $query->where('tester_id', $testerId);
+            }
+        }
 
         $keyword = trim($this->search);
         $searchColumns = $this->getSearchColumns();

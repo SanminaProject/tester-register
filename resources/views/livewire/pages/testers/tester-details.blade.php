@@ -102,12 +102,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                     </a>
-                    <button class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
+                    <a href="{{ route('inventory', ['tester_id' => $tester->id]) }}" wire:navigate class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
                         Spare Parts
                         <svg class="h-[14px] w-[14px] md:h-4 md:w-4 text-[#8c8c8c] md:text-black group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
-                    </button>
+                    </a>
                     <a href="{{ route('testers', ['activeTab' => 'logs', 'tester_id' => $tester->id]) }}" wire:navigate class="flex justify-between items-center text-[13px] font-semibold md:font-extrabold text-[#1a1a1a] md:text-black hover:text-primary transition group">
                         Audit Logs
                         <svg class="h-[14px] w-[14px] md:h-4 md:w-4 text-[#8c8c8c] md:text-black group-hover:text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
