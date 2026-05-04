@@ -1,6 +1,6 @@
 <div>
     <select wire:change="addRecipient($event.target.value)"
-            class="w-full border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-400 focus:border-none">
+            class="w-full bg-light-grey border-none text-black focus:border-highlight focus:ring-highlight rounded-[30px] shadow-sm px-5 py-2.5 text-sm transition">
         <option value="">{{ $placeholder }}</option>
 
         @foreach($users->whereNotIn('id', $selectedIds) as $user)

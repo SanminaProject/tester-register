@@ -37,21 +37,26 @@ class IssueHistory extends Component
         $this->normalizeColumnFilters();
     }
 
+    protected function getPageName(): string
+    {
+        return 'issue-history-page';
+    }
+
     public function updatingSearch(): void
     {
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     public function updatedColumnFilters(): void
     {
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     public function clearFilters(): void
     {
         $this->columnFilters = [];
         $this->normalizeColumnFilters();
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     public function beginAddIssue(): void
@@ -113,7 +118,7 @@ class IssueHistory extends Component
 
     public function getGroupsProperty()
     {
-        return $this->buildGroupsQuery()->paginate(10);
+        return $this->buildGroupsQuery()->paginate(10, ['*'], $this->getPageName());
     }
 
     protected function buildGroupsQuery(): Builder

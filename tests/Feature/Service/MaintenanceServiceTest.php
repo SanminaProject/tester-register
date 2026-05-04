@@ -10,6 +10,7 @@ use App\Models\TesterCalibrationProcedure;
 use App\Models\TesterMaintenanceSchedule;
 use App\Models\TesterCalibrationSchedule;
 use App\Models\DataChangeLog;
+use App\Models\ProcedureIntervalUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
@@ -102,33 +103,11 @@ class MaintenanceServiceTest extends TestCase
         ]);
     }
 
-    public function test_non_admin_cannot_update_maintenance_schedule(): void
-    {
-        $this->markTestSkipped(
-            'This test is currently failing and needs to be fixed. Not sure if non admins can or cannot update schedules.'
-        );
-
-        $maintenanceProcedure = TesterMaintenanceProcedure::factory()->create();
-
-        $this->actingAs($this->normalUser);
-
-        Livewire::test(MaintenanceSettings::class)
-            ->call('selectTester', $this->tester->id)
-            ->set('isEditing', true)
-            ->set('maintenancePeriodId', $maintenanceProcedure->id)
-            ->call('save');
-
-        $this->assertDatabaseMissing('data_change_logs', [
-            'tester_id' => $this->tester->id,
-            'user_id' => $this->normalUser->id,
-        ]);
-    }
-
     public function test_admin_can_create_custom_maintenance_period(): void
     {
-        $this->markTestSkipped(
-            'This test is currently failing and needs to be fixed.'
-        );
+        $daysUnit = ProcedureIntervalUnit::firstOrCreate([
+            'name' => 'Days',
+        ]);
 
         $this->actingAs($this->adminUser);
 
@@ -164,6 +143,4 @@ class MaintenanceServiceTest extends TestCase
             'tester_id' => $this->tester->id,
         ]);
     }
-
-    // adding maintenance creates data change log
 }

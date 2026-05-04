@@ -262,7 +262,7 @@ CREATE TABLE tester_event_logs (
     -- references
     tester_id INT NOT NULL, -- which tester the event is related to
     event_type INT NOT NULL, -- reference to the type of the event (problem, solution, issue, maintenance, calibration, software update or hardware change)
-    created_by_user_id INT NOT NULL, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
+    created_by_user_id INT, -- who created the event log entry (could be the person who reported the issue or performed the maintenance/calibration)
     resolved_by_user_id INT, -- who resolved the issue
     issue_status INT, -- status of the issue (Active or Solved)
     maintenance_schedule_id INT, -- reference to the maintenance schedule used

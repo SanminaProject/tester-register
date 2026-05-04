@@ -6,20 +6,20 @@
         addButtonLabel="Add Part"
         :headers="[
             'id' => 'ID',
-            'needs_reorder' => 'Stock Status',
             'name' => 'Name',
-            'description' => 'Description',
-            'manufacturer_part_number' => 'Manufacturer Part Number',
-            'quantity_in_stock' => 'In Stock',
-            'unit_price' => 'Unit Price',
-            'last_order_date' => 'Last Ordered',
             'tester_id' => 'Tester ID',
             'tester.name' => 'Tester Name',
+            'quantity_in_stock' => 'In Stock',
+            'reorder_level' => 'Reorder Level',
+            'last_order_date' => 'Last Ordered',
+            'needs_reorder' => 'Stock Status',
+            'unit_price' => 'Unit Price',
+            'description' => 'Description',
+            'manufacturer_part_number' => 'Manufacturer Part Number',
             'supplier_id' => 'Supplier ID',
             'supplier.supplier_name' => 'Supplier Name',
             'responsible_user_names' => 'Responsible Users',
-            'tester_responsible_user_names' => 'Responsible Users for Associated Tester',
-            'reorder_level' => 'Reorder Level'
+            'tester_responsible_user_names' => 'Responsible Users for Associated Tester'
         ]"
     />
 </div>

@@ -41,6 +41,11 @@ class DataTable extends Component
 
     public array $filters = [];
 
+    protected function getPageName(): string
+    {
+        return 'data-table-' . Str::slug($this->type);
+    }
+
     public function mount(): void
     {
         if ($this->type === 'testers' && session()->pull('go_to_testers_last_page', false)) {
@@ -239,17 +244,17 @@ class DataTable extends Component
     public function clearFilters(): void
     {
         $this->columnFilters = [];
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     public function updatingSearch(): void
     {
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     public function updatedColumnFilters(): void
     {
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     protected function normalizeColumnFilters(): void
@@ -595,12 +600,12 @@ class DataTable extends Component
         if ($this->goToLastPageOnRender) {
             $totalRows = (clone $query)->count();
             $lastPage = max((int) ceil($totalRows / 10), 1);
-            $this->setPage($lastPage);
+            $this->setPage($lastPage, $this->getPageName());
             $this->goToLastPageOnRender = false;
         }
 
         return view('livewire.components.data-table', [
-            'data' => $query->paginate(10),
+            'data' => $query->paginate(10, ['*'], $this->getPageName()),
         ]);
     }
 }

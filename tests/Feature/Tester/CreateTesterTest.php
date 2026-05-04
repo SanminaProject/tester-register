@@ -92,30 +92,6 @@ class CreateTesterTest extends TestCase
         ]);
     }
 
-    // TODO: fix
-    public function test_admin_can_upload_documents_when_creating_tester(): void
-    {
-        $this->markTestSkipped(
-            'This test is currently failing and needs to be fixed. Unsure of actual implementation.'
-        );
-
-        Storage::fake('local');
-
-        $this->actingAs($this->adminUser);
-
-        $file = UploadedFile::fake()->create('manual.pdf', 500);
-
-        Livewire::test(AddNewTester::class)
-            ->set('tester_id', 1002)
-            ->set('name', 'Tester With Docs')
-            ->set('documents', [$file])
-            ->call('save');
-
-        Storage::disk('local')->assertExists(
-            'testers/1002/documents/manual.pdf'
-        );
-    }
-
     public function test_required_fields_are_validated(): void
     {
         $this->actingAs($this->adminUser);
@@ -143,6 +119,31 @@ class CreateTesterTest extends TestCase
             ->assertHasErrors(['tester_id']);
     }
 
+    // TODO: fix
+    public function test_admin_can_upload_documents_when_creating_tester(): void
+    {
+        $this->markTestSkipped(
+            'This test is currently failing and needs to be fixed. Not sure about the implementation.'
+        );
+        
+        Storage::fake('local');
+
+        $this->actingAs($this->adminUser);
+
+        $file = UploadedFile::fake()->create('manual.pdf', 500);
+
+        Livewire::test(AddNewTester::class)
+            ->set('tester_id', 1002)
+            ->set('name', 'Tester With Docs')
+            ->set('documents', [$file])
+            ->call('save');
+
+        Storage::disk('local')->assertExists(
+            'testers/1002/documents/manual.pdf'
+        );
+    }
+
+    // TODO: fix
     public function test_invalid_document_type_is_rejected(): void
     {
         Storage::fake('local');
@@ -197,5 +198,32 @@ class CreateTesterTest extends TestCase
             ->call('selectAndCopyTester', $tester->id)
             ->assertSet('description', 'Copied Description')
             ->assertSet('product_family', 'Copied Family');
+    }
+
+    public function test_creating_tester_creates_audit_log(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        Livewire::test(AddNewTester::class)
+            ->set('tester_id', 1005)
+            ->set('name', 'Audit Log Tester')
+            ->call('save');
+
+        $log = DataChangeLog::where('tester_id', 1005)->latest('id')->first();
+
+        $this->assertStringContainsString(
+            "Added new tester details:",
+            $log->explanation
+        );
+
+        $this->assertStringContainsString(
+            "- id: [empty] -> [1005]",
+            $log->explanation
+        );
+
+        $this->assertStringContainsString(
+            "- name: [empty] -> [Audit Log Tester]",
+            $log->explanation
+        );
     }
 }

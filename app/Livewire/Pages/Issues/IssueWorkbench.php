@@ -64,6 +64,11 @@ class IssueWorkbench extends Component
     public $users = [];
     public $statuses = [];
 
+    protected function getPageName(): string
+    {
+        return 'issue-workbench-page';
+    }
+
     public function mount(string $requestedTab = 'all', ?int $requestedIssueId = null): void
     {
         $this->testers = Tester::query()->select('id', 'name')->orderBy('id')->get();
@@ -113,19 +118,19 @@ class IssueWorkbench extends Component
 
     public function updatingSearch(): void
     {
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     public function updatedColumnFilters(): void
     {
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     public function clearFilters(): void
     {
         $this->columnFilters = [];
         $this->normalizeColumnFilters();
-        $this->resetPage();
+        $this->resetPage($this->getPageName());
     }
 
     public function beginAddIssue(): void
@@ -198,7 +203,7 @@ class IssueWorkbench extends Component
 
     public function getRowsProperty()
     {
-        return $this->buildFilteredQuery()->paginate(10);
+        return $this->buildFilteredQuery()->paginate(10, ['*'], $this->getPageName());
     }
 
     public function getUserLabelByIdProperty(): array

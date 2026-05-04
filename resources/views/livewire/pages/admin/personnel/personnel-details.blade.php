@@ -48,39 +48,42 @@
 
         @if($editing)
         <div class="mt-8 pl-12">
-            <x-select-field
+            <x-testers.dropdown-field
                 label="Role"
                 wire:model="selectedRoleName"
                 :options="$roles"
+                :manageOptions="true"
+                :allowCreate="true"
+                createMethod="createRoleOption"
+                deleteMethod="deleteRoleOption"
                 valueKey="name"
                 labelKey="name"
+                class="w-64"
             />
 
-            <div class="mt-4 flex gap-2">
+            <div class="mt-8 flex items-center gap-6">
                 <x-primary-button wire:click="updatePersonnelRole">
                     Save
                 </x-primary-button>
 
-                <x-primary-button 
-                    wire:click="removePersonnelRole"
-                    class="bg-gray-300 text-black hover:bg-gray-400">
+                <button type="button" wire:click="removePersonnelRole" class="text-red-600 underline font-medium bg-transparent p-0 hover:text-red-800">
                     Remove Role
-                </x-primary-button>
+                </button>
             </div>
         </div>
         @endif
 
         @if(auth()->user() && auth()->user()->hasRole('Admin'))
-        <div class="mt-16 pl-10 flex justify-start">
+        <div class="mt-auto pt-8 flex justify-end">
             <button 
                 type="button" 
                 wire:click="deletePersonnel"
                 wire:confirm="Are you sure you want to delete this personnel? This action cannot be undone."
-                class="flex items-center justify-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg font-semibold text-[14px] transition-colors shadow-sm cursor-pointer">
+                class="flex h-10 w-32 items-center justify-center gap-2 rounded-lg bg-red-50 px-5 py-2.5 text-[14px] font-semibold text-red-600 shadow-sm transition-colors cursor-pointer hover:bg-red-600 hover:text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                Delete Personnel
+                Delete
             </button>
         </div>
         @endif
