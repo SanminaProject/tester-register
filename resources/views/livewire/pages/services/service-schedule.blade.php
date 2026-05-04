@@ -66,7 +66,8 @@
                                 @else
                                     <div class="relative">
                                         <select wire:change="updateEventStatus('{{ data_get($evt, 'id') }}', $event.target.value)"
-                                            class="block w-full py-1 pl-3 pr-8 text-xs font-medium border-0 rounded-full focus:ring-2 focus:ring-primary appearance-none cursor-pointer capitalize bg-none
+                                            @if(auth()->user() && auth()->user()->hasRole('Guest')) disabled @endif
+                                            class="block w-full py-1 pl-3 pr-8 text-xs font-medium border-0 rounded-full focus:ring-2 focus:ring-primary appearance-none cursor-pointer capitalize bg-none @if(auth()->user() && auth()->user()->hasRole('Guest')) cursor-not-allowed opacity-60 @endif
                                             @if(strtolower(data_get($evt, 'status')) === 'completed') bg-green-100 text-green-800
                                             @elseif(strtolower(data_get($evt, 'status')) === 'in progress') bg-blue-100 text-blue-800
                                             @elseif(strtolower(data_get($evt, 'status')) === 'overdue') bg-red-100 text-red-800

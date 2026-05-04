@@ -112,12 +112,14 @@
             </button>
             @endif
 
+            @if(!($mode === 'active' && auth()->user() && auth()->user()->hasRole('Guest')))
             <button
                 class="ml-1 px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-pink-700 transition text-sm"
                 wire:click="{{ $this->mainButtonAction }}"
                 type="button">
                 {{ $this->mainButtonLabel }}
             </button>
+            @endif
         </div>
     </div>
 
@@ -190,7 +192,9 @@
                 @forelse ($this->rows as $row)
                 <tr
                     class="border-b hover:bg-thirdly cursor-pointer transition-colors duration-150"
-                    wire:click="beginAddSolution({{ $row->id }})">
+                    @if(!(auth()->user() && auth()->user()->hasRole('Guest')))
+                    wire:click="beginAddSolution({{ $row->id }})"
+                    @endif>
                     <td class="px-4 py-3 text-sm text-gray-800">{{ $row->id }}</td>
                     <td class="px-4 py-3 text-sm text-gray-800">{{ $row->date?->format('d.m.Y H:i') ?? '-' }}</td>
                     <td class="px-4 py-3 text-sm text-gray-800">{{ $row->tester_id }}</td>
@@ -212,12 +216,14 @@
                                 </button>
                             </div>
                         </div>
+                        @if(auth()->user() && !auth()->user()->hasRole('Guest'))
                         <button
                             type="button"
                             wire:click.stop="beginAddSolution({{ $row->id }})"
                             class="mt-2 inline-flex items-center rounded-full bg-[#efefef] px-3 py-1 text-xs font-semibold text-[#6d6d6d] hover:bg-[#e0e0e0]">
                             + Add Solution
                         </button>
+                        @endif
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-800 break-words">
                         {{ $row->createdBy?->full_name ?? ($this->userLabelById[$row->created_by_user_id] ?? '-') }}

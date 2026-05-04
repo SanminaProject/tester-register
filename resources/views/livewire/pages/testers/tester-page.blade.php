@@ -1,13 +1,20 @@
 <div class="flex w-full">
+    @php
+    $testerItems = [
+        ['label' => 'All Testers', 'tab' => 'all'],
+        ['label' => 'Audit Logs', 'tab' => 'logs'],
+    ];
+    
+    if (auth()->user() && !auth()->user()->hasRole('Guest')) {
+        array_splice($testerItems, 1, 0, [['label' => 'Add New Tester', 'tab' => 'add']]);
+    }
+    @endphp
+    
     <x-sidebar
         class="{{ $activeTab === 'details' ? 'hidden md:block' : '' }}"
         title="Testers"
         :active-tab="$activeTab"
-        :items="[
-            ['label' => 'All Testers', 'tab' => 'all'],
-            ['label' => 'Add New Tester', 'tab' => 'add'],
-            ['label' => 'Audit Logs', 'tab' => 'logs'],
-        ]" />
+        :items="$testerItems" />
 
     <div class="flex-1  min-w-0 px-6 py-3">
         @if ($activeTab === 'all')

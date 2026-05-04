@@ -8,6 +8,7 @@
         </div>
         <button wire:click="toggleEdit" 
                 @if(!$selectedTesterId) disabled @endif
+                @if(auth()->user() && auth()->user()->hasRole('Guest')) disabled @endif
                 class="w-32 py-2.5 text-[15px] font-medium rounded-full text-white transition-colors self-end md:self-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 style="background-color: #C11232;">
             {{ $isEditing ? 'Save' : 'Edit' }}

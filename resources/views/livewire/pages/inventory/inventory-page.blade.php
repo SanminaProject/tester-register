@@ -1,14 +1,23 @@
 <div class="flex w-full">
+    @php
+    $inventoryItems = [
+        ['label' => 'Spare Parts', 'tab' => 'spare-parts'],
+        ['label' => 'Suppliers', 'tab' => 'suppliers'],
+        ['label' => 'Audit Logs', 'tab' => 'logs']
+    ];
+    
+    if (auth()->user() && !auth()->user()->hasRole('Guest')) {
+        array_splice($inventoryItems, 2, 0, [
+            ['label' => 'Add Spare Part', 'tab' => 'add-spare-part'],
+            ['label' => 'Add Supplier', 'tab' => 'add-supplier'],
+        ]);
+    }
+    @endphp
+    
     <x-sidebar 
         title="Inventory" 
         :active-tab="$activeTab"
-        :items="[
-            ['label' => 'Spare Parts', 'tab' => 'spare-parts'], // list all spare parts
-            ['label' => 'Suppliers', 'tab' => 'suppliers'], // list all suppliers
-            ['label' => 'Add Spare Part', 'tab' => 'add-spare-part'], // form to add a new spare part
-            ['label' => 'Add Supplier', 'tab' => 'add-supplier'], // form to add a new supplier
-            ['label' => 'Audit Logs', 'tab' => 'logs'] // list all changes made to spare parts
-        ]" 
+        :items="$inventoryItems" 
     />
         
     <div class="flex-1 min-w-0 px-6 py-3">

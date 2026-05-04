@@ -15,9 +15,11 @@
         </div>
 
         <div class="flex items-center gap-3">
+            @if(auth()->user() && !auth()->user()->hasRole('Guest'))
             <x-primary-button type="button" class="w-32 justify-center" wire:click="$dispatch('switchTab', { tab: 'edit', id: {{ $tester->id }} })">
                 Edit
             </x-primary-button>
+            @endif
         </div>
     </div>
 
@@ -25,6 +27,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_400px] md:gap-x-16 gap-y-7 md:gap-y-10">
 
         <!-- Mobile specific top inventory block (hidden on desktop) -->
+        @if(auth()->user() && !auth()->user()->hasRole('Guest'))
         <div class="md:hidden flex items-center justify-between pb-5 border-b border-[#e8e8e8]">
             <div class="flex flex-col">
                 <span class="tracking-wide text-[14px] text-[#8c8c8c] mb-1">Last Inventoried:</span>
@@ -34,6 +37,7 @@
                 Inventory
             </button>
         </div>
+        @endif
         
         <!-- 2. Left Block (Main Info) -->
         <div class="flex flex-col gap-y-2 lg:gap-y-3.5 mt-0 lg:mt-2 pl-0 lg:pl-12">
@@ -82,6 +86,7 @@
         <div class="hidden md:flex flex-col gap-5 md:gap-6 h-full">
             
             <!-- Inventory Block -->
+            @if(auth()->user() && !auth()->user()->hasRole('Guest'))
             <div class="bg-[#f8f8f8] md:bg-light-grey rounded-[16px] md:rounded-xl p-5 md:p-7 flex items-center justify-between">
                 <div class="flex flex-col gap-1">
                     <span class="tracking-wide text-[12px] md:text-[15px] text-[#8c8c8c] md:text-dark-grey">Last Inventoried Date:</span>
@@ -91,6 +96,7 @@
                     Inventory
                 </x-primary-button>
             </div>
+            @endif
 
             <!-- Links & Docs Block -->
             <div class="bg-[#f8f8f8] md:bg-light-grey rounded-[16px] md:rounded-xl p-5 md:p-7 flex flex-col gap-5 md:gap-6">

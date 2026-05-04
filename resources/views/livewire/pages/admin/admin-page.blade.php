@@ -1,13 +1,20 @@
 <div class="flex w-full">
+    @php
+    $adminItems = [
+        ['label' => 'Personnel', 'tab' => 'personnel'],
+        ['label' => 'Roles', 'tab' => 'roles'],
+    ];
+    
+    if (auth()->user() && !auth()->user()->hasRole('Guest')) {
+        $adminItems[] = ['label' => 'Add New Role', 'tab' => 'add'];
+    }
+    @endphp
+    
     <x-sidebar
         class="{{ $activeTab === 'details' ? 'hidden md:block' : '' }}"
         title="Admin"
         :active-tab="$activeTab"
-        :items="[
-            ['label' => 'Personnel', 'tab' => 'personnel'], // table of all personnel (edit/delete their roles in details)
-            ['label' => 'Roles', 'tab' => 'roles'], // table of all roles (edit/delete roles in details)
-            ['label' => 'Add New Role', 'tab' => 'add'], // form to add new role
-        ]" />
+        :items="$adminItems" />
 
     <div class="flex-1  min-w-0 px-6 py-3">
         @if ($activeTab === 'personnel')

@@ -1,12 +1,19 @@
 <div class="flex w-full">
+    @php
+    $issueItems = [
+        ['label' => 'Active Issues', 'tab' => 'all'],
+        ['label' => 'Issue History', 'tab' => 'logs'],
+    ];
+    
+    if (auth()->user() && !auth()->user()->hasRole('Guest')) {
+        array_splice($issueItems, 1, 0, [['label' => 'Add New Issue', 'tab' => 'add']]);
+    }
+    @endphp
+    
     <x-sidebar
         title="Issues"
         :active-tab="$activeTab"
-        :items="[
-            ['label' => 'Active Issues', 'tab' => 'all'],
-            ['label' => 'Add New Issue', 'tab' => 'add'],
-            ['label' => 'Issue History', 'tab' => 'logs'],
-        ]" />
+        :items="$issueItems" />
 
     <div class="flex-1 min-w-0 px-6 py-3">
         @if ($activeTab === 'logs')

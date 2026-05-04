@@ -101,12 +101,14 @@
                 <span>Export current list</span>
             </button>
 
+            @if(auth()->user() && !auth()->user()->hasRole('Guest'))
             <button
                 class="ml-1 px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-pink-700 transition text-sm"
                 wire:click="beginAddIssue"
                 type="button">
                 Add Issue
             </button>
+            @endif
         </div>
     </div>
 

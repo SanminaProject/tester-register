@@ -12,7 +12,9 @@
             <h2 class="text-xl font-extrabold text-black">Issue Details</h2>
         </div>
 
+        @if(auth()->user() && !auth()->user()->hasRole('Guest'))
         <x-primary-button type="button" wire:click="editIssue" class="w-32 justify-center">Edit</x-primary-button>
+        @endif
     </div>
 
     @if (session()->has('message'))

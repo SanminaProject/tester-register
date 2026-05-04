@@ -14,9 +14,11 @@
             <h2 class="text-xl font-extrabold text-black tracking-tight">Personnel Details</h2>
         </div>
 
+        @if(auth()->user() && !auth()->user()->hasRole('Guest'))
         <x-primary-button type="button" class="w-32" wire:click="enableEdit">
             Edit
         </x-primary-button>
+        @endif
     </div>
 
     <!-- Main Content -->
