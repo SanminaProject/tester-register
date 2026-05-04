@@ -49,7 +49,7 @@ Chrome version used by dusk must match version installed on current device.
 
 To download the correct ChromDriver to be used by code based on what your current device has, run:
 ```bash
-php artisan dusk:chrome-driver --version
+php artisan dusk:chrome-driver --detect
 ```
 
 ### Setting up E2E tests
