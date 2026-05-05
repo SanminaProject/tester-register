@@ -10,6 +10,27 @@
   --color-light-grey: theme('colors.light-grey');
   --color-grey: theme('colors.grey');
   --color-dark-grey: theme('colors.dark-grey');
+  
+  /* M/C event colors */
+  --color-maintenance-bg: #fef9c3;
+  --color-maintenance-text: #a16207;
+  --color-maintenance-border: #f87171;
+  --color-maintenance-tag-bg: #fee2e2;
+  --color-maintenance-tag-text: #991b1b;
+  
+  --color-calibration-bg: #dbeafe;
+  --color-calibration-text: #1d4ed8;
+  --color-calibration-border: #60a5fa;
+  --color-calibration-tag-bg: #dbeafe;
+  --color-calibration-tag-text: #1e3a8a;
+  
+  /* Status colors */
+  --color-status-completed-bg: #dcfce7;
+  --color-status-completed-text: #166534;
+  --color-status-overdue-bg: #fee2e2;
+  --color-status-overdue-text: #991b1b;
+  --color-status-scheduled-bg: #fef3c7;
+  --color-status-scheduled-text: #92400e;
 }
 
 .data-table-scroll {

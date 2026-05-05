@@ -59,7 +59,7 @@
                             <td class="px-4 py-3 min-w-[140px]">
                                 @if(str_starts_with(data_get($evt, 'id'), 'E-'))
                                     @if(data_get($evt, 'status'))
-                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-status-completed-bg text-status-completed-text">
                                             {{ data_get($evt, 'status') }}
                                         </span>
                                     @endif
@@ -68,11 +68,11 @@
                                         <select wire:change="updateEventStatus('{{ data_get($evt, 'id') }}', $event.target.value)"
                                             @if(auth()->user() && auth()->user()->hasRole('Guest')) disabled @endif
                                             class="block w-full py-1 pl-3 pr-8 text-xs font-medium border-0 rounded-full focus:ring-2 focus:ring-primary appearance-none cursor-pointer capitalize bg-none @if(auth()->user() && auth()->user()->hasRole('Guest')) cursor-not-allowed opacity-60 @endif
-                                            @if(strtolower(data_get($evt, 'status')) === 'completed') bg-green-100 text-green-800
+                                            @if(strtolower(data_get($evt, 'status')) === 'completed') bg-status-completed-bg text-status-completed-text
                                             @elseif(strtolower(data_get($evt, 'status')) === 'in progress') bg-blue-100 text-blue-800
-                                            @elseif(strtolower(data_get($evt, 'status')) === 'overdue') bg-red-100 text-red-800
+                                            @elseif(strtolower(data_get($evt, 'status')) === 'overdue') bg-status-overdue-bg text-status-overdue-text
                                             @elseif(strtolower(data_get($evt, 'status')) === 'cancelled') bg-gray-200 text-gray-800
-                                            @elseif(strtolower(data_get($evt, 'status')) === 'scheduled') bg-yellow-100 text-yellow-800
+                                            @elseif(strtolower(data_get($evt, 'status')) === 'scheduled') bg-status-scheduled-bg text-status-scheduled-text
                                             @else bg-gray-100 text-gray-800 @endif
                                             "
                                         >

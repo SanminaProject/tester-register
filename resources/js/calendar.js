@@ -116,7 +116,6 @@ document.addEventListener('calendar-ready', function () {
         pushRow('User', summary.userName);
         pushRow('Status', summary.status);
         if (summary.lastDate) pushRow('Last', summary.lastDate);
-        if (summary.nextDate) pushRow('Next', summary.nextDate);
 
         const closeBtn = document.createElement('button');
         closeBtn.type = 'button';
@@ -159,52 +158,86 @@ document.addEventListener('calendar-ready', function () {
             meridiem: false
         },
 
+        displayEventTime: false,
+
         events: events,
 
         eventContent: function(arg) {
             const summary = getEventSummary(arg.event);
             const wrapper = document.createElement('div');
-            wrapper.className = 'flex items-center gap-1 min-w-0 max-w-full overflow-hidden whitespace-nowrap';
-            wrapper.style.flexWrap = 'nowrap';
+            wrapper.className = 'flex items-center min-w-0 w-full rounded-lg shadow-sm overflow-hidden whitespace-nowrap';
+            wrapper.style.boxSizing = 'border-box';
+            wrapper.style.height = '100%';
+            wrapper.style.backdropFilter = 'blur(4px)';
+
+            // Get colors from CSS variables
+            const root = getComputedStyle(document.documentElement);
+            const isMaintenance = arg.event.extendedProps.maintenance_calibration === 'Maintenance';
+            
+            // Left part: M/C colored background with event ID
+            const leftPart = document.createElement('div');
+            leftPart.className = 'flex items-center px-2.5 py-1.5';
+            leftPart.style.flex = '0 1 auto';
+            leftPart.style.minWidth = '0';
+            
+            if (isMaintenance) {
+                leftPart.style.background = root.getPropertyValue('--color-maintenance-bg').trim();
+                leftPart.style.color = root.getPropertyValue('--color-maintenance-text').trim();
+            } else {
+                leftPart.style.background = root.getPropertyValue('--color-calibration-bg').trim();
+                leftPart.style.color = root.getPropertyValue('--color-calibration-text').trim();
+            }
 
             const idEl = document.createElement('div');
-            idEl.className = 'text-[11px] leading-tight whitespace-nowrap overflow-hidden text-ellipsis';
-            idEl.style.flex = '0 1 auto';
+            idEl.className = 'text-[11px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis';
             idEl.style.minWidth = '0';
             idEl.textContent = summary.eventId;
+            leftPart.appendChild(idEl);
+
+            // Right part: white background with status badge
+            const rightPart = document.createElement('div');
+            rightPart.className = 'flex items-center px-2 py-1.5 ml-auto';
+            rightPart.style.background = 'rgba(255,255,255,0.95)';
+            rightPart.style.flex = '0 0 auto';
 
             const badge = document.createElement('span');
             badge.textContent = summary.status;
             badge.style.fontSize = '10px';
-            badge.style.padding = '1px 6px';
+            badge.style.padding = '2px 8px';
             badge.style.borderRadius = '999px';
-            badge.style.color = '#111827';
             badge.style.flex = '0 0 auto';
             badge.style.lineHeight = '1.2';
             badge.style.whiteSpace = 'nowrap';
 
             if (summary.status.toLowerCase() === 'completed') {
-                badge.style.background = '#dcfce7'; // weekly completed green
-                badge.style.color = '#166534';
+                badge.style.background = root.getPropertyValue('--color-status-completed-bg').trim();
+                badge.style.color = root.getPropertyValue('--color-status-completed-text').trim();
             } else if (summary.status.toLowerCase() === 'overdue') {
-                badge.style.background = '#fee2e2'; // weekly overdue red
-                badge.style.color = '#991b1b';
+                badge.style.background = root.getPropertyValue('--color-status-overdue-bg').trim();
+                badge.style.color = root.getPropertyValue('--color-status-overdue-text').trim();
             } else {
-                badge.style.background = '#fef3c7'; // weekly scheduled yellow
-                badge.style.color = '#92400e';
+                badge.style.background = root.getPropertyValue('--color-status-scheduled-bg').trim();
+                badge.style.color = root.getPropertyValue('--color-status-scheduled-text').trim();
             }
+            rightPart.appendChild(badge);
 
-            wrapper.appendChild(idEl);
-            wrapper.appendChild(badge);
+            wrapper.appendChild(leftPart);
+            wrapper.appendChild(rightPart);
 
             return { domNodes: [wrapper] };
         },
 
         eventDidMount: function(arg) {
             arg.el.style.color = '#111827';
+            arg.el.style.borderRadius = '12px';
+            arg.el.style.boxShadow = '0 1px 2px rgba(15, 23, 42, 0.08)';
             const main = arg.el.querySelector('.fc-event-main, .fc-event-main-frame');
             if (main) {
                 main.style.color = '#111827';
+            }
+            const frame = arg.el.querySelector('.fc-event-main-frame, .fc-event-main');
+            if (frame) {
+                frame.style.padding = '1px 0';
             }
         },
 

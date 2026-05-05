@@ -21,14 +21,31 @@ export default {
                 
                 'light-grey': '#F6F3F3',
                 grey: '#D9D9D9',
-                                'dark-grey': '#7D7D7D',
+                'dark-grey': '#7D7D7D',
                 
+                // M/C event colors
                 'maintenance-bg': '#fef9c3',
                 'maintenance-text': '#a16207',
+                'maintenance-border': '#f87171',
+                'maintenance-tag-bg': '#fee2e2',
+                'maintenance-tag-text': '#991b1b',
+                
                 'calibration-bg': '#dbeafe',
                 'calibration-text': '#1d4ed8',
+                'calibration-border': '#60a5fa',
+                'calibration-tag-bg': '#dbeafe',
+                'calibration-tag-text': '#1e3a8a',
+                
                 'issue-bg': '#fee2e2',
                 'issue-text': '#b91c1c',
+                
+                // Status colors
+                'status-completed-bg': '#dcfce7',
+                'status-completed-text': '#166534',
+                'status-overdue-bg': '#fee2e2',
+                'status-overdue-text': '#991b1b',
+                'status-scheduled-bg': '#fef3c7',
+                'status-scheduled-text': '#92400e',
                 
                 white: '#FFFFFF',
                 black: '#000000',
@@ -47,6 +64,16 @@ export default {
         'text-maintenance-text',
         'bg-calibration-bg',
         'text-calibration-text',
+        'bg-maintenance-tag-bg',
+        'text-maintenance-tag-text',
+        'bg-calibration-tag-bg',
+        'text-calibration-tag-text',
+        'bg-status-completed-bg',
+        'text-status-completed-text',
+        'bg-status-overdue-bg',
+        'text-status-overdue-text',
+        'bg-status-scheduled-bg',
+        'text-status-scheduled-text',
         'bg-gray-100',
         'text-gray-700',
     ],
