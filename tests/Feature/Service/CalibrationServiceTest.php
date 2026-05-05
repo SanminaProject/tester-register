@@ -13,6 +13,7 @@ use App\Models\DataChangeLog;
 use App\Models\ProcedureIntervalUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Livewire\Pages\Services\ServicePage;
 use App\Livewire\Pages\Services\ServiceSchedule;
@@ -25,6 +26,8 @@ class CalibrationServiceTest extends TestCase
     protected User $adminUser;
     protected User $normalUser;
     protected Tester $tester;
+    protected TesterMaintenanceProcedure $maintenanceProcedure;
+    protected TesterCalibrationProcedure $calibrationProcedure;
 
     protected function setUp(): void
     {
@@ -39,6 +42,13 @@ class CalibrationServiceTest extends TestCase
         $this->calibrationProcedure = TesterCalibrationProcedure::factory()->create();
 
         $this->adminUser->assignRole('Admin');
+
+        foreach (['scheduled', 'overdue', 'completed'] as $statusName) {
+            DB::table('schedule_statuses')->updateOrInsert(
+                ['name' => $statusName],
+                ['name' => $statusName],
+            );
+        }
     }
 
     public function test_calibration_schedule_is_not_created_without_required_fields_on_initial_create(): void
@@ -98,6 +108,24 @@ class CalibrationServiceTest extends TestCase
         $this->assertDatabaseHas('tester_calibration_schedules', [
             'tester_id' => $this->tester->id,
             'calibration_id' => $this->calibrationProcedure->id,
+        ]);
+    }
+
+    public function test_new_calibration_schedule_defaults_to_scheduled_status(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        Livewire::test(MaintenanceSettings::class)
+            ->set('selectedTesterId', $this->tester->id)
+            ->set('calibrationPeriodId', $this->calibrationProcedure->id)
+            ->set('nextCalibrationDate', now()->addDays(10)->format('Y-m-d\TH:i'))
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('tester_calibration_schedules', [
+            'tester_id' => $this->tester->id,
+            'calibration_id' => $this->calibrationProcedure->id,
+            'calibration_status' => DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['scheduled'])->value('id'),
         ]);
     }
 

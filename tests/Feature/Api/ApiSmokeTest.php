@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\TesterMaintenanceSchedule as MaintenanceSchedule;
+use App\Models\TesterCalibrationSchedule as CalibrationSchedule;
 use App\Models\Tester;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -152,13 +153,78 @@ class ApiSmokeTest extends TestCase
             'notes' => 'Completed successfully',
         ])
             ->assertOk()
-            ->assertJsonPath('data.status', 'completed');
+            ->assertJsonPath('data.status', 'scheduled');
 
         $this->assertDatabaseHas('tester_event_logs', [
             'tester_id' => $tester->id,
             'event_type' => $eventTypeId,
             'maintenance_schedule_id' => $schedule->id,
             'created_by_user_id' => $manager->id,
+        ]);
+
+        $this->assertDatabaseHas('tester_maintenance_schedules', [
+            'id' => $schedule->id,
+            'maintenance_status' => DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['scheduled'])->value('id'),
+        ]);
+    }
+
+    public function test_complete_calibration_advances_next_date(): void
+    {
+        $manager = User::factory()->create();
+        Role::findOrCreate('Manager', 'web');
+        $manager->assignRole('Manager');
+
+        Sanctum::actingAs($manager);
+
+        $customerId = (int) DB::table('tester_customers')->insertGetId([
+            'name' => 'Nokia Labs',
+        ]);
+
+        $intervalUnitId = (int) DB::table('procedure_interval_units')->insertGetId([
+            'name' => 'months',
+        ]);
+
+        $calibrationProcedureId = (int) DB::table('tester_calibration_procedures')->insertGetId([
+            'type' => 'Routine calibration',
+            'interval_value' => 2,
+            'description' => null,
+            'interval_unit' => $intervalUnitId,
+        ]);
+
+        DB::table('event_types')->updateOrInsert(
+            ['name' => 'calibration'],
+            ['name' => 'calibration'],
+        );
+
+        $tester = Tester::create([
+            'owner_id' => $customerId,
+            'name' => 'CB-900',
+            'id_number_by_customer' => 'TS-9000',
+        ]);
+
+        $schedule = CalibrationSchedule::create([
+            'tester_id' => $tester->id,
+            'calibration_id' => $calibrationProcedureId,
+            'schedule_created_date' => now(),
+            'next_calibration_due' => now()->addDay(),
+            'calibration_status' => DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['scheduled'])->value('id'),
+        ]);
+
+        $completedDate = now()->toDateString();
+        $expectedNextDue = \Illuminate\Support\Carbon::parse($completedDate)->endOfDay()->addMonths(2);
+
+        $this->postJson('/api/v1/calibration-schedules/' . $schedule->id . '/complete', [
+            'completed_date' => $completedDate,
+            'performed_by' => 'Tech User',
+            'notes' => 'Completed successfully',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'scheduled')
+            ->assertJsonPath('data.scheduled_date', $expectedNextDue->toDateString());
+
+        $this->assertDatabaseHas('tester_calibration_schedules', [
+            'id' => $schedule->id,
+            'calibration_status' => DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['scheduled'])->value('id'),
         ]);
     }
 }

@@ -6,6 +6,9 @@ use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\CalendarEvent;
+use App\Models\TesterMaintenanceSchedule;
+use App\Models\TesterCalibrationSchedule;
+use App\Models\TesterEventLog as EventLog;
 
 class ServiceSchedule extends Component
 {
@@ -57,7 +60,134 @@ class ServiceSchedule extends Component
         
         // E- types (Event Logs) are historical and don't map to schedule_statuses table directly
 
+        // If user marked completed, perform the completion actions: record last date, create event log, compute next due
+        if (strtolower($newStatusName) === 'completed') {
+            $completedAt = Carbon::now()->endOfDay();
+            $actorUserId = auth()->id() ?: null;
+
+            if ($type === 'M') {
+                $schedule = TesterMaintenanceSchedule::find($id);
+                if ($schedule) {
+                    // compute next due
+                    $procedure = DB::table('tester_maintenance_procedures as p')
+                        ->join('procedure_interval_units as u', 'p.interval_unit', '=', 'u.id')
+                        ->where('p.id', $schedule->maintenance_id)
+                        ->select('p.interval_value', 'u.name as unit')
+                        ->first();
+
+                    $nextDue = null;
+                    if ($procedure) {
+                        $next = $completedAt->copy();
+                        $intervalValue = max(1, (int) $procedure->interval_value);
+                        $unit = strtolower((string) $procedure->unit);
+                        if ($unit === 'days') $next->addDays($intervalValue);
+                        elseif ($unit === 'weeks') $next->addWeeks($intervalValue);
+                        elseif ($unit === 'months') $next->addMonths($intervalValue);
+                        elseif ($unit === 'years') $next->addYears($intervalValue);
+                        $nextDue = $next;
+                    }
+
+                    $update = [
+                        'last_maintenance_date' => $completedAt,
+                        'last_maintenance_by_user_id' => $actorUserId,
+                    ];
+
+                    if ($nextDue !== null) {
+                        $update['next_maintenance_due'] = $nextDue;
+                        $scheduledStatusId = DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['scheduled'])->value('id');
+                        if ($scheduledStatusId) $update['maintenance_status'] = $scheduledStatusId;
+                    } else {
+                        $completedStatusId = DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['completed'])->value('id');
+                        if ($completedStatusId) $update['maintenance_status'] = $completedStatusId;
+                    }
+
+                    $schedule->update($update);
+
+                    // create event log
+                    $eventTypeId = DB::table('event_types')->whereRaw('LOWER(name) = ?', ['maintenance'])->value('id');
+                    if ($eventTypeId) {
+                        EventLog::create([
+                            'tester_id' => $schedule->tester_id,
+                            'event_type' => $eventTypeId,
+                            'date' => $completedAt,
+                            'description' => sprintf('Maintenance completed: %s', DB::table('tester_maintenance_procedures')->where('id', $schedule->maintenance_id)->value('type') ?? 'Maintenance'),
+                            'created_by_user_id' => $actorUserId,
+                            'maintenance_schedule_id' => $schedule->id,
+                            'calibration_schedule_id' => null,
+                            'resolution_description' => null,
+                            'resolved_date' => $completedAt,
+                            'resolved_by_user_id' => $actorUserId,
+                        ]);
+                    }
+
+                    // dispatch a browser event so front-end can re-emit to Livewire if needed
+                    $this->dispatch('tester-updated', testerId: $schedule->tester_id);
+                }
+            } elseif ($type === 'C') {
+                $schedule = TesterCalibrationSchedule::find($id);
+                if ($schedule) {
+                    // compute next due
+                    $procedure = DB::table('tester_calibration_procedures as p')
+                        ->join('procedure_interval_units as u', 'p.interval_unit', '=', 'u.id')
+                        ->where('p.id', $schedule->calibration_id)
+                        ->select('p.interval_value', 'u.name as unit')
+                        ->first();
+
+                    $nextDue = null;
+                    if ($procedure) {
+                        $next = $completedAt->copy();
+                        $intervalValue = max(1, (int) $procedure->interval_value);
+                        $unit = strtolower((string) $procedure->unit);
+                        if ($unit === 'days') $next->addDays($intervalValue);
+                        elseif ($unit === 'weeks') $next->addWeeks($intervalValue);
+                        elseif ($unit === 'months') $next->addMonths($intervalValue);
+                        elseif ($unit === 'years') $next->addYears($intervalValue);
+                        $nextDue = $next;
+                    }
+
+                    $update = [
+                        'last_calibration_date' => $completedAt,
+                        'last_calibration_by_user_id' => $actorUserId,
+                    ];
+
+                    if ($nextDue !== null) {
+                        $update['next_calibration_due'] = $nextDue;
+                        $scheduledStatusId = DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['scheduled'])->value('id');
+                        if ($scheduledStatusId) $update['calibration_status'] = $scheduledStatusId;
+                    } else {
+                        $completedStatusId = DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['completed'])->value('id');
+                        if ($completedStatusId) $update['calibration_status'] = $completedStatusId;
+                    }
+
+                    $schedule->update($update);
+
+                    // create event log
+                    $eventTypeId = DB::table('event_types')->whereRaw('LOWER(name) = ?', ['calibration'])->value('id');
+                    if ($eventTypeId) {
+                        EventLog::create([
+                            'tester_id' => $schedule->tester_id,
+                            'event_type' => $eventTypeId,
+                            'date' => $completedAt,
+                            'description' => sprintf('Calibration completed: %s', DB::table('tester_calibration_procedures')->where('id', $schedule->calibration_id)->value('type') ?? 'Calibration'),
+                            'created_by_user_id' => $actorUserId,
+                            'maintenance_schedule_id' => null,
+                            'calibration_schedule_id' => $schedule->id,
+                            'resolution_description' => null,
+                            'resolved_date' => $completedAt,
+                            'resolved_by_user_id' => $actorUserId,
+                        ]);
+                    }
+
+                    // dispatch a browser event so front-end can re-emit to Livewire if needed
+                    $this->dispatch('tester-updated', testerId: $schedule->tester_id);
+                }
+            }
+        }
+
         $this->fetchSchedules();
+
+        // push updated events to the browser calendar
+        $this->dispatch('calendar-update', events: $this->calendarEvents);
     }
 
     protected function fetchSchedules()
@@ -70,6 +200,7 @@ class ServiceSchedule extends Component
                 'title' => $event->title,
                 'start' => $event->start,
                 'end' => $event->end,
+                'allDay' => $event->allDay ?? true,
                 'type' => strtolower($event->type),
                 'event_code' => $event->event_code ?? $event->id,
                 'tester_id' => $event->tester_id,
@@ -77,6 +208,8 @@ class ServiceSchedule extends Component
                 'maintenance_calibration' => $event->maintenance_calibration,
                 'user_name' => $event->user_name,
                 'event_status' => $event->event_status,
+                'last_date' => $event->last_date ?? null,
+                'next_date' => $event->next_date ?? null,
             ];
         })->toArray();
 
@@ -99,7 +232,11 @@ class ServiceSchedule extends Component
                 t.name as tester_name,
                 'Maintenance' as maintenance_calibration,
                 CONCAT(u.first_name, ' ', u.last_name) as user,
-                s.name as status
+                CASE
+                    WHEN LOWER(s.name) = 'completed' THEN 'completed'
+                    WHEN m.next_maintenance_due IS NOT NULL AND DATE(NOW()) > DATE(m.next_maintenance_due) THEN 'overdue'
+                    ELSE 'scheduled'
+                END as status
             ")
             ->whereNotNull('m.next_maintenance_due')
             ->whereBetween('m.next_maintenance_due', [$startOfWeek, $endOfWeek]);
@@ -115,7 +252,11 @@ class ServiceSchedule extends Component
                 t.name as tester_name,
                 'Calibration' as maintenance_calibration,
                 CONCAT(u.first_name, ' ', u.last_name) as user,
-                s.name as status
+                CASE
+                    WHEN LOWER(s.name) = 'completed' THEN 'completed'
+                    WHEN c.next_calibration_due IS NOT NULL AND DATE(NOW()) > DATE(c.next_calibration_due) THEN 'overdue'
+                    ELSE 'scheduled'
+                END as status
             ")
             ->whereNotNull('c.next_calibration_due')
             ->whereBetween('c.next_calibration_due', [$startOfWeek, $endOfWeek]);

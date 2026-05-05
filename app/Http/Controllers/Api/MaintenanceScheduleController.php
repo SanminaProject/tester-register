@@ -184,16 +184,27 @@ class MaintenanceScheduleController extends ApiController
         $validated = $request->validated();
         $completedAt = Carbon::parse($validated['completed_date'])->endOfDay();
         $actorUserId = $this->resolveActorUserId($request->user()?->id, (string) $validated['performed_by']);
+        $nextMaintenanceDue = $this->calculateNextMaintenanceDue((int) $maintenanceSchedule->maintenance_id, $completedAt);
 
         $schedulePayload = [
             'last_maintenance_date' => $completedAt,
             'last_maintenance_by_user_id' => $actorUserId,
         ];
 
-        $completedStatusId = $this->resolveScheduleStatusId('completed', false);
+        if ($nextMaintenanceDue !== null) {
+            $schedulePayload['next_maintenance_due'] = $nextMaintenanceDue;
 
-        if ($completedStatusId !== null) {
-            $schedulePayload['maintenance_status'] = $completedStatusId;
+            $scheduledStatusId = $this->resolveScheduleStatusId('scheduled', false);
+
+            if ($scheduledStatusId !== null) {
+                $schedulePayload['maintenance_status'] = $scheduledStatusId;
+            }
+        } else {
+            $completedStatusId = $this->resolveScheduleStatusId('completed', false);
+
+            if ($completedStatusId !== null) {
+                $schedulePayload['maintenance_status'] = $completedStatusId;
+            }
         }
 
         $maintenanceSchedule->update($schedulePayload);
@@ -221,7 +232,6 @@ class MaintenanceScheduleController extends ApiController
         $responsePayload = $this->toLegacySchedulePayload(
             $maintenanceSchedule->fresh()->load('tester:id,name,id_number_by_customer')
         );
-        $responsePayload['status'] = 'completed';
         $responsePayload['completed_date'] = Carbon::parse($validated['completed_date'])->toDateString();
         $responsePayload['performed_by'] = $validated['performed_by'];
         $responsePayload['notes'] = $validated['notes'] ?? null;
@@ -236,12 +246,15 @@ class MaintenanceScheduleController extends ApiController
     {
         $status = $this->resolveScheduleStatusName($schedule->maintenance_status);
 
-        if ($schedule->last_maintenance_date !== null) {
+        if ($status === 'completed') {
             $status = 'completed';
-        }
-
-        if ($status === null && $schedule->next_maintenance_due !== null && Carbon::parse($schedule->next_maintenance_due)->isPast()) {
-            $status = 'overdue';
+        } else {
+            // Only consider overdue if the current date is strictly after the scheduled date (day after)
+            if ($status === 'overdue' || ($schedule->next_maintenance_due !== null && Carbon::now()->startOfDay()->gt(Carbon::parse($schedule->next_maintenance_due)->startOfDay()))) {
+                $status = 'overdue';
+            } else {
+                $status = 'scheduled';
+            }
         }
 
         return [
@@ -327,6 +340,31 @@ class MaintenanceScheduleController extends ApiController
             ->value('type');
 
         return is_string($procedureName) ? $procedureName : null;
+    }
+
+    private function calculateNextMaintenanceDue(int $maintenanceId, Carbon $completedAt): ?Carbon
+    {
+        $procedure = DB::table('tester_maintenance_procedures as p')
+            ->join('procedure_interval_units as u', 'p.interval_unit', '=', 'u.id')
+            ->where('p.id', $maintenanceId)
+            ->select('p.interval_value', 'u.name as unit')
+            ->first();
+
+        if ($procedure === null) {
+            return null;
+        }
+
+        $nextDue = $completedAt->copy();
+        $intervalValue = max(1, (int) $procedure->interval_value);
+        $unit = strtolower((string) $procedure->unit);
+
+        return match ($unit) {
+            'days' => $nextDue->addDays($intervalValue),
+            'weeks' => $nextDue->addWeeks($intervalValue),
+            'months' => $nextDue->addMonths($intervalValue),
+            'years' => $nextDue->addYears($intervalValue),
+            default => null,
+        };
     }
 
     private function resolveEventTypeId(string $eventType): int

@@ -12,6 +12,9 @@ use Carbon\Carbon;
 
 class MaintenanceSettings extends Component
 {
+    protected $listeners = [
+        'testerUpdated' => 'selectTester'
+    ];
     public bool $isEditing = false;
     
     // Search Data
@@ -444,7 +447,7 @@ class MaintenanceSettings extends Component
                     'next_maintenance_due' => $this->nextMaintenanceDate,
                     'next_maintenance_by_user_id' => $newMUser,
                     'schedule_created_date' => now(),
-                    'maintenance_status' => DB::table('schedule_statuses')->where('name', 'Pending')->value('id') ?? 1,
+                    'maintenance_status' => DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['scheduled'])->value('id'),
                 ]);
 
                 $mLabel = $this->maintenanceOptions[$mId] ?? 'Custom';
@@ -502,7 +505,7 @@ class MaintenanceSettings extends Component
                     'next_calibration_due' => $this->nextCalibrationDate,
                     'next_calibration_by_user_id' => $newCUser,
                     'schedule_created_date' => now(),
-                    'calibration_status' => DB::table('schedule_statuses')->where('name', 'Pending')->value('id') ?? 1,
+                    'calibration_status' => DB::table('schedule_statuses')->whereRaw('LOWER(name) = ?', ['scheduled'])->value('id'),
                 ]);
 
                 $cLabel = $this->calibrationOptions[$cId] ?? 'Custom';

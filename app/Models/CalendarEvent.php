@@ -54,9 +54,16 @@ class CalendarEvent extends Model
                 COALESCE(testers.name, CONCAT('Tester #', testers.id)) as tester_name,
                 'Maintenance' as maintenance_calibration,
                 TRIM(CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, ''))) as user_name,
-                schedule_statuses.name as event_status,
-                next_maintenance_due as start,
-                DATE_ADD(next_maintenance_due, INTERVAL 1 HOUR) as end
+                CASE
+                    WHEN LOWER(schedule_statuses.name) = 'completed' THEN 'completed'
+                    WHEN tester_maintenance_schedules.next_maintenance_due IS NOT NULL AND DATE(NOW()) > DATE(tester_maintenance_schedules.next_maintenance_due) THEN 'overdue'
+                    ELSE 'scheduled'
+                END as event_status,
+                tester_maintenance_schedules.last_maintenance_date as last_date,
+                next_maintenance_due as next_date,
+                DATE(next_maintenance_due) as start,
+                NULL as end,
+                1 as allDay
             ");
     }
 
@@ -78,9 +85,16 @@ class CalendarEvent extends Model
                 COALESCE(testers.name, CONCAT('Tester #', testers.id)) as tester_name,
                 'Calibration' as maintenance_calibration,
                 TRIM(CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, ''))) as user_name,
-                schedule_statuses.name as event_status,
-                next_calibration_due as start,
-                DATE_ADD(next_calibration_due, INTERVAL 1 HOUR) as end
+                CASE
+                    WHEN LOWER(schedule_statuses.name) = 'completed' THEN 'completed'
+                    WHEN tester_calibration_schedules.next_calibration_due IS NOT NULL AND DATE(NOW()) > DATE(tester_calibration_schedules.next_calibration_due) THEN 'overdue'
+                    ELSE 'scheduled'
+                END as event_status,
+                tester_calibration_schedules.last_calibration_date as last_date,
+                next_calibration_due as next_date,
+                DATE(next_calibration_due) as start,
+                NULL as end,
+                1 as allDay
             ");
     }
 
@@ -107,8 +121,11 @@ class CalendarEvent extends Model
                 END as maintenance_calibration,
                 TRIM(CONCAT(COALESCE(users.first_name, ''), ' ', COALESCE(users.last_name, ''))) as user_name,
                 'Completed' as event_status,
-                date as start,
-                DATE_ADD(date, INTERVAL 1 HOUR) as end
+                NULL as last_date,
+                date as next_date,
+                DATE(date) as start,
+                NULL as end,
+                1 as allDay
             ");
     }
 }

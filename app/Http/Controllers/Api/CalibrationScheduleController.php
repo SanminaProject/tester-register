@@ -184,16 +184,27 @@ class CalibrationScheduleController extends ApiController
         $validated = $request->validated();
         $completedAt = Carbon::parse($validated['completed_date'])->endOfDay();
         $actorUserId = $this->resolveActorUserId($request->user()?->id, (string) $validated['performed_by']);
+        $nextCalibrationDue = $this->calculateNextCalibrationDue((int) $calibrationSchedule->calibration_id, $completedAt);
 
         $schedulePayload = [
             'last_calibration_date' => $completedAt,
             'last_calibration_by_user_id' => $actorUserId,
         ];
 
-        $completedStatusId = $this->resolveScheduleStatusId('completed', false);
+        if ($nextCalibrationDue !== null) {
+            $schedulePayload['next_calibration_due'] = $nextCalibrationDue;
 
-        if ($completedStatusId !== null) {
-            $schedulePayload['calibration_status'] = $completedStatusId;
+            $scheduledStatusId = $this->resolveScheduleStatusId('scheduled', false);
+
+            if ($scheduledStatusId !== null) {
+                $schedulePayload['calibration_status'] = $scheduledStatusId;
+            }
+        } else {
+            $completedStatusId = $this->resolveScheduleStatusId('completed', false);
+
+            if ($completedStatusId !== null) {
+                $schedulePayload['calibration_status'] = $completedStatusId;
+            }
         }
 
         $calibrationSchedule->update($schedulePayload);
@@ -221,7 +232,6 @@ class CalibrationScheduleController extends ApiController
         $responsePayload = $this->toLegacySchedulePayload(
             $calibrationSchedule->fresh()->load('tester:id,name,id_number_by_customer')
         );
-        $responsePayload['status'] = 'completed';
         $responsePayload['completed_date'] = Carbon::parse($validated['completed_date'])->toDateString();
         $responsePayload['performed_by'] = $validated['performed_by'];
         $responsePayload['notes'] = $validated['notes'] ?? null;
@@ -236,12 +246,15 @@ class CalibrationScheduleController extends ApiController
     {
         $status = $this->resolveScheduleStatusName($schedule->calibration_status);
 
-        if ($schedule->last_calibration_date !== null) {
+        if ($status === 'completed') {
             $status = 'completed';
-        }
-
-        if ($status === null && $schedule->next_calibration_due !== null && Carbon::parse($schedule->next_calibration_due)->isPast()) {
-            $status = 'overdue';
+        } else {
+            // Only consider overdue if the current date is strictly after the scheduled date (day after)
+            if ($status === 'overdue' || ($schedule->next_calibration_due !== null && Carbon::now()->startOfDay()->gt(Carbon::parse($schedule->next_calibration_due)->startOfDay()))) {
+                $status = 'overdue';
+            } else {
+                $status = 'scheduled';
+            }
         }
 
         return [
@@ -327,6 +340,31 @@ class CalibrationScheduleController extends ApiController
             ->value('type');
 
         return is_string($procedureName) ? $procedureName : null;
+    }
+
+    private function calculateNextCalibrationDue(int $calibrationId, Carbon $completedAt): ?Carbon
+    {
+        $procedure = DB::table('tester_calibration_procedures as p')
+            ->join('procedure_interval_units as u', 'p.interval_unit', '=', 'u.id')
+            ->where('p.id', $calibrationId)
+            ->select('p.interval_value', 'u.name as unit')
+            ->first();
+
+        if ($procedure === null) {
+            return null;
+        }
+
+        $nextDue = $completedAt->copy();
+        $intervalValue = max(1, (int) $procedure->interval_value);
+        $unit = strtolower((string) $procedure->unit);
+
+        return match ($unit) {
+            'days' => $nextDue->addDays($intervalValue),
+            'weeks' => $nextDue->addWeeks($intervalValue),
+            'months' => $nextDue->addMonths($intervalValue),
+            'years' => $nextDue->addYears($intervalValue),
+            default => null,
+        };
     }
 
     private function resolveEventTypeId(string $eventType): int

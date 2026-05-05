@@ -42,6 +42,8 @@ document.addEventListener('calendar-ready', function () {
         const typeLabel = event.extendedProps.maintenance_calibration || (event.extendedProps.type === 'calibration' ? 'Calibration' : 'Maintenance');
         const userName = (event.extendedProps.user_name || '').trim() || 'Unassigned';
         const status = (event.extendedProps.event_status || '').trim() || 'Unknown';
+        const lastDate = event.extendedProps.last_date ? formatEventDateTime(new Date(event.extendedProps.last_date)) : null;
+        const nextDate = event.extendedProps.next_date ? formatEventDateTime(new Date(event.extendedProps.next_date)) : null;
         const time = formatEventTime(event.start);
 
         return {
@@ -52,6 +54,8 @@ document.addEventListener('calendar-ready', function () {
             typeLabel,
             userName,
             status,
+            lastDate,
+            nextDate,
             time,
             line: `Event ID: ${eventId}  Tester: ${testerName}  Status: ${status}  Time: ${time}`,
         };
@@ -111,6 +115,8 @@ document.addEventListener('calendar-ready', function () {
         pushRow('Type', summary.typeLabel);
         pushRow('User', summary.userName);
         pushRow('Status', summary.status);
+        if (summary.lastDate) pushRow('Last', summary.lastDate);
+        if (summary.nextDate) pushRow('Next', summary.nextDate);
 
         const closeBtn = document.createElement('button');
         closeBtn.type = 'button';
@@ -156,10 +162,50 @@ document.addEventListener('calendar-ready', function () {
         events: events,
 
         eventContent: function(arg) {
-            const eventLine = document.createElement('div');
-            eventLine.className = 'text-[11px] leading-tight whitespace-nowrap overflow-hidden text-ellipsis';
-            eventLine.textContent = getEventSummary(arg.event).eventId;
-            return { domNodes: [eventLine] };
+            const summary = getEventSummary(arg.event);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex items-center gap-1 min-w-0 max-w-full overflow-hidden whitespace-nowrap';
+            wrapper.style.flexWrap = 'nowrap';
+
+            const idEl = document.createElement('div');
+            idEl.className = 'text-[11px] leading-tight whitespace-nowrap overflow-hidden text-ellipsis';
+            idEl.style.flex = '0 1 auto';
+            idEl.style.minWidth = '0';
+            idEl.textContent = summary.eventId;
+
+            const badge = document.createElement('span');
+            badge.textContent = summary.status;
+            badge.style.fontSize = '10px';
+            badge.style.padding = '1px 6px';
+            badge.style.borderRadius = '999px';
+            badge.style.color = '#111827';
+            badge.style.flex = '0 0 auto';
+            badge.style.lineHeight = '1.2';
+            badge.style.whiteSpace = 'nowrap';
+
+            if (summary.status.toLowerCase() === 'completed') {
+                badge.style.background = '#dcfce7'; // weekly completed green
+                badge.style.color = '#166534';
+            } else if (summary.status.toLowerCase() === 'overdue') {
+                badge.style.background = '#fee2e2'; // weekly overdue red
+                badge.style.color = '#991b1b';
+            } else {
+                badge.style.background = '#fef3c7'; // weekly scheduled yellow
+                badge.style.color = '#92400e';
+            }
+
+            wrapper.appendChild(idEl);
+            wrapper.appendChild(badge);
+
+            return { domNodes: [wrapper] };
+        },
+
+        eventDidMount: function(arg) {
+            arg.el.style.color = '#111827';
+            const main = arg.el.querySelector('.fc-event-main, .fc-event-main-frame');
+            if (main) {
+                main.style.color = '#111827';
+            }
         },
 
         eventClassNames: function(arg) {
@@ -176,6 +222,34 @@ document.addEventListener('calendar-ready', function () {
     })
 
    calendar.render()
+
+   // expose instance for later updates and listen for live update events
+   calendarEl.__fc = calendar;
+
+   document.addEventListener('calendar-update', function(e) {
+       try {
+           const fc = calendarEl.__fc;
+           if (!fc) return;
+           const events = (e.detail && e.detail.events) ? e.detail.events : [];
+           // normalize: ensure dates are parsed
+           fc.removeAllEvents();
+           if (events.length > 0) fc.addEventSource(events);
+       } catch (err) {
+           console.error('Failed to update calendar events', err);
+       }
+   });
+
+   // Relay tester-updated browser events into Livewire so other components (e.g., MaintenanceSettings) can react
+   document.addEventListener('tester-updated', function(e) {
+       try {
+           const testerId = e.detail?.testerId ?? null;
+           if (testerId && window.Livewire && typeof Livewire.emit === 'function') {
+               Livewire.emit('testerUpdated', testerId);
+           }
+       } catch (err) {
+           console.error('Failed to relay tester-updated to Livewire', err);
+       }
+   });
 
    const rightContainer = calendarEl.querySelector('.fc-header-toolbar .fc-toolbar-chunk:last-child');
    

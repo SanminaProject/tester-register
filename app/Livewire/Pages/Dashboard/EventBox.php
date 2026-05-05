@@ -52,7 +52,7 @@ class EventBox extends Component
                     'tester' => $item->tester,
                     'date' => \Carbon\Carbon::parse($item->date),
                 ];
-            })->sortBy('date')->take($this->limit)->values()->toArray();
+            })->sortBy('date')->values()->toArray();
         } elseif ($this->type === 'issues') {
             // Show only active problem rows from tester_event_logs
             $this->items = TesterEventLog::query()
