@@ -25,6 +25,8 @@ class AddNewIssue extends Component
     public $testers = [];
     public $statuses = [];
     public $users = [];
+    public string $searchQuery = '';
+    public array $searchResults = [];
 
     public function mount($issueId = null): void
     {
@@ -75,10 +77,46 @@ class AddNewIssue extends Component
 
         $this->date = optional($issue->date)->toDateString() ?? now()->toDateString();
         $this->tester_id = $issue->tester_id;
+        $tester = $this->testers->firstWhere('id', $issue->tester_id);
+        $this->searchQuery = $tester ? ($tester->id . ' - ' . $tester->name) : (string) $issue->tester_id;
         $this->problem = $issue->description;
         $this->created_by_user_id = $issue->created_by_user_id;
         $this->status_id = $issue->issue_status;
         $this->type = strtolower((string) ($issue->eventType?->name ?? 'problem'));
+    }
+
+    public function updatedSearchQuery(): void
+    {
+        if (strlen($this->searchQuery) > 0) {
+            $this->searchResults = Tester::query()
+                ->where('id', 'like', '%' . $this->searchQuery . '%')
+                ->orWhere('name', 'like', '%' . $this->searchQuery . '%')
+                ->limit(5)
+                ->get()
+                ->map(function (Tester $tester) {
+                    return [
+                        'id' => $tester->id,
+                        'name' => $tester->name,
+                    ];
+                })
+                ->toArray();
+        } else {
+            $this->searchResults = [];
+            $this->tester_id = null;
+        }
+    }
+
+    public function selectTester(int|string $testerId): void
+    {
+        $tester = Tester::query()->find($testerId);
+
+        if (! $tester) {
+            return;
+        }
+
+        $this->tester_id = $tester->id;
+        $this->searchQuery = $tester->id . ' - ' . $tester->name;
+        $this->searchResults = [];
     }
 
     public function save(): void
@@ -138,7 +176,7 @@ class AddNewIssue extends Component
         $this->dispatch('saved');
         session()->flash('message', 'Issue created successfully.');
 
-        $this->reset(['tester_id', 'problem']);
+        $this->reset(['tester_id', 'problem', 'searchQuery', 'searchResults']);
         $this->date = now()->toDateString();
         $this->created_by_user_id = Auth::id() ?? 1;
 

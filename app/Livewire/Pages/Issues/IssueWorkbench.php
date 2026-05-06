@@ -63,6 +63,9 @@ class IssueWorkbench extends Component
     public $testers = [];
     public $users = [];
     public $statuses = [];
+    
+    public string $issueFormSearchQuery = '';
+    public array $issueFormSearchResults = [];
 
     protected function getPageName(): string
     {
@@ -140,6 +143,8 @@ class IssueWorkbench extends Component
         $this->showInlineForm = true;
         $this->resetValidation();
         $this->resetIssueForm();
+        $this->issueFormSearchQuery = '';
+        $this->issueFormSearchResults = [];
         $this->dispatch('switchTab', tab: 'add');
     }
 
@@ -163,7 +168,43 @@ class IssueWorkbench extends Component
         $this->resetValidation();
         $this->resetIssueForm();
         $this->resetSolutionForm();
+        $this->issueFormSearchQuery = '';
+        $this->issueFormSearchResults = [];
         $this->dispatch('switchTab', tab: 'all');
+    }
+
+    public function updatedIssueFormSearchQuery(): void
+    {
+        if (strlen($this->issueFormSearchQuery) > 0) {
+            $this->issueFormSearchResults = Tester::query()
+                ->where('id', 'like', '%' . $this->issueFormSearchQuery . '%')
+                ->orWhere('name', 'like', '%' . $this->issueFormSearchQuery . '%')
+                ->limit(5)
+                ->get()
+                ->map(function (Tester $tester) {
+                    return [
+                        'id' => $tester->id,
+                        'name' => $tester->name,
+                    ];
+                })
+                ->toArray();
+        } else {
+            $this->issueFormSearchResults = [];
+            $this->issueForm['tester_id'] = null;
+        }
+    }
+
+    public function selectTesterForIssueForm(int|string $testerId): void
+    {
+        $tester = Tester::query()->find($testerId);
+
+        if (! $tester) {
+            return;
+        }
+
+        $this->issueForm['tester_id'] = $tester->id;
+        $this->issueFormSearchQuery = $tester->id . ' - ' . $tester->name;
+        $this->issueFormSearchResults = [];
     }
 
     public function save(): void
