@@ -11,9 +11,10 @@
             'role_names' => 'Role',
             'email' => 'Email',
             'phone' => 'Phone',
-            'responsibilities' => 'Responsibilities',
-            'tester_names' => 'Testers Responsible For',
             'qualifications_certifications' => 'Qualifications Certifications',
+            'responsibilities' => 'Additional Info',
+            'tester_names' => 'Testers Responsible For',
+
         ]"
     />
 </div>

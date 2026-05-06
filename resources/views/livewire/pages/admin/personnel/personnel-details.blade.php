@@ -15,9 +15,15 @@
         </div>
 
         @if(auth()->user() && !auth()->user()->hasRole('Guest'))
-        <x-primary-button type="button" class="w-32" wire:click="enableEdit">
-            Edit
-        </x-primary-button>
+            @if($editing)
+                <x-primary-button type="button" class="w-32" wire:click="savePersonnelDetails">
+                    Save
+                </x-primary-button>
+            @else
+                <x-primary-button type="button" class="w-32" wire:click="enableEdit">
+                    Edit
+                </x-primary-button>
+            @endif
         @endif
     </div>
 
@@ -26,54 +32,87 @@
         
         <!-- 2. Main Info Block -->
         <div class="flex flex-col gap-y-3.5 pl-12 w-full max-w-4xl">
-            @php
-            $rows = [
-                'ID' => $user->id,
-                'First Name' => $user->first_name,
-                'Last Name' => $user->last_name,
-                'Role' => $user->role_names,
-                'Email' => $user->email,
-                'Phone' => $user->phone,
-                'Responsibilities' => $user->responsibilities,
-                'Tester Names' => $user->tester_names,
-                'Qualifications Certifications' => $user->qualifications_certifications,
-            ];
-            @endphp
-            
-            @foreach($rows as $label => $value)
             <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
-                <div class="text-dark-grey tracking-wide text-[16px]">{{ $label }}</div>
-                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $value ?? '-' }}</div>
+                <div class="text-dark-grey tracking-wide text-[16px]">ID</div>
+                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->id ?? '-' }}</div>
             </div>
-            @endforeach
-        </div>
 
-        @if($editing)
-        <div class="mt-8 pl-12">
-            <x-testers.dropdown-field
-                label="Role"
-                wire:model="selectedRoleName"
-                :options="$roles"
-                :manageOptions="true"
-                :allowCreate="true"
-                createMethod="createRoleOption"
-                deleteMethod="deleteRoleOption"
-                valueKey="name"
-                labelKey="name"
-                class="w-64"
-            />
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                <div class="text-dark-grey tracking-wide text-[16px]">First Name</div>
+                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->first_name ?? '-' }}</div>
+            </div>
 
-            <div class="mt-8 flex items-center gap-6">
-                <x-primary-button wire:click="updatePersonnelRole">
-                    Save
-                </x-primary-button>
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                <div class="text-dark-grey tracking-wide text-[16px]">Last Name</div>
+                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->last_name ?? '-' }}</div>
+            </div>
 
-                <button type="button" wire:click="removePersonnelRole" class="text-red-600 underline font-medium bg-transparent p-0 hover:text-red-800">
-                    Remove Role
-                </button>
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                <div class="text-dark-grey tracking-wide text-[16px]">Role</div>
+                <div>
+                    @if($editing)
+                        <x-testers.dropdown-field
+                            wire:model="selectedRoleName"
+                            :options="$roles"
+                            :manageOptions="true"
+                            :allowCreate="true"
+                            createMethod="createRoleOption"
+                            deleteMethod="deleteRoleOption"
+                            valueKey="name"
+                            labelKey="name"
+                            class="w-64"
+                        />
+                    @else
+                        <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->role_names ?? '-' }}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                <div class="text-dark-grey tracking-wide text-[16px]">Email</div>
+                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->email ?? '-' }}</div>
+            </div>
+
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                <div class="text-dark-grey tracking-wide text-[16px]">Phone</div>
+                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->phone ?? '-' }}</div>
+            </div>
+
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                <div class="text-dark-grey tracking-wide text-[16px]">Qualifications Certifications</div>
+                <div>
+                    @if($editing)
+                        <textarea
+                            wire:model.defer="qualificationsCertifications"
+                            rows="3"
+                            class="w-full max-w-2xl rounded-lg border border-gray-300 px-3 py-2 text-[15px] font-medium text-gray-900 focus:border-primary focus:ring-primary"
+                        ></textarea>
+                    @else
+                        <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->qualifications_certifications ?? '-' }}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                <div class="text-dark-grey tracking-wide text-[16px]">Additional Info</div>
+                <div>
+                    @if($editing)
+                        <textarea
+                            wire:model.defer="additionalInfo"
+                            rows="3"
+                            class="w-full max-w-2xl rounded-lg border border-gray-300 px-3 py-2 text-[15px] font-medium text-gray-900 focus:border-primary focus:ring-primary"
+                        ></textarea>
+                    @else
+                        <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->responsibilities ?? '-' }}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="grid grid-cols-[200px_1fr] gap-x-4 items-start">
+                <div class="text-dark-grey tracking-wide text-[16px]">Tester Names</div>
+                <div class="text-black font-extrabold text-[16px] whitespace-pre-line leading-relaxed">{{ $user->tester_names ?? '-' }}</div>
             </div>
         </div>
-        @endif
 
         @if(auth()->user() && auth()->user()->hasRole('Admin'))
         <div class="mt-auto pt-8 flex justify-end">

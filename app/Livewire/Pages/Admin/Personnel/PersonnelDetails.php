@@ -14,6 +14,8 @@ class PersonnelDetails extends Component
     public $editing = false;
 
     public $selectedRoleName = null;
+    public $additionalInfo = '';
+    public $qualificationsCertifications = '';
 
     public function mount($userId)
     {
@@ -21,11 +23,33 @@ class PersonnelDetails extends Component
         $this->roles = Role::orderBy('name')->get();
 
         $this->selectedRoleName = $this->user->roles->first()?->name;
+        $this->additionalInfo = (string) ($this->user->responsibilities ?? '');
+        $this->qualificationsCertifications = (string) ($this->user->qualifications_certifications ?? '');
     }
 
     public function enableEdit()
     {
         $this->editing = true;
+
+        // Sync editable fields with latest persisted values when entering edit mode.
+        $this->selectedRoleName = $this->user->roles->first()?->name;
+        $this->additionalInfo = (string) ($this->user->responsibilities ?? '');
+        $this->qualificationsCertifications = (string) ($this->user->qualifications_certifications ?? '');
+    }
+
+    public function savePersonnelDetails()
+    {
+        if ($this->selectedRoleName) {
+            $this->user->syncRoles([$this->selectedRoleName]);
+        }
+
+        $this->user->responsibilities = trim((string) $this->additionalInfo);
+        $this->user->qualifications_certifications = trim((string) $this->qualificationsCertifications);
+        $this->user->save();
+
+        $this->user->load('roles');
+
+        $this->editing = false;
     }
 
     public function updatePersonnelRole()
