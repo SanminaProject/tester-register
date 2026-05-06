@@ -19,6 +19,12 @@ class InventoryPage extends Component
     #[On('switchTab')]
     public function switchTab($tab = 'spare-parts', $id = null)
     {
+        // Handle array-format dispatch (e.g., dispatch('switchTab', { tab: 'details', id: 123 }))
+        if (is_array($tab)) {
+            $id = $tab['id'] ?? null;
+            $tab = $tab['tab'] ?? 'spare-parts';
+        }
+
         if ($tab === 'details') {
             if ($this->activeTab === 'spare-parts') {
                 $this->activeTab = 'spare-part-details';

@@ -19,6 +19,12 @@ class AdminPage extends Component
     #[On('switchTab')]
     public function switchTab($tab = 'personnel', $id = null)
     {
+        // Handle array-format dispatch (e.g., dispatch('switchTab', { tab: 'details', id: 123 }))
+        if (is_array($tab)) {
+            $id = $tab['id'] ?? null;
+            $tab = $tab['tab'] ?? 'personnel';
+        }
+
         if ($tab === 'details') {
             if ($this->activeTab === 'roles') {
                 $this->activeTab = 'role-details';
