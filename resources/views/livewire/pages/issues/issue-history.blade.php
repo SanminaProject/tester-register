@@ -115,7 +115,7 @@
     <div class="data-table-scroll mt-3 flex-1 w-full overflow-x-hidden pb-8">
         <table class="w-full table-fixed">
             <colgroup>
-                <col class="w-[6%]">
+                <col class="w-[7%]">
                 <col class="w-[14%]">
                 <col class="w-[12%]">
                 <col class="w-[8%]">
@@ -125,7 +125,7 @@
             </colgroup>
             <thead>
                 <tr class="border-b">
-                    <th class="px-4 py-3 text-left text-sm text-gray-700">Log ID</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Log ID</th>
                     <th class="px-4 py-3 text-left text-sm text-gray-700">Date</th>
                     <th class="px-4 py-3 text-left text-sm text-gray-700">Tester ID</th>
                     <th class="px-4 py-3 text-left text-sm text-gray-700">Type</th>
@@ -138,7 +138,7 @@
                 @forelse ($this->groups as $issue)
                 @php $hasSolutions = $issue->solutionEntries->isNotEmpty(); @endphp
                 <tr class="{{ $hasSolutions ? '' : 'border-b' }}">
-                    <td class="px-4 py-3 text-sm text-gray-800">{{ $issue->id }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 whitespace-nowrap">{{ $issue->id }}</td>
                     <td class="px-4 py-3 text-sm text-gray-800">{{ $issue->date?->format('d.m.Y H:i') ?? '-' }}</td>
                     <td class="px-4 py-3 text-sm text-gray-800">{{ $issue->tester_id }}</td>
                     <td class="px-4 py-3 text-sm text-gray-800">Problem</td>

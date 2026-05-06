@@ -132,7 +132,7 @@
     <div class="data-table-scroll mt-3 flex-1 w-full overflow-x-hidden pb-8">
         <table class="w-full table-fixed">
             <colgroup>
-                <col class="w-[6%]">
+                <col class="w-[7%]">
                 <col class="w-[14%]">
                 <col class="w-[12%]">
                 <col class="w-[8%]">
@@ -142,7 +142,7 @@
             </colgroup>
             <thead>
                 <tr class="border-b">
-                    <th class="px-4 py-3 text-left text-sm text-gray-700">Log ID</th>
+                    <th class="px-4 py-3 text-left text-sm text-gray-700 whitespace-nowrap">Log ID</th>
                     <th class="px-4 py-3 text-left text-sm text-gray-700">Date</th>
                     <th class="px-4 py-3 text-left text-sm text-gray-700">Tester ID</th>
                     <th class="px-4 py-3 text-left text-sm text-gray-700">Type</th>
@@ -162,7 +162,7 @@
 
                 @if ($showInlineForm && $mode === 'add_issue')
                 <tr class="border-b bg-[#faf7f8]">
-                    <td class="px-4 py-3 text-sm text-gray-800 align-middle">
+                    <td class="px-4 py-3 text-sm text-gray-800 align-middle whitespace-nowrap">
                         <span class="rounded-full bg-[#efefef] px-4 py-1.5 text-xs font-semibold text-[#777]">Auto</span>
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-800 align-middle">
@@ -170,7 +170,7 @@
                         <x-input-error :messages="$errors->get('issueForm.date')" class="mt-2" />
                     </td>
                     <td class="pl-4 pr-2 py-3 text-sm text-gray-800 align-middle">
-                        <x-select-field wire:model="issueForm.tester_id" :options="$testers" placeholder="Select tester" class="w-full min-w-[8rem] max-w-[9.5rem] rounded-full border-0 bg-[#efefef] shadow-none" />
+                        <x-select-field wire:model="issueForm.tester_id" :options="$testers" placeholder="Select" class="w-full min-w-[8rem] max-w-[9.5rem] rounded-full border-0 bg-[#efefef] shadow-none" />
                         <x-input-error :messages="$errors->get('issueForm.tester_id')" class="mt-2" />
                     </td>
                     <td class="pl-2 pr-4 py-3 text-sm text-gray-800 align-middle">Problem</td>
