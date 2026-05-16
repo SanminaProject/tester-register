@@ -444,6 +444,14 @@ class DataTable extends Component
             }
         }
 
+        if ($this->type === 'fixtures') {
+            $testerId = request()->integer('tester_id');
+
+            if ($testerId > 0) {
+                $query->where('tester_id', $testerId);
+            }
+        }
+
         $keyword = trim($this->search);
         $searchColumns = $this->getSearchColumns();
 
